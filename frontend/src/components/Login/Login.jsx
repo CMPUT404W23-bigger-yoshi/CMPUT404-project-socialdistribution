@@ -1,7 +1,7 @@
 import "./Login.css";
 import Logo from "../Logo/Logo";
 import {Button, Col, Form, InputGroup, Row} from "react-bootstrap";
-import {EnvelopeFill, KeyFill} from "react-bootstrap-icons";
+import {KeyFill, Person} from "react-bootstrap-icons";
 
 function Login(props) {
   return (
@@ -19,13 +19,13 @@ function Login(props) {
         <Row style={{height: "50vh"}}>
           <div className="login-form-input">
             <Form>
-              <Form.Group controlId="formBasicEmail" className="formBasicEmail" as={Col}>
-                <Form.Label>Email</Form.Label>
+              <Form.Group controlId="formBasicUsername" className="formBasicUsername" as={Col}>
+                <Form.Label>Username</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
-                    <EnvelopeFill/>
+                    <Person/>
                   </InputGroup.Text>
-                  <Form.Control type="email" placeholder="Enter email"/>
+                  <Form.Control type="text" placeholder="Enter username"/>
                 </InputGroup>
               </Form.Group>
 
@@ -37,11 +37,6 @@ function Login(props) {
                   </InputGroup.Text>
                   <Form.Control type="password" placeholder="Password"/>
                 </InputGroup>
-                {/* Forgot password */}
-                <Form.Text className="text-muted forgot-password">
-                  <a href="/">Forgot password?</a>
-                </Form.Text>
-
               </Form.Group>
 
               <Button variant="primary" type="submit">

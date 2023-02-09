@@ -18,13 +18,13 @@ function Register(props) {
         <Row style={{height: "50vh"}}>
           <div className="register-form-input">
             <Form>
-              <Form.Group controlId="formBasicEmail" className="formBasicEmail" as={Col}>
-                <Form.Label>Email</Form.Label>
+              <Form.Group controlId="formBasicUsername" className="formBasicUsername" as={Col}>
+                <Form.Label>Username</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <EnvelopeFill/>
                   </InputGroup.Text>
-                  <Form.Control type="email" placeholder="Enter email"/>
+                  <Form.Control type="text" placeholder="Enter username"/>
                 </InputGroup>
               </Form.Group>
 
