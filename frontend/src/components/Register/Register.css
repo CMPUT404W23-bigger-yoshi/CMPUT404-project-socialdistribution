@@ -14,52 +14,43 @@
     font-family: 'Roboto', sans-serif;
 }
 
-.register-container .register-form {
-    margin: 10% -10%;
-}
-
-@media (max-width: 768px) {
-    .register-container .register-form {
-        margin: 5% 0;
-    }
-}
-
-.register-container .register-form .input-group-text {
+.register-container .input-group-text {
     background-color: #0C0B0B;
     border: 2px solid #fff;
     color: #fff;
 }
 
-.register-container .register-form .register-form-title {
+.register-container .register-form-title {
     color: #fff;
     font-size: 2.5rem;
     font-weight: 100;
     font-family: 'Roboto', sans-serif;
-    margin-bottom: 10%;
 }
 
-.register-container .register-form .register-form-input {
-    margin-top: 10%;
+.register-container .register-form-input, .register-container .register-form-signup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.register-container .register-form .register-form-input .formBasicEmail {
+
+.register-container .register-form-input .formBasicEmail {
+    text-align: left;
+}
+
+.register-container .register-form-input .formBasicPassword {
     margin: 5% 0;
     text-align: left;
 }
 
-.register-container .register-form .register-form-input .formBasicPassword {
-    margin: 5% 0;
-    text-align: left;
-}
-
-.register-container .register-form .register-form-input .forgot-password a{
+.register-container .register-form-input .forgot-password a{
     float: right;
     color: #fff;
     font-size: 0.9rem;
     text-decoration: none;
 }
 
-.register-container .register-form .register-form-input button {
+.register-container .register-form-input button {
     margin-top: 7%;
     height: 40px;
     width: 50%;
@@ -69,16 +60,13 @@
     margin-right: 25%;
 }
 
-.register-container .register-form .register-form-input button:hover {
+.register-container .register-form-input button:hover {
     background-color: #045dc1;
     color: #fff;
 }
 
-.register-container .register-form .register-form-signup {
-    margin-top: 10%;
-}
 
-.register-container .register-form .register-form-signup {
+.register-container .register-form-signup {
     color: #fff;
     font-size: 0.9rem;
     font-weight: 100;
@@ -86,7 +74,7 @@
     text-align: left;
 }
 
-.register-container .register-form .register-form-signup .signup-text p{
+.register-container .register-form-signup .signup-text p{
     color: #fff;
     font-size: 0.9rem;
     font-weight: 100;
@@ -94,7 +82,7 @@
     text-align: left;
 }
 
-.register-container .register-form .register-form-signup .signup-link p{
+.register-container .register-form-signup .signup-link p{
     color: #3AC887;
     font-size: 0.9rem;
     font-weight: 600;

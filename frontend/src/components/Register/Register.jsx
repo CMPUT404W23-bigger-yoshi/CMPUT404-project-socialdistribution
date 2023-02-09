@@ -7,11 +7,15 @@ function Register(props) {
   return (
     <div className="register">
       <div className="register-container">
-        <Logo size={"100px"}/>
-        <div className="register-form">
+        <Row style={{height: "20vh"}}>
+          <Logo size={"100px"}/>
+        </Row>
+        <Row style={{height: "10vh"}}>
           <div className="register-form-title">
             <h1>Create Account</h1>
           </div>
+        </Row>
+        <Row style={{height: "50vh"}}>
           <div className="register-form-input">
             <Form>
               <Form.Group controlId="formBasicEmail" className="formBasicEmail" as={Col}>
@@ -50,7 +54,9 @@ function Register(props) {
               </Button>
             </Form>
           </div>
+        </Row>
 
+        <Row style={{height: "15vh"}}>
           <div className="register-form-signup">
             <Row xs={2}>
               <Col className="signup-text" xs={8}>
@@ -64,9 +70,7 @@ function Register(props) {
               </Col>
             </Row>
           </div>
-
-
-        </div>
+        </Row>
       </div>
     </div>
   )

@@ -7,11 +7,16 @@ function Login(props) {
   return (
     <div className="login">
       <div className="login-container">
-        <Logo size={"100px"}/>
-        <div className="login-form">
+        {/* Make the logo occupy 10% of the height of the screen */}
+        <Row className="login-logo" style={{height: "20vh"}}>
+          <Logo size={"100px"}/>
+        </Row>
+        <Row style={{height: "10vh"}}>
           <div className="login-form-title">
             <h1>Welcome back!</h1>
           </div>
+        </Row>
+        <Row style={{height: "50vh"}}>
           <div className="login-form-input">
             <Form>
               <Form.Group controlId="formBasicEmail" className="formBasicEmail" as={Col}>
@@ -44,7 +49,8 @@ function Login(props) {
               </Button>
             </Form>
           </div>
-
+        </Row>
+        <Row style={{height: "15vh"}}>
           <div className="login-form-signup">
             <Row xs={2}>
               <Col className="signup-text" xs={8}>
@@ -58,9 +64,7 @@ function Login(props) {
               </Col>
             </Row>
           </div>
-
-
-        </div>
+        </Row>
       </div>
     </div>
   )
