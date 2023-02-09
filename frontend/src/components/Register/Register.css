@@ -1,4 +1,4 @@
-.login {
+.register {
     height: 100vh;
     width: 100vw;
     display: flex;
@@ -7,53 +7,53 @@
     align-items: center;
 }
 
-.login-container .login-form-title h1 {
+.register-container .register-form-title h1 {
     color: #fff;
     font-size: 3rem;
     font-weight: 600;
     font-family: 'Roboto', sans-serif;
 }
 
-.login-container .login-form {
-    margin: 20% 0;
+.register-container .register-form {
+    margin: 10% 0;
 }
 
-.login-container .login-form .input-group-text {
+.register-container .register-form .input-group-text {
     background-color: #0C0B0B;
     border: 2px solid #fff;
     color: #fff;
 }
 
-.login-container .login-form .login-form-title {
+.register-container .register-form .register-form-title {
     color: #fff;
     font-size: 2.5rem;
     font-weight: 100;
     font-family: 'Roboto', sans-serif;
-    margin-bottom: 20%;
+    margin-bottom: 10%;
 }
 
-.login-container .login-form .login-form-input {
+.register-container .register-form .register-form-input {
     margin-top: 10%;
 }
 
-.login-container .login-form .login-form-input .formBasicEmail {
+.register-container .register-form .register-form-input .formBasicEmail {
     margin: 5% 0;
     text-align: left;
 }
 
-.login-container .login-form .login-form-input .formBasicPassword {
+.register-container .register-form .register-form-input .formBasicPassword {
     margin: 5% 0;
     text-align: left;
 }
 
-.login-container .login-form .login-form-input .forgot-password a{
+.register-container .register-form .register-form-input .forgot-password a{
     float: right;
     color: #fff;
     font-size: 0.9rem;
     text-decoration: none;
 }
 
-.login-container .login-form .login-form-input button {
+.register-container .register-form .register-form-input button {
     margin-top: 7%;
     height: 40px;
     width: 50%;
@@ -63,16 +63,16 @@
     margin-right: 25%;
 }
 
-.login-container .login-form .login-form-input button:hover {
+.register-container .register-form .register-form-input button:hover {
     background-color: #045dc1;
     color: #fff;
 }
 
-.login-container .login-form .login-form-signup {
+.register-container .register-form .register-form-signup {
     margin-top: 10%;
 }
 
-.login-container .login-form .login-form-signup {
+.register-container .register-form .register-form-signup {
     color: #fff;
     font-size: 0.9rem;
     font-weight: 100;
@@ -80,7 +80,7 @@
     text-align: left;
 }
 
-.login-container .login-form .login-form-signup .signup-text p{
+.register-container .register-form .register-form-signup .signup-text p{
     color: #fff;
     font-size: 0.9rem;
     font-weight: 100;
@@ -88,7 +88,7 @@
     text-align: left;
 }
 
-.login-container .login-form .login-form-signup .signup-link p{
+.register-container .register-form .register-form-signup .signup-link p{
     color: #3AC887;
     font-size: 0.9rem;
     font-weight: 600;

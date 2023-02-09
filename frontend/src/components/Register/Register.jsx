@@ -1,18 +1,18 @@
-import "./Login.css";
+import "./Register.css";
 import Logo from "../Logo/Logo";
 import {Button, Col, Form, InputGroup, Row} from "react-bootstrap";
 import {EnvelopeFill, KeyFill} from "react-bootstrap-icons";
 
-function Login(props) {
+function Register(props) {
   return (
-    <div className="login">
-      <div className="login-container">
+    <div className="register">
+      <div className="register-container">
         <Logo size={"100px"}/>
-        <div className="login-form">
-          <div className="login-form-title">
-            <h1>Welcome back!</h1>
+        <div className="register-form">
+          <div className="register-form-title">
+            <h1>Create Account</h1>
           </div>
-          <div className="login-form-input">
+          <div className="register-form-input">
             <Form>
               <Form.Group controlId="formBasicEmail" className="formBasicEmail" as={Col}>
                 <Form.Label>Email</Form.Label>
@@ -32,29 +32,35 @@ function Login(props) {
                   </InputGroup.Text>
                   <Form.Control type="password" placeholder="Password"/>
                 </InputGroup>
-                {/* Forgot password */}
-                <Form.Text className="text-muted forgot-password">
-                  <a href="/">Forgot password?</a>
-                </Form.Text>
-
               </Form.Group>
 
+              <Form.Group controlId="formBasicPassword" className="formBasicPassword" as={Col}>
+                <Form.Label>Confirm Password</Form.Label>
+                <InputGroup>
+                  <InputGroup.Text>
+                    <KeyFill/>
+                  </InputGroup.Text>
+                  <Form.Control type="password" placeholder="Password"/>
+                </InputGroup>
+              </Form.Group>
+
+
               <Button variant="primary" type="submit">
-                Login
+                Sign Up!
               </Button>
             </Form>
           </div>
 
-          <div className="login-form-signup">
+          <div className="register-form-signup">
             <Row xs={2}>
               <Col className="signup-text" xs={8}>
-                <p>Don't have an account?</p>
+                <p>Already have an account?</p>
               </Col>
               <Col className="signup-link" xs={4} onClick={() => {
-                window.location.href = "/register"
+                window.location.href = "/login"
               }}>
                 <p
-                >Sign up here</p>
+                >Login here</p>
               </Col>
             </Row>
           </div>
@@ -66,4 +72,4 @@ function Login(props) {
   )
 }
 
-export default Login;
+export default Register;
