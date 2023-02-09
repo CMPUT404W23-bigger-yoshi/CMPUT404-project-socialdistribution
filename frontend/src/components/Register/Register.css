@@ -18,6 +18,12 @@
     margin: 10% -10%;
 }
 
+@media (max-width: 768px) {
+    .register-container .register-form {
+        margin: 10% 0;
+    }
+}
+
 .register-container .register-form .input-group-text {
     background-color: #0C0B0B;
     border: 2px solid #fff;

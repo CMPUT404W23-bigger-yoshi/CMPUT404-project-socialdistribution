@@ -18,6 +18,12 @@
     margin: 20% -10%;
 }
 
+@media (max-width: 768px) {
+    .login-container .login-form {
+        margin: 20% 0;
+    }
+}
+
 .login-container .login-form .input-group-text {
     background-color: #0C0B0B;
     border: 2px solid #fff;
