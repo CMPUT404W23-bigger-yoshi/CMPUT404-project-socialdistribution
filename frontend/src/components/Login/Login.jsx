@@ -2,8 +2,27 @@ import "./Login.css";
 import Logo from "../Logo/Logo";
 import {Button, Col, Form, InputGroup, Row} from "react-bootstrap";
 import {KeyFill, Person} from "react-bootstrap-icons";
+import {useState} from "react";
+import {login} from "../../services/auth";
 
 function Login(props) {
+
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    login(formData)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   return (
     <div className="login">
       <div className="login-container">
@@ -25,7 +44,13 @@ function Login(props) {
                   <InputGroup.Text>
                     <Person/>
                   </InputGroup.Text>
-                  <Form.Control type="text" placeholder="Enter username"/>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter username"
+                    onChange={(e) => {
+                      setFormData({...formData, username: e.target.value});
+                    }}
+                  />
                 </InputGroup>
               </Form.Group>
 
@@ -35,11 +60,20 @@ function Login(props) {
                   <InputGroup.Text>
                     <KeyFill/>
                   </InputGroup.Text>
-                  <Form.Control type="password" placeholder="Password"/>
+                  <Form.Control
+                    type="password"
+                    placeholder="Password"
+                    onChange={(e) => {
+                      setFormData({...formData, password: e.target.value});
+                    }}
+                  />
                 </InputGroup>
               </Form.Group>
 
-              <Button variant="primary" type="submit">
+              <Button
+                variant="primary"
+                type="submit"
+                onClick={handleSubmit}>
                 Login
               </Button>
             </Form>
