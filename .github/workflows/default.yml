@@ -1,7 +1,7 @@
 name: CI Checks
 on: [ push ]
 jobs:
-  check:
+  pre-commit linter:
     runs-on: ubuntu-latest
     steps:
       - run: echo "This job shouldn't fail unless you don't have pre-commit configured locally :/"
@@ -11,5 +11,5 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       - run: >
-          pip install -r requirements.txt &&
+          pip install pre-commit &&
           pre-commit run --all-files
