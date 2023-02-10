@@ -1,11 +1,11 @@
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #0C0B0B;
+  margin: 0;
+  padding: 0;
+  background-color: #0c0b0b;
 }
 
 * {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    color: #FFFFFF;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  color: #ffffff;
 }

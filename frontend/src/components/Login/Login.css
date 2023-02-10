@@ -1,96 +1,92 @@
 .login {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    align-items: center;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
 }
 
 .login-container .login-form-title h1 {
-    color: #fff;
-    font-size: 3rem;
-    font-weight: 600;
-    font-family: 'Roboto', sans-serif;
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
 }
 
 .login-container .input-group-text {
-    background-color: #0C0B0B;
-    border: 2px solid #fff;
-    color: #fff;
+  background-color: #0c0b0b;
+  border: 2px solid #fff;
+  color: #fff;
 }
 
 .login-container .login-form-title {
-    color: #fff;
-    font-size: 2.5rem;
-    font-weight: 100;
-    font-family: 'Roboto', sans-serif;
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 100;
+  font-family: 'Roboto', sans-serif;
 }
 
-.login-container .login-form-input, .login-container .login-form-signup {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.login-container .login-form-input,
+.login-container .login-form-signup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .login-container .login-form-input .formBasicUsername {
-    text-align: left;
+  text-align: left;
 }
 
 .login-container .login-form-input .formBasicPassword {
-    margin: 5% 0;
-    text-align: left;
+  margin: 5% 0;
+  text-align: left;
 }
 
-.login-container .login-form-input .forgot-password a{
-    float: right;
-    color: #fff;
-    font-size: 0.9rem;
-    text-decoration: none;
+.login-container .login-form-input .forgot-password a {
+  float: right;
+  color: #fff;
+  font-size: 0.9rem;
+  text-decoration: none;
 }
 
 .login-container .login-form-input button {
-    margin-top: 7%;
-    height: 40px;
-    width: 50%;
-    background-color: #1A8CD8;
-    font-weight: 600;
-    margin-left: 25%;
-    margin-right: 25%;
+  margin-top: 7%;
+  height: 40px;
+  width: 50%;
+  background-color: #1a8cd8;
+  font-weight: 600;
+  margin-left: 25%;
+  margin-right: 25%;
 }
 
 .login-container .login-form-input button:hover {
-    background-color: #045dc1;
-    color: #fff;
+  background-color: #045dc1;
+  color: #fff;
 }
 
 .login-container .login-form-signup {
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 100;
-    font-family: 'Roboto', sans-serif;
-    text-align: left;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 100;
+  font-family: 'Roboto', sans-serif;
+  text-align: left;
 }
 
-.login-container .login-form-signup .signup-text p{
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 100;
-    font-family: 'Roboto', sans-serif;
-    text-align: left;
+.login-container .login-form-signup .signup-text p {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 100;
+  font-family: 'Roboto', sans-serif;
+  text-align: left;
 }
 
-.login-container .login-form-signup .signup-link p{
-    color: #3AC887;
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: 'Roboto', sans-serif;
-    text-decoration: none;
-    text-align: right;
-    cursor: pointer;
+.login-container .login-form-signup .signup-link p {
+  color: #3ac887;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  text-decoration: none;
+  text-align: right;
+  cursor: pointer;
 }
-
-
-
-
-
