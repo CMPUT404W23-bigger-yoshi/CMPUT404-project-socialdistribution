@@ -2,10 +2,10 @@ import './Login.css'
 import Logo from '../Logo/Logo'
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap'
 import { KeyFill, Person } from 'react-bootstrap-icons'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { login } from '../../services/auth'
 
-function Login(props) {
+function Login() {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -40,8 +40,7 @@ function Login(props) {
               <Form.Group
                 controlId="formBasicUsername"
                 className="formBasicUsername"
-                as={Col}
-              >
+                as={Col}>
                 <Form.Label>Username</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
@@ -63,8 +62,7 @@ function Login(props) {
               <Form.Group
                 controlId="formBasicPassword"
                 className="formBasicPassword"
-                as={Col}
-              >
+                as={Col}>
                 <Form.Label>Password</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
@@ -93,15 +91,14 @@ function Login(props) {
           <div className="login-form-signup">
             <Row xs={2}>
               <Col className="signup-text" xs={8}>
-                <p>Don't have an account?</p>
+                <p>Don&apos;t have an account?</p>
               </Col>
               <Col
                 className="signup-link"
                 xs={4}
                 onClick={() => {
                   window.location.href = '/register'
-                }}
-              >
+                }}>
                 <p>Sign up here</p>
               </Col>
             </Row>

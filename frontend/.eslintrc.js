@@ -3,24 +3,20 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: [
-    'plugin:react/recommended',
-    'standard'
-  ],
+  extends: ['plugin:react/recommended', 'standard'],
   settings: {
     react: {
       version: 'detect'
     }
   },
-  overrides: [
-  ],
+  overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module'
   },
-  plugins: [
-    'react'
-  ],
+  plugins: ['react'],
   rules: {
+    'space-before-function-paren': 'off',
+    'react/prop-types': 'off'
   }
 }

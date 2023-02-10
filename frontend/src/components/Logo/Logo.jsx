@@ -1,3 +1,4 @@
+import React from 'react'
 import YoshiPhone from '../../static/Yoshi-phone.png'
 
 function Logo(props) {
