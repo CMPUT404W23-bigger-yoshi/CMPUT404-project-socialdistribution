@@ -1,54 +1,89 @@
 import './Login.css'
 import Logo from '../Logo/Logo'
-import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap'
+import { Col, Form, InputGroup, Row, Button } from 'react-bootstrap'
 import { KeyFill, Person } from 'react-bootstrap-icons'
 import React, { useState } from 'react'
-import { login } from '../../services/auth'
+import { login, register } from '../../services/auth'
 
-function Login() {
+const textContent = {
+  Login: {
+    title: 'Welcome back!',
+    username: 'Username',
+    password: 'Password',
+    button: 'Login',
+    accountStatus: 'Don\'t have an account?',
+    signup: 'Sign up here',
+    redirect: '/register'
+  },
+  Register: {
+    title: 'Create Account',
+    username: 'Username',
+    password: 'Password',
+    confirmPassword: 'Confirm Password',
+    button: 'Register',
+    accountStatus: 'Already have an account?',
+    signup: 'Login here',
+    redirect: '/login'
+  }
+}
+
+function Login(props) {
+  const content = textContent[props.type]
+
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   })
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    login(formData)
-      .then((response) => {
-        console.log(response)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    if (props.type === 'Login') {
+      login(formData)
+        .then((response) => {
+          console.log(response)
+        })
+        .then((error) => {
+          console.log(error)
+        })
+    } else {
+      register(formData)
+        .then((response) => {
+          console.log(response)
+        })
+        .then((error) => {
+          console.log(error)
+        })
+    }
   }
 
   return (
-    <div className="login">
-      <div className="login-container">
+    <div className='login'>
+      <div className='login-container'>
         {/* Make the logo occupy 10% of the height of the screen */}
-        <Row className="login-logo" style={{ height: '20vh' }}>
+        <Row className='login-logo' style={{ height: '20vh' }}>
           <Logo size={'100px'} />
         </Row>
-        <Row style={{ height: '10vh' }}>
-          <div className="login-form-title">
-            <h1>Welcome Back!</h1>
+        <Row className='login-form-title' style={{ height: '10vh' }}>
+          <div>
+            <h1>{content.title}</h1>
           </div>
         </Row>
-        <Row style={{ height: '50vh' }}>
-          <div className="login-form-input">
+        <Row className='login-form-input' style={{ height: '50vh' }}>
+          <div>
             <Form>
               <Form.Group
-                controlId="formBasicUsername"
-                className="formBasicUsername"
+                controlId='formBasicUsername'
+                className='formBasicUsername'
                 as={Col}>
-                <Form.Label>Username</Form.Label>
+                <Form.Label>{content.username}</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <Person />
                   </InputGroup.Text>
                   <Form.Control
-                    type="text"
-                    placeholder="Enter username"
+                    type='text'
+                    placeholder='Enter username'
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -60,17 +95,17 @@ function Login() {
               </Form.Group>
 
               <Form.Group
-                controlId="formBasicPassword"
-                className="formBasicPassword"
+                controlId='formBasicPassword'
+                className='formBasicPassword'
                 as={Col}>
-                <Form.Label>Password</Form.Label>
+                <Form.Label>{content.password}</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
                     <KeyFill />
                   </InputGroup.Text>
                   <Form.Control
-                    type="password"
-                    placeholder="Password"
+                    type='password'
+                    placeholder='Password'
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -81,25 +116,52 @@ function Login() {
                 </InputGroup>
               </Form.Group>
 
-              <Button variant="primary" type="submit" onClick={handleSubmit}>
-                Login
+              {props.type === 'Register' && (
+                <Form.Group
+                  controlId='formBasicPassword'
+                  className='formBasicPassword'
+                  as={Col}>
+                  <Form.Label>{content.confirmPassword}</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <KeyFill />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type='password'
+                      placeholder='Confirm Password'
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value
+                        })
+                      }}
+                    />
+                  </InputGroup>
+                </Form.Group>
+              )}
+              <Button variant='primary' type='submit' onClick={handleSubmit}>
+                {content.button}
               </Button>
             </Form>
           </div>
         </Row>
-        <Row style={{ height: '15vh' }}>
-          <div className="login-form-signup">
+        <Row className='login-form-signup' style={{ height: '15vh' }}>
+          <div className='login-form-signup'>
             <Row xs={2}>
-              <Col className="signup-text" xs={8}>
-                <p>Don&apos;t have an account?</p>
+              <Col className='signup-text' xs={8}>
+                <p>
+                  {content.accountStatus}
+                </p>
               </Col>
               <Col
-                className="signup-link"
+                className='signup-link'
                 xs={4}
                 onClick={() => {
-                  window.location.href = '/register'
+                  window.location.href = content.redirect
                 }}>
-                <p>Sign up here</p>
+                <p>
+                  {content.signup}
+                </p>
               </Col>
             </Row>
           </div>
