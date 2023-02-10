@@ -1,7 +1,7 @@
 name: CI Checks
 on: [ push ]
 jobs:
-  pre-commit linter:
+  pre-commit-linter:
     runs-on: ubuntu-latest
     steps:
       - run: echo "This job shouldn't fail unless you don't have pre-commit configured locally :/"
