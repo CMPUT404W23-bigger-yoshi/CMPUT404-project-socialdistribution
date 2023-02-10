@@ -26,7 +26,6 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "prettier": "prettier src",
-    "prettier:fix": "prettier src --write",
     "prettier:check": "prettier src --check"
   },
   "eslintConfig": {
