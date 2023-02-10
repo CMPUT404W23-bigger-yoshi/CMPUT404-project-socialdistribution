@@ -7,6 +7,16 @@
   align-items: center;
 }
 
+.login .login-container {
+  width: 30%;
+}
+
+@media screen and (max-width: 1300px) {
+  .login .login-container {
+    width: 90%;
+  }
+}
+
 .login-container .login-form-title h1 {
   color: #fff;
   font-size: 3rem;

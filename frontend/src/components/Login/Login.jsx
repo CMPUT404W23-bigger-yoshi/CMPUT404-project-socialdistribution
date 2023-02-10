@@ -31,7 +31,7 @@ function Login() {
         </Row>
         <Row style={{ height: '10vh' }}>
           <div className="login-form-title">
-            <h1>Welcome back!</h1>
+            <h1>Welcome Back!</h1>
           </div>
         </Row>
         <Row style={{ height: '50vh' }}>
