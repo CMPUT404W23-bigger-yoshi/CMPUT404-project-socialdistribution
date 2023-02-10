@@ -11,7 +11,14 @@
   width: 30%;
 }
 
-@media screen and (max-width: 1300px) {
+
+@media screen and (max-width: 1366px) {
+  .login .login-container {
+    width: 50%;
+  }
+}
+
+@media screen and (max-width: 768px) {
   .login .login-container {
     width: 90%;
   }
@@ -80,7 +87,6 @@
   font-size: 0.9rem;
   font-weight: 100;
   font-family: 'Roboto', sans-serif;
-  text-align: left;
 }
 
 .login-container .login-form-signup .signup-text p {
@@ -88,7 +94,6 @@
   font-size: 0.9rem;
   font-weight: 100;
   font-family: 'Roboto', sans-serif;
-  text-align: left;
 }
 
 .login-container .login-form-signup .signup-link p {
@@ -97,6 +102,5 @@
   font-weight: 600;
   font-family: 'Roboto', sans-serif;
   text-decoration: none;
-  text-align: right;
   cursor: pointer;
 }

@@ -1,6 +1,6 @@
 import './Login.css'
 import Logo from '../Logo/Logo'
-import { Col, Form, InputGroup, Row, Button } from 'react-bootstrap'
+import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap'
 import { KeyFill, Person } from 'react-bootstrap-icons'
 import React, { useState } from 'react'
 import { login, register } from '../../services/auth'
@@ -146,16 +146,18 @@ function Login(props) {
           </div>
         </Row>
         <Row className='login-form-signup' style={{ height: '15vh' }}>
-          <div className='login-form-signup'>
-            <Row xs={2}>
-              <Col className='signup-text' xs={8}>
+          <div>
+            <Row>
+              <Col
+                className='signup-text'
+                xs={12}>
                 <p>
                   {content.accountStatus}
                 </p>
               </Col>
               <Col
                 className='signup-link'
-                xs={4}
+                xs={12}
                 onClick={() => {
                   window.location.href = content.redirect
                 }}>
