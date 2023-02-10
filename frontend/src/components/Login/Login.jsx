@@ -1,7 +1,7 @@
 import './Login.css'
 import Logo from '../Logo/Logo'
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap'
-import { KeyFill, Person } from 'react-bootstrap-icons'
+import { KeyFill, PersonFill } from 'react-bootstrap-icons'
 import React, { useState } from 'react'
 import { login, register } from '../../services/auth'
 
@@ -61,15 +61,15 @@ function Login(props) {
     <div className='login'>
       <div className='login-container'>
         {/* Make the logo occupy 10% of the height of the screen */}
-        <Row className='login-logo' style={{ height: '20vh' }}>
+        <Row className='login-logo'>
           <Logo size={'100px'} />
         </Row>
-        <Row className='login-form-title' style={{ height: '10vh' }}>
+        <Row className='login-form-title'>
           <div>
             <h1>{content.title}</h1>
           </div>
         </Row>
-        <Row className='login-form-input' style={{ height: '50vh' }}>
+        <Row className='login-form-input'>
           <div>
             <Form>
               <Form.Group
@@ -79,7 +79,7 @@ function Login(props) {
                 <Form.Label>{content.username}</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>
-                    <Person />
+                    <PersonFill />
                   </InputGroup.Text>
                   <Form.Control
                     type='text'
@@ -145,7 +145,7 @@ function Login(props) {
             </Form>
           </div>
         </Row>
-        <Row className='login-form-signup' style={{ height: '15vh' }}>
+        <Row className='login-form-signup'>
           <div>
             <Row>
               <Col

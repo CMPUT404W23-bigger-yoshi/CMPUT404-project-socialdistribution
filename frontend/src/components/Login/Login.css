@@ -11,6 +11,9 @@
   width: 30%;
 }
 
+.login .login-container .login-logo {
+    height: 20vh;
+}
 
 @media screen and (max-width: 1366px) {
   .login .login-container {
@@ -22,6 +25,10 @@
   .login .login-container {
     width: 90%;
   }
+}
+
+.login-container .login-form-title {
+  height: 10vh;
 }
 
 .login-container .login-form-title h1 {
@@ -37,18 +44,21 @@
   color: #fff;
 }
 
-.login-container .login-form-title {
-  color: #fff;
-  font-size: 2.5rem;
-  font-weight: 100;
-  font-family: 'Roboto', sans-serif;
-}
-
 .login-container .login-form-input,
+.login-container .login-logo,
+.login-container .login-form-title,
 .login-container .login-form-signup {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.login-container .login-form-input {
+  height: 50vh;
+}
+
+.login-container .login-form-signup {
+  height: 15vh;
 }
 
 .login-container .login-form-input .formBasicUsername {
