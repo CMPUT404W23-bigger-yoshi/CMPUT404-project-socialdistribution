@@ -1,22 +1,24 @@
-import './App.css';
-import React, {useState, useEffect} from 'react';
+import React from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import './App.css'
+import Login from './components/Login/Login'
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <div>Home</div>
+  },
+  {
+    path: '/login',
+    element: <Login type="Login" />
+  },
+  {
+    path: '/register',
+    element: <Login type="Register" />
+  }
+])
 
 function App() {
-    const [currentMsg, setCurrentMsg] = useState(0);
-
-    useEffect(() => {
-        fetch('/hello_world').then(res => res.json()).then(data => {
-            setCurrentMsg(data.message);
-        });
-    }, []);
-
-    return (
-        <div className="App">
-            <header className="App-header">
-                <p>The current msg is {currentMsg}.</p>
-            </header>
-        </div>
-    );
+  return <RouterProvider router={router} />
 }
 
-export default App;
+export default App
