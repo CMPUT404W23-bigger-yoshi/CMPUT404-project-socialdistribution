@@ -27,5 +27,6 @@ def get_followers(author_id: str):
 def add_follower(author_id: str, follower_to_add: str):
     pass
 
+
 # todo: discuss what this is?
 # GET [local, remote] check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID
