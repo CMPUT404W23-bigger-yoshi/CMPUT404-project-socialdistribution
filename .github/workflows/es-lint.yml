@@ -1,11 +1,15 @@
-name: Frontend Check
-on: [push]
+name: Lint files on push
+
+on: push
 
 jobs:
-  eslint:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: stefanoeb/eslint-action@1.0.2
-        with:
-          files: frontend/src
+      - uses: actions/checkout@v2
+      - name: Install modules
+        working-directory: ./frontend
+        run: npm install
+      - name: Run ESLint
+        working-directory: ./frontend
+        run: npm run lint
