@@ -1,7 +1,7 @@
 from flask import Blueprint
 
 from .authors import authors_bp
-from .followers import followers_bp
+from api.user.followers import followers_bp
 from .posts import posts_bp
 
 user_bp = Blueprint("users", __name__)
