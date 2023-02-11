@@ -1,4 +1,4 @@
-name: Frontend Checks
+name: Frontend Check
 on: [push]
 
 jobs:
