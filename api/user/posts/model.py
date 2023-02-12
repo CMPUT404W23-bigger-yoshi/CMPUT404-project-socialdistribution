@@ -1,6 +1,14 @@
+import enum
 from datetime import datetime
 
+from sqlalchemy import Enum
+
 from api.app import db
+
+
+class Visibility(enum.Enum):
+    PUBLIC = 0
+    FRIENDS = 1
 
 
 class Post(db.Model):
@@ -17,9 +25,8 @@ class Post(db.Model):
     _categories = db.Column("categories", db.Text)
 
     # 0 -> "PUBLIC", 1-> "FRIENDS"
-    _visibility = db.Column("visibility", db.Boolean, nullable=False)
+    _visibility = db.Column("visibility", Enum(Visibility), nullable=False)
 
-    # 0 -> False, 1 -> True
     _unlisted = db.Column("unlisted", db.Boolean, nullable=False)
 
     # Foreign Key
