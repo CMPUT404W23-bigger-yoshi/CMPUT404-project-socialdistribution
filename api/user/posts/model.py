@@ -79,7 +79,7 @@ class Post(db.Model):
         ).format(
             self.id,
             self._title,
-            self._auth_id,
+            self._author_id,
             self._description,
             self._published,
             self._contentType,
