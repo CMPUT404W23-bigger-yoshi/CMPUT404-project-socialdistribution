@@ -14,4 +14,4 @@ def get_authors():
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
 def get_single_author(author_id: str):
-    pass
+    return {"author": author_id}
