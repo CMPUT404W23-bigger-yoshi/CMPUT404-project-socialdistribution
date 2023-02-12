@@ -1,4 +1,5 @@
 import enum
+from dataclasses import dataclass
 from datetime import datetime
 
 from sqlalchemy import Enum
@@ -11,58 +12,33 @@ class Visibility(enum.Enum):
     FRIENDS = 1
 
 
+@dataclass
 class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    _published = db.Column("published", db.DateTime, nullable=False)
-    _title = db.Column("title", db.String(120), nullable=False)
-    _origin = db.Column("origin", db.Text, nullable=False)
-    _source = db.Column("source", db.Text, nullable=False)
-    _description = db.Column("short_desc", db.String(100))
-    _contentType = db.Column("contentType", db.String(50), nullable=False)
-    _content = db.Column("content", db.Text, nullable=False)
+    id: int = db.Column(db.Integer, primary_key=True)
+    published: datetime = db.Column("published", db.DateTime, nullable=False)  # is datetime a valid way?
+    title: str = db.Column("title", db.String(120), nullable=False)
+    origin: str = db.Column("origin", db.Text, nullable=False)
+    source: str = db.Column("source", db.Text, nullable=False)
+    description: str = db.Column("short_desc", db.String(100))
+    contentType: str = db.Column("contentType", db.String(50), nullable=False)
+    content: str = db.Column("content", db.Text, nullable=False)
 
     # categories will be comma separated values
-    _categories = db.Column("categories", db.Text)
+    categories: str = db.Column("categories", db.Text)
 
     # 0 -> "PUBLIC", 1-> "FRIENDS"
-    _visibility = db.Column("visibility", Enum(Visibility), nullable=False)
+    visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False)
 
-    _unlisted = db.Column("unlisted", db.Boolean, nullable=False)
+    unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False)
 
     # Foreign Key
-    _author_id = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
+    author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
 
     # Relationships
-    _comments = db.relationship("Comment", backref="post", lazy="dynamic")
-
-    def __init__(
-        self,
-        title: str,
-        auth_id: int,
-        published: datetime,
-        origin: str,
-        source: str,
-        contentType: str,
-        content: str,
-        categories: str,
-        visibility=Visibility.PUBLIC,
-        unlisted=False,
-        description="",
-    ):
-        self._title = title
-        self._author_id = auth_id
-        self._published = published
-        self._origin = origin
-        self._source = source
-        self._contentType = contentType
-        self._content = content
-        self._categories = categories
-        self._visibility = visibility
-        self._unlisted = unlisted
-        self._description = description
+    comments = db.relationship("Comment", backref="post", lazy="dynamic")  # what will be the type of this?
 
     def __repr__(self) -> str:
-        repr = (
+        representation = (
             ""
             + "<< Post: {}\n"
             + "   Title: {}\n"
@@ -78,17 +54,17 @@ class Post(db.Model):
             + "   Unlisted: {}>>\n"
         ).format(
             self.id,
-            self._title,
-            self._author_id,
-            self._description,
-            self._published,
-            self._contentType,
-            self._content,
-            self._origin,
-            self._source,
-            self._categories,
-            self._visibility,
-            self._unlisted,
+            self.title,
+            self.author_id,
+            self.description,
+            self.published,
+            self.contentType,
+            self.content,
+            self.origin,
+            self.source,
+            self.categories,
+            self.visibility,
+            self.unlisted,
         )
 
-        return repr
+        return representation

@@ -7,14 +7,13 @@ from api.app import db
 
 
 @dataclass
-class Comment(db.Model):
+class Author(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
-    created: datetime = db.Column("created", db.DateTime, nullable=False)
-    contentType: str = db.Column("contentType", db.String(50), nullable=False)
-    content: str = db.Column("content", db.String(50), nullable=False)
-
-    # Foreign Key
-    post_id: int = db.Column("post_id", db.Integer, db.ForeignKey("post.id"), nullable=False)
+    url: str = db.Column("url", db.Text, nullalbe=False)
+    host: str = db.Column("host", db.Text, nullalbe=False)
+    displayName: str = db.Column("displayName", db.String(20), nullable=False)
+    github: str = db.Column("github", db.Text, nullable=False)
+    profileImage: str = db.Column("profileImage", db.Text, default="")
 
     def __repr__(self) -> str:
         representation = (
