@@ -14,16 +14,18 @@ class Comment(db.Model):
     content: str = db.Column("content", db.String(50), nullable=False)
 
     # Foreign Key
+    author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
     post_id: int = db.Column("post_id", db.Integer, db.ForeignKey("post.id"), nullable=False)
 
     def __repr__(self) -> str:
         representation = (
             ""
             + "<< Comment: {}\n"
+            + "   Author-id: {}\n"
             + "   Post-id: {}\n"
             + "   Created on: {}\n"
             + "   Content-Type: {}\n"
             + "   Content: {} >>\n"
-        ).format(self.id, self._post_id, self._created, self._contentType, self._content)
+        ).format(self.id, self.author_id, self.post_id, self.created, self.contentType, self.content)
 
         return representation
