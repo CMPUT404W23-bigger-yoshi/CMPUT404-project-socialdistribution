@@ -12,7 +12,7 @@ class Visibility(enum.Enum):
 
 
 class Post(db.Model):
-    _id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     _published = db.Column("published", db.DateTime, nullable=False)
     _title = db.Column("title", db.String(120), nullable=False)
     _origin = db.Column("origin", db.Text, nullable=False)
@@ -30,7 +30,7 @@ class Post(db.Model):
     _unlisted = db.Column("unlisted", db.Boolean, nullable=False)
 
     # Foreign Key
-    _auth_id = db.Column("auth_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
+    _author_id = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
 
     # Relationships
     _comments = db.relationship("Comment", backref="post", lazy="dynamic")
@@ -45,12 +45,12 @@ class Post(db.Model):
         contentType: str,
         content: str,
         categories: str,
-        visibility="PUBLIC",
-        unlisted="False",
+        visibility=Visibility.PUBLIC,
+        unlisted=False,
         description="",
     ):
         self._title = title
-        self._auth_id = auth_id
+        self._author_id = auth_id
         self._published = published
         self._origin = origin
         self._source = source
@@ -77,7 +77,7 @@ class Post(db.Model):
             + "   Visibility: {}\n"
             + "   Unlisted: {}>>\n"
         ).format(
-            self._id,
+            self.id,
             self._title,
             self._auth_id,
             self._description,
