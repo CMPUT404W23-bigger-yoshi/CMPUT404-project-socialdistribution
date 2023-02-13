@@ -1,0 +1,12 @@
+# Ignore everything recursively
+*
+
+# But not the .ts files
+!*.js
+!*.jsx
+!*.css
+
+# Check subdirectories too
+!*/
+./frontend/build
+./frontend/public
