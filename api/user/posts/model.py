@@ -27,14 +27,14 @@ class Post(db.Model):
     categories: str = db.Column("categories", db.Text)
 
     # 0 -> "PUBLIC", 1-> "FRIENDS"
-    visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False)
+    visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
-    unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False)
+    unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
     # Foreign Key
     author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
 
-    # Relationships
+    # Relationships -> lazy = "dynamic" returns a query object to further refine. 
     comments = db.relationship("Comment", backref="post", lazy="dynamic")  # what will be the type of this?
 
     def __repr__(self) -> str:
