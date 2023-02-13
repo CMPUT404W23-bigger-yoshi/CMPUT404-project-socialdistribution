@@ -2,10 +2,11 @@ import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 import Login from './components/Login/Login'
+import Sidebar from './components/Sidebar/Sidebar'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <div>Home</div>
+    element: <Sidebar/>
   },
   {
     path: '/login',
