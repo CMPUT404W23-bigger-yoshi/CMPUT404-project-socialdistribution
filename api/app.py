@@ -19,7 +19,7 @@ def create_app():
     app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
     app.register_blueprint(user_bp, url_prefix="/authors")
     app.register_blueprint(admin_bp, url_prefix="/admin")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bigger_yoshi1.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bigger_yoshi.db"
 
     db.init_app(app)
 

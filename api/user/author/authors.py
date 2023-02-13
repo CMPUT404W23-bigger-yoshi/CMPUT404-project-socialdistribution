@@ -8,9 +8,23 @@ from api.utils import get_pagination_params
 authors_bp = Blueprint("authors", __name__)
 
 
+# todo: how to interpret it?
+# URL: ://service/authors/
+#
+#     GET [local, remote]: retrieve all profiles on the server (paginated)
+#         page: how many pages
+#         size: how big is a page
+#
+# Example query: GET ://service/authors?page=10&size=5
+#
+#     Gets the 5 authors, authors 45 to 49.
+
+
 @authors_bp.route("/", methods=["GET"])
 def get_authors():
-    authors = Author.query.all()
+    args = request.args
+    paginator = get_pagination_params()
+    authors = Author.query.paginate(page=1, per_page=paginator.size).items
     return jsonify(authors)
 
 
@@ -30,4 +44,5 @@ def create_author():
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
 def get_single_author(author_id: str):
-    return {"author": author_id}
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
+    return jsonify(found_author)
