@@ -2,27 +2,24 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
 
-from api.app import db
+from api import db
 
 
 @dataclass
 class Author(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
-    url: str = db.Column("url", db.Text, nullalbe=False)
-    host: str = db.Column("host", db.Text, nullalbe=False)
+    url: str = db.Column("url", db.Text, nullable=True)
+    host: str = db.Column("host", db.Text, nullable=False)
     displayName: str = db.Column("displayName", db.String(20), nullable=False)
     github: str = db.Column("github", db.Text, nullable=False)
     profileImage: str = db.Column("profileImage", db.Text, default="")
 
-    def __repr__(self) -> str:
-        representation = (
-            ""
-            + "<< Comment: {}\n"
-            + "   Post-id: {}\n"
-            + "   Created on: {}\n"
-            + "   Content-Type: {}\n"
-            + "   Content: {} >>\n"
-        ).format(self.id, self._post_id, self._created, self._contentType, self._content)
 
-        return representation
+@event.listens_for(Author, "after_insert")
+def mymodel_after_insert(mapper, connection, target):
+    auth_inserted = Author.__table__
+    primary_id = target.id
+    statement = auth_inserted.update().where(auth_inserted.c.id == primary_id).values(url=primary_id)
+    connection.execute(statement)
