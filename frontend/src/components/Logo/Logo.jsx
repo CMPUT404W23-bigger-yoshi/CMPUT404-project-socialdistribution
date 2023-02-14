@@ -1,5 +1,5 @@
-import React from 'react'
-import YoshiPhone from '../../static/Yoshi-phone.png'
+import React from 'react';
+import YoshiPhone from '../../static/Yoshi-phone.png';
 
 function Logo(props) {
   return (
@@ -11,7 +11,7 @@ function Logo(props) {
         width={props.size}
       />
     </div>
-  )
+  );
 }
 
-export default Logo
+export default Logo;
