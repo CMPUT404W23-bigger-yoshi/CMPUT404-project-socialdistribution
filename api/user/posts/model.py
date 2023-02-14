@@ -1,21 +1,13 @@
 import enum
 from dataclasses import dataclass
-from datetime import datetime
-
-from sqlalchemy import Enum
-
+from utils import Visibility
 from api.app import db
-
-
-class Visibility(enum.Enum):
-    PUBLIC = 0
-    FRIENDS = 1
-
+from sqlalchemy import Enum
 
 @dataclass
 class Post(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
-    published: datetime = db.Column("published", db.DateTime, nullable=False)  # is datetime a valid way?
+    published: str = db.Column("published", db.String(), nullable=False)  # is datetime a valid way?
     title: str = db.Column("title", db.String(120), nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     source: str = db.Column("source", db.Text, nullable=False)

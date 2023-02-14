@@ -1,6 +1,12 @@
 from dataclasses import dataclass
-
+import enum
+from sqlalchemy import Enum
 from flask import request
+
+
+class Visibility(enum.Enum):
+    PUBLIC = 0
+    FRIENDS = 1
 
 
 @dataclass
