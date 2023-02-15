@@ -10,7 +10,4 @@ class Paginator:
 
 
 def get_pagination_params() -> Paginator:
-    return Paginator(
-        page=request.args.get("page") if request.args.get("page", "").isdigit() else 1,
-        size=request.args.get("size") if request.args.get("size", "").isdigit() else 10,
-    )
+    return Paginator(page=request.args.get("page", 1, type=int), size=request.args.get("size", 10, type=int))
