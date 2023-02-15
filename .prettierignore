@@ -8,3 +8,6 @@
 
 # Check subdirectories too
 !*/
+
+frontend/build
+frontend/public
