@@ -34,37 +34,8 @@ class Post(db.Model):
     # Foreign Key
     author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
 
-    # Relationships
-    comments = db.relationship("Comment", backref="post", lazy="dynamic")  # what will be the type of this?
+    # Post.comments -> comments.Comment
+    comments = db.relationship("Comment", backref="post", lazy="dynamic")
 
     def __repr__(self) -> str:
-        representation = (
-            ""
-            + "<< Post: {}\n"
-            + "   Title: {}\n"
-            + "   Author-id: {}\n"
-            + "   Description: {}\n"
-            + "   Published on: {}\n"
-            + "   Content-Type: {}\n"
-            + "   Content: {}\n"
-            + "   Origin: {}\n"
-            + "   Source: {}\n"
-            + "   Categories: {}\n"
-            + "   Visibility: {}\n"
-            + "   Unlisted: {}>>\n"
-        ).format(
-            self.id,
-            self.title,
-            self.author_id,
-            self.description,
-            self.published,
-            self.contentType,
-            self.content,
-            self.origin,
-            self.source,
-            self.categories,
-            self.visibility,
-            self.unlisted,
-        )
-
-        return representation
+        return f"<Post {self.id} title={self.title} author={self.author_id}>"
