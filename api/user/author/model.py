@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +6,6 @@ from sqlalchemy import event
 from api import db
 
 
-@dataclass
 class Author(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     url: str = db.Column("url", db.Text, nullable=True)

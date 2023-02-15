@@ -12,7 +12,6 @@ class Visibility(enum.Enum):
     FRIENDS = 1
 
 
-@dataclass
 class Post(db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     published: datetime = db.Column("published", db.DateTime, nullable=False)  # is datetime a valid way?
@@ -38,4 +37,4 @@ class Post(db.Model):
     comments = db.relationship("Comment", backref="post", lazy="dynamic")
 
     def __repr__(self) -> str:
-        return f"<Post {self.id} title={self.title} author={self.author_id}>"
+        return f"<Post {self.id} author={self.author_id} title={self.title}>"
