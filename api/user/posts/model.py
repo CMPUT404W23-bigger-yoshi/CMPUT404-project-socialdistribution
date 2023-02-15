@@ -1,5 +1,4 @@
 import enum
-from dataclasses import dataclass
 from datetime import datetime
 
 from sqlalchemy import Enum
