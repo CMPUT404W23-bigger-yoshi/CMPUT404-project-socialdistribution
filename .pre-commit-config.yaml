@@ -19,3 +19,7 @@ repos:
       - id: isort
         name: isort (python)
         args: [--settings-path=./api/pyproject.toml]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "" # Use the sha or tag you want to point at
+    hooks:
+      - id: prettier
