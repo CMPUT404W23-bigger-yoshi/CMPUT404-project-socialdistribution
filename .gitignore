@@ -1,6 +1,11 @@
 # IntelliJ
 .idea
 
+# VScode
+.vscode
+
+# Database
+instance
 
 # Frontend
 

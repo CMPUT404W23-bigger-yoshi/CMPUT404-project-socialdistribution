@@ -1,15 +1,55 @@
-from flask import Blueprint
-
-from api.utils import get_pagination_params
-
+from flask import Blueprint, jsonify, request
+from .model import Post
+from api.app import db
+from api.utils import get_pagination_params, Visibility
+from api.user.author.model import Author
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
+
+
+# Temporary endpoint to make new posts using postman
+@posts_bp.route("/admin/posts/create", methods = ["POST"])
+def create_temp_post():
+    data = request.json
+    published = data.get("published")
+    title = data.get("title")
+    origin = data.get("origin")
+    source = data.get("source")
+    description = data.get("description")
+    contentType = data.get("contentType")
+    content = data.get("content")
+    categories = ",".join(data.get("categories"))
+    visibility = data.get("visibility")
+    unlisted = data.get("unlisted")
+    author_id = data.get("author").get("id")
+
+    post = Post(published=published, 
+                title=title, 
+                origin=origin, 
+                source=source, 
+                description=description, 
+                content=content, 
+                contentType=contentType,
+                categories=categories,
+                visibility=visibility,
+                unlisted=unlisted,
+                author_id=author_id)
+    
+    db.session.add(post)
+    db.session.commit()
+
+    return {"Success": 1}
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
 def get_post(author_id: str, post_id: str):
     """get the public post whose id is POST_ID"""
-    pass
+    # author_id in database is complete url
+    author = Author.query.filter_by(object_id=author_id).first()
+    post_search = Post.query.filter_by(object_id=post_id, author_id=author.id).first_or_404()
+    post = post_search.getJSON()
+
+    return post
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])

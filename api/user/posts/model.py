@@ -1,26 +1,24 @@
-import enum
+from dataclasses import dataclass, asdict
 from datetime import datetime
-
-from sqlalchemy import Enum
-
+from api.user.author.model import Author
+from sqlalchemy import Enum, event
+from api.utils import Visibility, get_pagination_params, generate_object_ID
 from api.app import db
 
 
-class Visibility(enum.Enum):
-    PUBLIC = 0
-    FRIENDS = 1
 
-
+@dataclass
 class Post(db.Model):
-    id: int = db.Column(db.Integer, primary_key=True)
-    published: datetime = db.Column("published", db.DateTime, nullable=False)  # is datetime a valid way?
+    # TODO might need to change id length to accomodate other teams id
+    id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID())
+    object_id: str = db.Column(db.String(50), nullable=True)
+    published: str = db.Column("published", db.String(20), nullable=False)
     title: str = db.Column("title", db.String(120), nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     source: str = db.Column("source", db.Text, nullable=False)
     description: str = db.Column("short_desc", db.String(100))
     contentType: str = db.Column("contentType", db.String(50), nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
-
     # categories will be comma separated values
     categories: str = db.Column("categories", db.Text)
 
@@ -30,15 +28,65 @@ class Post(db.Model):
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
     # Foreign Key
-    author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
+    author_id: int = db.Column("author_id", db.String(50), db.ForeignKey("author.id"), nullable=False)
 
-<<<<<<< HEAD
-    # Post.comments -> comments.Comment
-    comments = db.relationship("Comment", backref="post", lazy="dynamic")
-=======
     # Relationships -> lazy = "dynamic" returns a query object to further refine. 
     comments = db.relationship("Comment", backref="post", lazy="dynamic")  # what will be the type of this?
->>>>>>> c275a5d8 (Added relationships)
+
+
+    def getJSON(self) -> dict:
+        
+        post = asdict(self)
+        post['type'] = 'post'
+
+        # Setting author
+        author = Author.query.filter_by(id=post['author_id']).first()
+        post['author'] = author.getJSON()
+        del post['author_id']
+
+        # Categories
+        if post["categories"]:
+            post['categories'] = post["categories"].split(',')
+
+        # Visibility
+        if post['visibility'] == Visibility.PUBLIC:
+            post['visibility'] = "PUBLIC"
+        elif post['visibility'] == Visibility.FRIENDS:
+            post['visibility'] = "FRIENDS"
+        
+
+        # Comments
+        post['count'] = len(self.comments.all())
+        comments_url = post['id'] + '/comments'
+        post['comments'] = comments_url
+
+        commentSrc = {}
+        commentSrc['type'] = 'comments'
+        pages =  get_pagination_params().page
+        commentSrc['page'] = pages
+        size = get_pagination_params().size
+        commentSrc['size'] = size
+        commentSrc['post'] = post['id']
+        commentSrc['id'] = comments_url
+
+        # TODO jsonify comments correctly here
+        commentSrc['comments'] = self.comments.paginate(page=pages, per_page=size).items
+
+        post['commentSrc'] = commentSrc
+
+        return post
+
+
 
     def __repr__(self) -> str:
         return f"<Post {self.id} author={self.author_id} title={self.title}>"
+
+@event.listens_for(Post, "after_insert")
+def post_after_insert(mapper, connection, target):
+    post_table = Post.__table__
+    primary_id = target.id
+
+    post_complete_url = target.author_id + "/posts/" + primary_id
+
+    modify_id = post_table.update().where(post_table.c.id == primary_id).values(id=post_complete_url, object_id=primary_id)
+    connection.execute(modify_id)
