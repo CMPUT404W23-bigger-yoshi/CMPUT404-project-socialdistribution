@@ -7,6 +7,7 @@ import time
 
 increment = 0
 
+
 class Visibility(enum.Enum):
     PUBLIC = 0
     FRIENDS = 1
