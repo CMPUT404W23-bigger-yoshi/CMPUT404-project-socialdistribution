@@ -11,6 +11,7 @@ class Visibility(enum.Enum):
     PUBLIC = 0
     FRIENDS = 1
 
+
 @dataclass
 class Paginator:
     size: int

@@ -6,6 +6,42 @@ from api.user.author.model import Author
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
 
+# This is for postman
+@posts_bp.route('/admin/post/create', methods=["POST"])
+def create_admin_post():
+    data = request.json
+    title = data.get('title', None)
+    source = data.get('source', None)
+    origin = data.get('origin', None)
+    description = data.get('description', None)
+    contentType = data.get('contentType', None)
+    content = data.get('content', None)
+    author_id = data.get('author_id', None)
+    categories = ",".join(data.get('categories', ['']))
+    published = data.get('published')
+    visibility = data.get('visibility')
+    unlisted = data.get('unlisted')
+
+    post = Post(title=title, 
+                published=published, 
+                origin=origin, 
+                source=source, 
+                description=description, 
+                contentType=contentType, 
+                content=content, 
+                author_id=author_id,
+                categories=categories,
+                visibility=visibility,
+                unlisted=unlisted
+    )
+
+    try:
+        db.session.add(post)
+    except Exception as e:
+        print(e)
+    else:
+        db.session.commit()
+        return {"Success": 1}
 
 # Temporary endpoint to make new posts using postman
 @posts_bp.route("/admin/posts/create", methods = ["POST"])

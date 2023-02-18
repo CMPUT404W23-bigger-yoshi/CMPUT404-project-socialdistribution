@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for
-
+from sqlalchemy import create_engine
+from sqlalchemy import URL
 from api import db
 from api.admin import admin_bp
 from api.user import user_bp
@@ -7,6 +8,24 @@ from api.user.author import model
 from api.user.comments import model
 from api.user.posts import model
 
+# db must be initialized before importing models
+
+
+# note: Heroku will run things from the working directory as the root of this repo. Therefore, this path MUST
+# be relative to the root of the repo, NOT to this file. You will likely need to specify the working directory
+# as the root of this repo # when you run this file in your IDE
+
+# Will need to use this later
+url = URL.create(
+    "", # dialect+driver
+    username="",
+    password="",
+    host="",
+    database=""
+)
+
+# Temporarily using sqlite right now
+engine = create_engine('sqlite:///bigger_yoshi.db')
 
 def create_app():
     app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
