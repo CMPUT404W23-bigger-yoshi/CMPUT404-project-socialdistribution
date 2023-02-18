@@ -1,5 +1,4 @@
 import './Login.css';
-import Sidebar from '../Sidebar/Sidebar';
 import Logo from '../Logo/Logo';
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import { KeyFill, PersonFill } from 'react-bootstrap-icons';
@@ -60,7 +59,6 @@ function Login(props) {
 
   return (
     <div className="login">
-      <Sidebar />
       <div className="login-container">
         {/* Make the logo occupy 10% of the height of the screen */}
         <Row className="login-logo">
