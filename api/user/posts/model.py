@@ -25,15 +25,20 @@ class Post(db.Model):
     categories: str = db.Column("categories", db.Text)
 
     # 0 -> "PUBLIC", 1-> "FRIENDS"
-    visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False)
+    visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
-    unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False)
+    unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
     # Foreign Key
     author_id: int = db.Column("author_id", db.Integer, db.ForeignKey("author.id"), nullable=False)
 
+<<<<<<< HEAD
     # Post.comments -> comments.Comment
     comments = db.relationship("Comment", backref="post", lazy="dynamic")
+=======
+    # Relationships -> lazy = "dynamic" returns a query object to further refine. 
+    comments = db.relationship("Comment", backref="post", lazy="dynamic")  # what will be the type of this?
+>>>>>>> c275a5d8 (Added relationships)
 
     def __repr__(self) -> str:
         return f"<Post {self.id} author={self.author_id} title={self.title}>"
