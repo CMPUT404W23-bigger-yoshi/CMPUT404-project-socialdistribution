@@ -48,15 +48,15 @@ const Profile = () => {
             </div>
             <div className='profile-follow-stats'>
               <Row className='profile-follow-stats-row' xs={3}>
-                <Col>
+                <Col className='px-4'>
                   <h3>{userFollowStats.following}</h3>
                   <p>Following</p>
                 </Col>
-                <Col>
+                <Col className='px-4'>
                   <h3>{userFollowStats.friends}</h3>
                   <p>Friends</p>
                 </Col>
-                <Col>
+                <Col className='px-4'>
                   <h3>{userFollowStats.followers}</h3>
                   <p>Followers</p>
                 </Col>
