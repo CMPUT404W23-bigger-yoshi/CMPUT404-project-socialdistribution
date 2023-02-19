@@ -71,7 +71,7 @@ const Profile = () => {
               </div>
               <div
                 className='profile-link twitter'
-                onClick={() => window.open(user.url, '_blank')}
+                onClick={() => window.open(user.twitter, '_blank')}
               >
                 <Twitter />
               </div>
@@ -84,6 +84,13 @@ const Profile = () => {
             <Button className='profile-button share'>
               Share
             </Button>
+          </div>
+        </div>
+      </div>
+      <div className='profile-post-border'>
+        <div className='profile-post-container'>
+          <div className='profile-posts'>
+            <h1>Posts</h1>
           </div>
         </div>
       </div>
