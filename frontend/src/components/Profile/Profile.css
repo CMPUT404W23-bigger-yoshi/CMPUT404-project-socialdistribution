@@ -1,0 +1,19 @@
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #090808;
+    padding: 2px;
+    border-radius: 30px;
+}
+
+.profile-border {
+    background: linear-gradient(90deg, #32AC74 0%, #1A8CD8 100%);
+    padding: 1px;
+    border-radius: 30px;
+    max-width: 700px;
+}
+
