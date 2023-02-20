@@ -1,11 +1,6 @@
 from dataclasses import asdict, dataclass
 
 from flask import request
-from werkzeug.security import generate_password_hash
-
-
-def password_hash(password: str):
-    return generate_password_hash(password, method="sha256")
 
 
 @dataclass

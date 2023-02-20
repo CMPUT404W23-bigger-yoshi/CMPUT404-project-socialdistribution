@@ -1,15 +1,15 @@
 import axios from 'axios'
 
-export const login = ({ email, password }) => {
+export const login = ({ username, password }) => {
   return axios.post('/authors/login', {
-    email,
+    username,
     password
   })
 }
 
-export const register = ({ email, password, confirmPassword }) => {
+export const register = ({ username, password, confirmPassword }) => {
   return axios.post('/authors/register', {
-    email,
+    username,
     password,
     confirmPassword
   })

@@ -1,23 +1,12 @@
 from flask import Blueprint, jsonify, request
+from flask_login import current_user, login_required, login_user, logout_user
 
-from api import db
+from api import bcrypt, db
 from api.user.author.model import Author
-from api.utils import get_pagination_params, password_hash
+from api.utils import get_pagination_params
 
 # note: this blueprint is usually mounted under /authors URL prefix
 authors_bp = Blueprint("authors", __name__)
-
-
-# todo: how to interpret it?
-# URL: ://service/authors/
-#
-#     GET [local, remote]: retrieve all profiles on the server (paginated)
-#         page: how many pages
-#         size: how big is a page
-#
-# Example query: GET ://service/authors?page=10&size=5
-#
-#     Gets the 5 authors, authors 45 to 49.
 
 
 @authors_bp.route("/", methods=["GET"])
@@ -29,6 +18,9 @@ def get_authors():
 
 @authors_bp.route("/admin", methods=["POST"])
 def create_author():
+    """
+    Endpoint for Only Testing purposes
+    """
     data = request.json
     displayName = data.get("displayName", None)
     github = data.get("github", None)
@@ -47,22 +39,55 @@ def get_single_author(author_id: str):
     return jsonify(found_author)
 
 
+@authors_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"message": "Success"}), 200
+
+
+@authors_bp.route("/login", methods=["POST"])
+def login():
+    # todo make it a redirect
+    if current_user.is_authenticated:
+        return jsonify({"message": "Already logged in"})
+
+    data = request.json
+    username = data.get("username", None)
+    password = data.get("password", None)
+
+    if username is None or password is None:
+        return jsonify({"message": "Invalid Credentials"}), 400  # bad request
+
+    # todo we can handle the error client side to make
+    user = Author.query.filter_by(username=username).first()
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"message": "Invalid credentials"}), 401
+
+    login_user(user)
+
+    # todo redirect
+    return jsonify({"message": "Success"}), 200
+
+
 @authors_bp.route("/register", methods=["POST"])
 def register_user():
-    p = request.json
-    # todo: not sure why I don't have username here :)
+    data = request.json
+    username = data.get("username", None)
+    password = data.get("password", None)
 
-    username = "testuser101"  # p["username"]
-    if p["password"] != p["confirmPassword"]:
-        # todo: return error back to backend here
-        raise ValueError("fix me")
+    if username is None or password is None:
+        return jsonify({"message": "Invalid Credentials"}), 400  # bad request
 
+    # todo we can handle the error client side to make
     user_exists = Author.query.filter_by(username=username).first()
     if user_exists:
-        # todo: return user exist
-        raise ValueError("fix me")
+        return jsonify({"message": "User Already exists"}), 409  # username already exists
 
-    to_insert = Author(username=username, password=password_hash(p["password"]))
-    db.session.add(to_insert)
+    user = Author(username=username, password=bcrypt.generate_password_hash(password), host="bigger")
+    db.session.add(user)
     db.session.commit()
-    breakpoint()
+    login_user(user)
+
+    # todo redirect
+    return jsonify({"message": "Success"}), 200
