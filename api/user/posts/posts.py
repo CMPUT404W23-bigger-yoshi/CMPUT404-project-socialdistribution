@@ -1,50 +1,19 @@
 from flask import Blueprint, jsonify, request
-from .model import Post
-from api.app import db
-from api.utils import get_pagination_params, Visibility
+from sqlalchemy import delete, desc, update
+from sqlalchemy.orm import Session
+
+from api import db, engine
 from api.user.author.model import Author
+from api.utils import Visibility, get_pagination_params
+
+from .model import Post
+
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
 
-# This is for postman
-@posts_bp.route('/admin/post/create', methods=["POST"])
-def create_admin_post():
-    data = request.json
-    title = data.get('title', None)
-    source = data.get('source', None)
-    origin = data.get('origin', None)
-    description = data.get('description', None)
-    contentType = data.get('contentType', None)
-    content = data.get('content', None)
-    author_id = data.get('author_id', None)
-    categories = ",".join(data.get('categories', ['']))
-    published = data.get('published')
-    visibility = data.get('visibility')
-    unlisted = data.get('unlisted')
-
-    post = Post(title=title, 
-                published=published, 
-                origin=origin, 
-                source=source, 
-                description=description, 
-                contentType=contentType, 
-                content=content, 
-                author_id=author_id,
-                categories=categories,
-                visibility=visibility,
-                unlisted=unlisted
-    )
-
-    try:
-        db.session.add(post)
-    except Exception as e:
-        print(e)
-    else:
-        db.session.commit()
-        return {"Success": 1}
 
 # Temporary endpoint to make new posts using postman
-@posts_bp.route("/admin/posts/create", methods = ["POST"])
+@posts_bp.route("/admin/posts/create", methods=["POST"])
 def create_temp_post():
     data = request.json
     published = data.get("published")
@@ -59,20 +28,24 @@ def create_temp_post():
     unlisted = data.get("unlisted")
     author_id = data.get("author").get("id")
 
-    post = Post(published=published, 
-                title=title, 
-                origin=origin, 
-                source=source, 
-                description=description, 
-                content=content, 
-                contentType=contentType,
-                categories=categories,
-                visibility=visibility,
-                unlisted=unlisted,
-                author_id=author_id)
-    
-    db.session.add(post)
-    db.session.commit()
+    post = Post(
+        published=published,
+        title=title,
+        origin=origin,
+        source=source,
+        description=description,
+        content=content,
+        contentType=contentType,
+        categories=categories,
+        visibility=visibility,
+        unlisted=unlisted,
+        author_id=author_id,
+        inbox=author_id,
+    )
+
+    with Session(engine) as session:
+        session.add(post)
+        session.commit()
 
     return {"Success": 1}
 
@@ -90,33 +63,161 @@ def get_post(author_id: str, post_id: str):
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
 def edit_post(author_id: str, post_id: str):
-    """update the post whose id is POST_ID (must be authenticated)"""
-    pass
+    """
+    Update the post whose id is POST_ID (must be authenticated) ie the person
+    editing the post must be the author of the post.
+    json received must have all columns to be updated as key value pairs
+    """
+    # TODO handle authentication
+    json = request.json
+
+    author = Author.query.filter_by(object_id=author_id).first()
+    update_stmt = (
+        update(Post)
+        .where(object_id=post_id, author_id=author.id, inbox=author_id)
+        .values(**json)
+        .execution_options(synchronize_session="fetch")
+    )
+
+    with Session(engine) as session:
+        session.execute(update_stmt)
+        session.commit()
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
 def delete_post(author_id: str, post_id: str):
     """remove the post whose id is post_id"""
-    pass
+    author = Author.query.filter_by(object_id=author_id).first()
+    del_stmt = (
+        delete(Post)
+        .where(object_id=post_id, author_id=author.id, inbox=author_id)
+        .execution_options(synchronize_session="fetch")
+    )
+
+    with Session(engine) as session:
+        session.execute(del_stmt)
+        session.commit()
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
 def create_post(author_id: str, post_id: str):
+    # TODO is this a new post or does it have existing comments???
     """create a post where its id is post_id"""
-    pass
+    response = {}
+    data = request.json
+
+    data = request.json
+    published = data.get("published")
+    title = data.get("title")
+    origin = data.get("origin")
+    source = data.get("source")
+    description = data.get("description", "")
+    contentType = data.get("contentType")
+    content = data.get("content")
+    categories = ",".join(data.get("categories"))
+    visibility = data.get("visibility")
+    unlisted = data.get("unlisted")
+    author_url = ""
+    try:
+        author = Author.query.filter_by(object_id=author_id).first()
+        post = Post(
+            id=post_id,
+            published=published,
+            title=title,
+            origin=origin,
+            source=source,
+            description=description,
+            content=content,
+            contentType=contentType,
+            categories=categories,
+            visibility=visibility,
+            unlisted=unlisted,
+            author_id=author_url,
+            inbox=author_id,
+        )
+
+        with Session(engine) as session:
+            session.add(post)
+            session.commit()
+
+    except:
+        response["Success"] = 0
+        response["Message"] = "Author does not exist on this server."
+    else:
+        author_url = author.id
+        response["Success"] = 1
+        response["Message"] = "Post created succesfully."
+
+    return response
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["POST"])
 def create_post_auto_gen_id(author_id: str):
     """create a new post but generate a new id"""
-    pass
+    response = {}
+
+    data = request.json
+    published = data.get("published")
+    title = data.get("title")
+    origin = data.get("origin")
+    source = data.get("source")
+    description = data.get("description", "")
+    contentType = data.get("contentType")
+    content = data.get("content")
+    categories = ",".join(data.get("categories"))
+    visibility = data.get("visibility")
+    unlisted = data.get("unlisted")
+    author_url = ""
+    try:
+        author = Author.query.filter_by(object_id=author_id).first()
+        post = Post(
+            published=published,
+            title=title,
+            origin=origin,
+            source=source,
+            description=description,
+            content=content,
+            contentType=contentType,
+            categories=categories,
+            visibility=visibility,
+            unlisted=unlisted,
+            author_id=author_url,
+            inbox=author_id,
+        )
+
+        with Session(engine) as session:
+            session.add(post)
+            session.commit()
+
+    except:
+        response["Success"] = 0
+        response["Message"] = "Author does not exist on this server."
+    else:
+        author_url = author.id
+        response["Success"] = 1
+        response["Message"] = "Post created succesfully."
+
+    return response
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["GET"])
 def get_recent_posts(author_id: str):
     """get the recent posts from author author_id (paginated)"""
     pagination = get_pagination_params()
-    pass
+
+    author = Author.query.filter_by(object_id=author_id).first()
+    author_url = author.id
+
+    posts = (
+        Post.query.filter_by(author_id=author_url, inbox=author_id)
+        .order_by(desc(Post.published))
+        .paginate(page=pagination.page, per_page=pagination.size)
+        .items
+    )
+
+    response = {}
+    response["type"] = "posts"
+    response["items"] = [post.getJSON() for post in posts]
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
@@ -158,7 +259,22 @@ def get_author_likes(author_id: str):
 def get_inbox(author_id: str):
     """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
     pagination = get_pagination_params()
-    pass
+
+    author = Author.query.filter_by(object_id=author_id).first()
+    author_url = author.id
+
+    posts = (
+        Post.query.filter_by(Post.author_id != author_url, inbox=author_id)
+        .order_by(desc(Post.published))
+        .paginate(page=pagination.page, per_page=pagination.size)
+        .items
+    )
+
+    response = {}
+    response["type"] = "posts"
+    response["items"] = [post.getJSON() for post in posts]
+
+    return response
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
@@ -169,10 +285,17 @@ def post_inbox(author_id: str):
     if the type is “like” then add that like to AUTHOR_ID’s inbox
     if the type is “comment” then add that comment to AUTHOR_ID’s inbox
     """
-    pass
+
+    # TODO what is the difference between creating post here and create_post_auto_gen_id
+    data = request.json
+    type = data["type"]
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
 def clear_inbox(author_id: str):
     """clear the inbox"""
-    pass
+    del_stmt = delete(Post).where(inbox=author_id).execution_options(synchronize_session="fetch")
+
+    with Session(engine) as session:
+        session.execute(del_stmt)
+        session.commit()
