@@ -43,9 +43,8 @@ def create_temp_post():
         inbox=author_id,
     )
 
-    with Session(engine) as session:
-        session.add(post)
-        session.commit()
+    db.session.add(post)
+    db.session.commit()
 
     return {"Success": 1}
 
@@ -79,9 +78,8 @@ def edit_post(author_id: str, post_id: str):
         .execution_options(synchronize_session="fetch")
     )
 
-    with Session(engine) as session:
-        session.execute(update_stmt)
-        session.commit()
+    db.session.execute(update_stmt)
+    db.session.commit()
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
@@ -94,9 +92,8 @@ def delete_post(author_id: str, post_id: str):
         .execution_options(synchronize_session="fetch")
     )
 
-    with Session(engine) as session:
-        session.execute(del_stmt)
-        session.commit()
+    db.session.execute(del_stmt)
+    db.session.commit()
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
@@ -136,9 +133,8 @@ def create_post(author_id: str, post_id: str):
             inbox=author_id,
         )
 
-        with Session(engine) as session:
-            session.add(post)
-            session.commit()
+        db.session.add(post)
+        db.session.commit()
 
     except:
         response["Success"] = 0
@@ -185,9 +181,8 @@ def create_post_auto_gen_id(author_id: str):
             inbox=author_id,
         )
 
-        with Session(engine) as session:
-            session.add(post)
-            session.commit()
+        db.session.add(post)
+        db.session.commit()
 
     except:
         response["Success"] = 0
@@ -218,6 +213,8 @@ def get_recent_posts(author_id: str):
     response = {}
     response["type"] = "posts"
     response["items"] = [post.getJSON() for post in posts]
+
+    return response
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
@@ -296,6 +293,7 @@ def clear_inbox(author_id: str):
     """clear the inbox"""
     del_stmt = delete(Post).where(inbox=author_id).execution_options(synchronize_session="fetch")
 
-    with Session(engine) as session:
-        session.execute(del_stmt)
-        session.commit()
+    db.session.execute(del_stmt)
+    db.session.commit()
+
+    return {"Success": 1, "Message": "Inbox cleared succesfully"}

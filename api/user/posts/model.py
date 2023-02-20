@@ -79,6 +79,7 @@ class Post(db.Model):
 
         post["commentSrc"] = commentSrc
         del post["inbox"]
+        del post["object_id"]
         return post
 
     def __repr__(self) -> str:
