@@ -25,28 +25,28 @@ function Sidebar() {
 
   return (
     <Navbar className={navbarClassList}>
-      <Navbar.Brand href='/'>
-        <img src={YoshiPhone} alt='BiggerYoshiLogo' className='sidelogo' />
+      <Navbar.Brand href="/">
+        <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
-        <Nav activeKey={location.pathname} className='nav-links'>
-          <Nav.Link href='/login' className='nav-link'>
-            <HouseDoor /> {!isSmallScreen && 'Home'}
-          </Nav.Link>
-          <Nav.Link href='/login' className='nav-link'>
-            <Person /> {!isSmallScreen && 'Profile'}
-          </Nav.Link>
-          <Nav.Link href='/login' className='nav-link'>
-            <Lock /> {!isSmallScreen && 'Private Posts'}
-          </Nav.Link>
-          <Nav.Link href='/login' className='nav-link'>
-            <Bell /> {!isSmallScreen && 'Notifications'}
-          </Nav.Link>
-          <Nav.Link href='/login' className='nav-link'>
-            <Gear /> {!isSmallScreen && 'Settings'}
-          </Nav.Link>
-        </Nav>
+      <Nav activeKey={location.pathname} className="nav-links">
+        <Nav.Link href="/login" className="nav-link">
+          <HouseDoor /> {!isSmallScreen && 'Home'}
+        </Nav.Link>
+        <Nav.Link href="/login" className="nav-link">
+          <Person /> {!isSmallScreen && 'Profile'}
+        </Nav.Link>
+        <Nav.Link href="/login" className="nav-link">
+          <Lock /> {!isSmallScreen && 'Private Posts'}
+        </Nav.Link>
+        <Nav.Link href="/login" className="nav-link">
+          <Bell /> {!isSmallScreen && 'Notifications'}
+        </Nav.Link>
+        <Nav.Link href="/login" className="nav-link">
+          <Gear /> {!isSmallScreen && 'Settings'}
+        </Nav.Link>
+      </Nav>
       {!isSmallScreen && (
-        <button type='button' className='admin-button'>
+        <button type="button" className="admin-button">
           Admin
         </button>
       )}
