@@ -28,3 +28,4 @@ frontend/coverage
 .venv
 venv
 __pycache__
+api/.env
