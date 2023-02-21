@@ -14,7 +14,7 @@ class Post(db.Model):
     id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
     object_id: str = db.Column(db.String(50), nullable=True)
     published: str = db.Column("published", db.String(20), nullable=False)
-    title: str = db.Column("title", db.String(120), nullable=False)
+    title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     source: str = db.Column("source", db.Text, nullable=False)
     description: str = db.Column("short_desc", db.String(100))
