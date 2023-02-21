@@ -11,5 +11,5 @@ class Config:
     """Base config."""
 
     SECRET_KEY = environ.get("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = "sqlite:///bigger_yoshi.db"
+    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI")
     BCRYPT_LOG_ROUNDS = 13
