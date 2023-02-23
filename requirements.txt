@@ -5,3 +5,5 @@ pre-commit
 Flask-SQLAlchemy
 sqlalchemy
 requests
+flask_bcrypt
+flask_login

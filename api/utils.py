@@ -3,7 +3,7 @@ import os
 import random
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 import requests
 from flask import request
@@ -18,8 +18,14 @@ class Visibility(enum.Enum):
 
 @dataclass
 class Paginator:
-    size: int
+    # property names chose to match SQLA's API
+    per_page: int
     page: int
+
+    @property
+    def as_dict(self):
+        """returns a dictionary"""
+        return asdict(self)
 
 
 def get_pagination_params() -> Paginator:
