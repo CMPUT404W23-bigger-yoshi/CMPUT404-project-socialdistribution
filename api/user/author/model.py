@@ -17,7 +17,7 @@ def _constructURL(context):
 
 
 @dataclass
-class Author(db.Model):
+class Author(UserMixin, db.Model):
     id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
     url: str = db.Column("url", db.Text, nullable=True, unique=False, default=_constructURL)
     host: str = db.Column("host", db.Text, nullable=False)
