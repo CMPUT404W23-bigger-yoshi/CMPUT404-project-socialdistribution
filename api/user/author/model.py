@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 
 from api import db
+from api.user.followers.model import follows_table
 
 
 @dataclass
@@ -17,6 +18,15 @@ class Author(UserMixin, db.Model):
     password: str = db.Column("password", db.String(64), nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default="")
+    follows = db.relationship(
+        "Author",
+        secondary=follows_table,
+        primaryjoin=id == follows_table.c.followed_id,
+        secondaryjoin=id == follows_table.c.follower_id,
+        lazy="dynamic",
+    )  # only load followers when requested
+    # non_local_follows = db.relationship('NonLocalFollower', lazy='dynamic')
+    # todo removed until clarification
 
 
 @event.listens_for(Author, "after_insert")

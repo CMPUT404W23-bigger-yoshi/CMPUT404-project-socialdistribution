@@ -6,6 +6,7 @@ from api.user import user_bp
 from api.user.author import model
 from api.user.author.model import Author
 from api.user.comments import model
+from api.user.followers import model
 from api.user.posts import model
 
 
