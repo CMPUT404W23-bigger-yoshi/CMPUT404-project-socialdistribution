@@ -72,7 +72,7 @@ def login():
 
     login_user(user)
 
-    # todo redirect
+    # todo redirect hello
     return {"message": "Success"}, 200
 
 
