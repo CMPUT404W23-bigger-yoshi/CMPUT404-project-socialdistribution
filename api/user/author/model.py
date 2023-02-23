@@ -30,5 +30,5 @@ class Author(db.Model):
         json = asdict(self)
         json["type"] = "author"
         json["id"] = json["url"]
-        del json['password']
+        del json["password"]
         return json

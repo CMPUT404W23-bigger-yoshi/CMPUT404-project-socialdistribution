@@ -41,16 +41,12 @@ def edit_post(author_id: str, post_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
     post = Post.query.filter_by(id=post_id, author=author.url, inbox=author.id).first_or_404()
 
-    for k,v in json.items():
+    for k, v in json.items():
         setattr(post, k, v)
 
     db.session.commit()
 
-    return {
-        "success": 1,
-        "message": "Post edited successfully."
-    }, 201
-
+    return {"success": 1, "message": "Post edited successfully."}, 201
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
@@ -61,10 +57,8 @@ def delete_post(author_id: str, post_id: str):
 
     db.session.delete(post)
     db.session.commit()
-    return {
-        "success": 1,
-        "message": "Post deleted successfully."
-    }, 200
+    return {"success": 1, "message": "Post deleted successfully."}, 200
+
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
 def create_post(author_id: str, post_id: str):
@@ -73,6 +67,7 @@ def create_post(author_id: str, post_id: str):
     Post does not have comments yet.
     """
     return make_post(request.json, author_id, post_id=post_id)
+
 
 @posts_bp.route("/<string:author_id>/posts", methods=["POST"])
 def create_post_auto_gen_id(author_id: str):
@@ -84,6 +79,7 @@ def create_post_auto_gen_id(author_id: str):
     The author id/url in the json body is author
     """
     return make_post(request.json, author_id)
+
 
 @posts_bp.route("/<string:author_id>/posts", methods=["GET"])
 def get_recent_posts(author_id: str):
@@ -100,10 +96,7 @@ def get_recent_posts(author_id: str):
         .items
     )
 
-    return {
-        "types": "posts",
-        "items": [post.getJSON() for post in posts]
-    }, 200
+    return {"types": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
@@ -148,7 +141,6 @@ def send_like(author_id: str):
             db.session.commit()
             response = {"success": 1, "message": "Like created"}, 201
         case "post":
-
             stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
             db.session.execute(stmt)
             db.session.commit()
@@ -178,19 +170,11 @@ def get_likes(author_id: str, post_id: str):
         author = get_author_info(author_url)
         name = author.get("displayName")
         summary = name + "likes your post." if name else ""
-        like = {
-            "type": "like",
-            "author": author,
-            "object": post.url,
-            "summary": summary
-        }
+        like = {"type": "like", "author": author, "object": post.url, "summary": summary}
 
         likes.append(like)
 
-    return {
-        "type": "likes",
-        "items": likes
-    }
+    return {"type": "likes", "items": likes}
 
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
@@ -217,19 +201,12 @@ def get_author_likes(author_id: str):
 
     # Generating objects
     likes = []
-    for url in post_urls+comment_urls:
-        like = {
-            "type": "like",
-            "author": author.getJSON(),
-            "object": url
-        }
+    for url in post_urls + comment_urls:
+        like = {"type": "like", "author": author.getJSON(), "object": url}
 
         likes.append(like)
 
-    return {
-        "type": "likes",
-        "items": likes
-    }
+    return {"type": "likes", "items": likes}
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
@@ -245,10 +222,8 @@ def get_inbox(author_id: str):
         .items
     )
 
-    return {
-        "type": "posts",
-        "items": [post.getJSON() for post in posts]
-    }, 200
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
+
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
 def post_inbox(author_id: str):
@@ -273,6 +248,7 @@ def post_inbox(author_id: str):
             response = make_comment(data, author_id)
     return response
 
+
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
 def clear_inbox(author_id: str):
     """clear the inbox"""
@@ -281,10 +257,8 @@ def clear_inbox(author_id: str):
     db.session.delete(post)
     db.session.commit()
 
-    return {
-        "success": 1,
-        "message": "Inbox cleared succesfully"
-    }, 200
+    return {"success": 1, "message": "Inbox cleared succesfully"}, 200
+
 
 def make_post(data, author_id, post_id=None):
     """
@@ -331,14 +305,11 @@ def make_post(data, author_id, post_id=None):
     db.session.add(post)
     db.session.commit()
 
-
-    return {
-        "message": "Post created successfully."
-    }, 201
+    return {"message": "Post created successfully."}, 201
 
 
 def make_like(json, author_id):
-     # Author's inbox must exist on server
+    # Author's inbox must exist on server
     Author.query.filter_by(id=author_id).first_or_404()
 
     data = request.json
@@ -361,11 +332,13 @@ def make_like(json, author_id):
             case None:
                 response = {"success": 0, "message": "Like not created"}, 404
     except IntegrityError:
-        response = {"success": 0, "message":"Already liked"}
+        response = {"success": 0, "message": "Already liked"}
     return response
+
 
 def make_follow(json, author_id):
     pass
+
 
 def make_comment(json, author_id):
     """
@@ -374,19 +347,17 @@ def make_comment(json, author_id):
         author_id: ID of the author who made the
     """
     comment_id = json.get("id")
-    #TODO might need a better way
-    post_url = comment_id[:comment_id.index("comments") - 1]
+    # TODO might need a better way
+    post_url = comment_id[: comment_id.index("comments") - 1]
     comment = Comment(
-        created = json.get("published"),
-        content = json.get("comment"),
-        contentType = json.get("contentType"),
-        id = comment_id,
-        author_id = json.get("author").get("id"),
-        post_url = post_url
+        created=json.get("published"),
+        content=json.get("comment"),
+        contentType=json.get("contentType"),
+        id=comment_id,
+        author_id=json.get("author").get("id"),
+        post_url=post_url,
     )
     db.session.add(comment)
     db.session.commit()
 
-    return {
-        "message": "Comment made succesfully."
-    }, 201
+    return {"message": "Comment made succesfully."}, 201
