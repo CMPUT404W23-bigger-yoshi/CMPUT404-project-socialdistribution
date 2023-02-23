@@ -1,5 +1,7 @@
-from flask import Blueprint, jsonify, request
 from dataclasses import asdict
+
+from flask import Blueprint, jsonify, request
+
 from api import db
 from api.user.author.model import Author
 from api.utils import get_pagination_params
@@ -28,8 +30,8 @@ def get_authors():
     # TODO how does pagination work here
     items = [author.getJSON() for author in authors]
     authors_json = {}
-    authors_json['type'] = "authors"
-    authors_json['items'] = items
+    authors_json["type"] = "authors"
+    authors_json["items"] = items
 
     return authors_json
 
@@ -50,5 +52,5 @@ def create_author():
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
 def get_single_author(author_id: str):
-    found_author = Author.query.filter_by(object_id=author_id).first_or_404()
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()

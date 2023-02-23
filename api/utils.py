@@ -1,9 +1,11 @@
 import enum
 import os
 import random
+import re
 import time
 from dataclasses import dataclass
 
+import requests
 from flask import request
 
 increment = 0
@@ -22,6 +24,33 @@ class Paginator:
 
 def get_pagination_params() -> Paginator:
     return Paginator(page=request.args.get("page", 1, type=int), size=request.args.get("size", 10, type=int))
+
+
+def get_object_type(ID) -> str:
+    """
+    Returns the object type in string format based
+    on the id.
+    """
+    comment_pattern = ".*/authors/.*/posts/.*/comments.*"
+    post_pattern = ".*/authors/.*/posts.*"
+    auth_pattern = ".*/authors.*"
+
+    if re.match(comment_pattern, ID):
+        return "comment"
+    elif re.match(post_pattern, ID):
+        return "post"
+    elif re.match(auth_pattern, ID):
+        return "author"
+    else:
+        return None
+
+
+def get_author_info(url):
+    # TODO this is error prone. Should we really do this
+    try:
+        return requests.get(url).content
+    except requests.exceptions.ConnectionError:
+        return {"id": url, "url": url}
 
 
 def generate_object_ID() -> str:
