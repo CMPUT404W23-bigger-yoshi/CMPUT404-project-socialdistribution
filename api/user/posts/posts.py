@@ -93,12 +93,10 @@ def get_recent_posts(author_id: str):
     """
 
     author = Author.query.filter_by(id=author_id).first_or_404()
-    page = get_pagination_params().page
-    size = get_pagination_params().size
     posts = (
         Post.query.filter_by(author=author.url, inbox=author_id)
         .order_by(desc(Post.published))
-        .paginate(page=page, per_page=size)
+        .paginate(**get_pagination_params().as_dict())
         .items
     )
 
@@ -237,14 +235,13 @@ def get_author_likes(author_id: str):
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 def get_inbox(author_id: str):
     """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
-    pagination = get_pagination_params()
 
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     posts = (
         Post.query.filter_by(Post.author != author.url, inbox=author_id)
         .order_by(desc(Post.published))
-        .paginate(page=pagination.page, per_page=pagination.size)
+        .paginate(**get_pagination_params().as_dict())
         .items
     )
 

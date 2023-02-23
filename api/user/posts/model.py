@@ -19,9 +19,7 @@ class Post(db.Model):
     id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID)
     url: str = db.Column(db.String(50), primary_key=True, default=_constructURL)
     published: str = db.Column("published", db.String(20), nullable=False)
-    title: str = db.Column("title", db.String(120), nullable=False)
-
-    # origin -> the server on which the author of the post resides.
+    title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     # server -> the last server from which this post was sent into the inbox of the receiver
     source: str = db.Column("source", db.Text, nullable=False)
@@ -34,6 +32,7 @@ class Post(db.Model):
     # 0 -> "PUBLIC", 1-> "FRIENDS"
     visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
+    # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
     # Foreign Key
@@ -84,9 +83,7 @@ class Post(db.Model):
         post["id"] = post["url"]
 
         # TODO jsonify comments correctly here
-        page = get_pagination_params().page
-        size = get_pagination_params().size
-        commentSrc["comments"] = self.comments.paginate(page=page, per_page=size).items
+        commentSrc["comments"] = self.comments.paginate(**get_pagination_params().as_dict()).items
 
         post["commentSrc"] = commentSrc
         del post["inbox"]
@@ -95,16 +92,3 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f"<Post {self.id} author={self.author} title={self.title}>"
-
-
-# @event.listens_for(Post, "after_insert")
-# def post_after_insert(mapper, connection, target):
-#     post_table = Post.__table__
-#     primary_id = target.id
-
-#     post_complete_url = target.author_id + "/posts/" + primary_id
-
-#     modify_id = (
-#         post_table.update().where(post_table.c.id == primary_id).values(url=post_complete_url)
-#     )
-#     connection.execute(modify_id)

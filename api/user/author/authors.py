@@ -13,10 +13,7 @@ authors_bp = Blueprint("authors", __name__)
 
 @authors_bp.route("/", methods=["GET"])
 def get_authors():
-    args = request.args
-    paginator = get_pagination_params()
     authors = Author.query.paginate(**get_pagination_params().as_dict()).items
-    # TODO how does pagination work here
     items = [author.getJSON() for author in authors]
     authors_json = {}
     authors_json["type"] = "authors"
