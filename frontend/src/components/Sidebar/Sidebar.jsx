@@ -1,5 +1,5 @@
 import './Sidebar.css';
-import { Nav, Navbar } from 'react-bootstrap';
+import { Nav, Navbar, Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { Gear, Bell, Person, Lock, HouseDoor } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
@@ -20,36 +20,62 @@ function Sidebar() {
     };
   }, []);
 
-  const smallScreenClass = isSmallScreen ? 'sidebar-top' : '';
-  const navbarClassList = `sidebar ${smallScreenClass}`;
-
-  return (
-    <Navbar className={navbarClassList}>
+  return !isSmallScreen ? (
+    <Navbar className="sidebar">
       <Navbar.Brand href="/">
         <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
       <Nav activeKey={location.pathname} className="nav-links">
         <Nav.Link href="/login" className="nav-link">
-          <HouseDoor /> {!isSmallScreen && 'Home'}
+          <HouseDoor /> Home
         </Nav.Link>
         <Nav.Link href="/login" className="nav-link">
-          <Person /> {!isSmallScreen && 'Profile'}
+          <Person /> Profile
         </Nav.Link>
         <Nav.Link href="/login" className="nav-link">
-          <Lock /> {!isSmallScreen && 'Private Posts'}
+          <Lock /> Private Posts
         </Nav.Link>
         <Nav.Link href="/login" className="nav-link">
-          <Bell /> {!isSmallScreen && 'Notifications'}
+          <Bell /> Notifications
         </Nav.Link>
         <Nav.Link href="/login" className="nav-link">
-          <Gear /> {!isSmallScreen && 'Settings'}
+          <Gear /> Settings
         </Nav.Link>
       </Nav>
-      {!isSmallScreen && (
-        <button type="button" className="admin-button">
-          Admin
-        </button>
-      )}
+      <button type="button" className="admin-button">
+        Admin
+      </button>
+    </Navbar>
+  ) : (
+    <Navbar expand="lg" variant="dark" className="top-navbar">
+      <Container>
+        <Navbar.Brand href="/">
+          <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="/login" className="nav-link">
+              <HouseDoor className="icon" /> Home
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Person className="icon" /> Profile
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Lock className="icon" /> Private Posts
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Bell className="icon" /> Notifications
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Gear className="icon" /> Settings
+            </Nav.Link>
+          </Nav>
+          <button type="button" className="admin-button">
+            Admin
+          </button>
+        </Navbar.Collapse>
+      </Container>
     </Navbar>
   );
 }

@@ -30,42 +30,18 @@
   gap: 2%;
 }
 
-.navbar-brand {
+.sidebar .navbar-brand {
   margin: 5%;
   width: 100%;
   height: 15%;
 }
 
-.sidelogo {
+.sidebar .sidelogo {
   width: 35%;
   display: inline-block;
 }
 
-/*NAVBAR*/
-.sidebar-top {
-  height: 75px;
-  width: 100%;
-  flex-direction: row;
-}
-
-.sidebar-top .nav-links {
-  width: 100%;
-  flex-direction: row;
-  justify-content: space-evenly;
-  padding-bottom: unset;
-}
-
-.sidebar-top .navbar-brand {
-  height: 100%;
-  width: 10%;
-}
-
-.sidebar-top .sidelogo {
-  width: unset;
-  height: 100%;
-}
-
-.admin-button {
+.sidebar .admin-button {
   font-size: 1.6vw;
   font-weight: 510;
   font-family: 'Roboto', sans-serif;
@@ -75,6 +51,61 @@
   background-color: #09b14f;
   margin-bottom: 10%;
   border-radius: 15px;
+}
+
+/*NAVBAR*/
+.top-navbar {
+  display: flex;
+  flex-direction: row;
+  background-color: #101010;
+}
+
+#basic-navbar-nav {
+  text-align: center;
+  padding-right: 5%;
+}
+
+.top-navbar .navbar-nav {
+  display: inline-block;
+}
+
+.top-navbar .navbar-brand {
+  height: 100%;
+  width: 13%;
+}
+
+.top-navbar .sidelogo {
+  width: 100%;
+  display: inline-block;
+  padding-top: 10px;
+}
+
+.top-navbar .nav-link {
+  color: #fff;
+  font-size: 3vw;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 20px;
+}
+
+.navbar-toggler-icon {
+  color: #09b14f;
+}
+
+.top-navbar .admin-button {
+  font-size: 3vw;
+  font-weight: 510;
+  font-family: 'Roboto', sans-serif;
+  width: 20%;
+  border-color: #09b14f;
+  background-color: #09b14f;
+  border-radius: 15px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 4%;
+  margin-right: 4%;
 }
 
 .btn-outline-primary {
