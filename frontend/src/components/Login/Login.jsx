@@ -158,7 +158,7 @@ function Login(props) {
                 className="signup-link"
                 xs={12}
                 onClick={() => {
-                  window.location.href = content.redirect
+                  window.location.href = content.redirect;
                 }}
               >
                 <p>{content.signup}</p>

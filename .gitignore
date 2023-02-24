@@ -1,7 +1,7 @@
 # IntelliJ
 .idea
 
-
+api/.env
 # Frontend
 
 # dependencies
@@ -28,3 +28,4 @@ frontend/coverage
 .venv
 venv
 __pycache__
+api/.env
