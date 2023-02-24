@@ -25,8 +25,7 @@ class Author(UserMixin, db.Model):
         secondaryjoin=id == follows_table.c.follower_id,
         lazy="dynamic",
     )  # only load followers when requested
-    # non_local_follows = db.relationship('NonLocalFollower', lazy='dynamic')
-    # todo removed until clarification
+    non_local_follows = db.relationship("NonLocalFollower", lazy="dynamic")
 
 
 @event.listens_for(Author, "after_insert")
