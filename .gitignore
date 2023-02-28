@@ -1,7 +1,12 @@
 # IntelliJ
 .idea
 
-api/.env
+# VScode
+.vscode
+
+# Database
+instance
+
 # Frontend
 
 # dependencies

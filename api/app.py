@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for
+from sqlalchemy import URL
 
 from api import bcrypt, db, login_manager
 from api.admin import admin_bp
@@ -7,6 +8,16 @@ from api.user.author import model
 from api.user.author.model import Author
 from api.user.comments import model
 from api.user.posts import model
+
+# db must be initialized before importing models
+
+
+# note: Heroku will run things from the working directory as the root of this repo. Therefore, this path MUST
+# be relative to the root of the repo, NOT to this file. You will likely need to specify the working directory
+# as the root of this repo # when you run this file in your IDE
+
+# Will need to use this later
+url = URL.create("", username="", password="", host="", database="")  # dialect+driver
 
 
 def create_app():

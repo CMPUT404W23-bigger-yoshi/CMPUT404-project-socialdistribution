@@ -1,6 +1,16 @@
-from flask import Blueprint
+import base64
+from dataclasses import asdict
 
-from api.utils import get_pagination_params
+from flask import Blueprint, request
+from sqlalchemy import desc
+from sqlalchemy.exc import IntegrityError
+
+from api import db
+from api.user.author.model import Author
+from api.user.comments.model import Comment
+from api.user.posts.model import Post
+from api.user.relations import author_likes_comments, author_likes_posts
+from api.utils import Visibility, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -9,38 +19,84 @@ posts_bp = Blueprint("posts", __name__)
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
 def get_post(author_id: str, post_id: str):
     """get the public post whose id is POST_ID"""
-    pass
+    # author_id in database is complete url
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post_search = Post.query.filter_by(id=post_id, author=author.url).first_or_404()
+
+    return post_search.getJSON(), 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
 def edit_post(author_id: str, post_id: str):
-    """update the post whose id is POST_ID (must be authenticated)"""
-    pass
+    """
+    Update the post whose id is POST_ID (must be authenticated) ie the person
+    editing the post must be the author of the post.
+    json received must have all columns to be updated as key value pairs
+    """
+    # TODO handle authentication
+    json = request.json
+
+    # Modify json to be compatible with model here (if required)
+
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id, author=author.url, inbox=author.id).first_or_404()
+
+    for k, v in json.items():
+        setattr(post, k, v)
+
+    db.session.commit()
+
+    return {"success": 1, "message": "Post edited successfully."}, 201
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
 def delete_post(author_id: str, post_id: str):
     """remove the post whose id is post_id"""
-    pass
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id, author=author.url, inbox=author_id).first_or_404()
+
+    db.session.delete(post)
+    db.session.commit()
+    return {"success": 1, "message": "Post deleted successfully."}, 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
 def create_post(author_id: str, post_id: str):
-    """create a post where its id is post_id"""
-    pass
+    """
+    Create a new post where its id is post_id.
+    Post does not have comments yet.
+    """
+    return make_post(request.json, author_id, post_id=post_id)
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["POST"])
 def create_post_auto_gen_id(author_id: str):
-    """create a new post but generate a new id"""
-    pass
+    """
+    Create a new post but generate a new id.
+    Arguments:
+        author_id: object id of the local/remote author who made or reshared the post.
+
+    The author id/url in the json body is author
+    """
+    return make_post(request.json, author_id)
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["GET"])
 def get_recent_posts(author_id: str):
-    """get the recent posts from author author_id (paginated)"""
-    pagination = get_pagination_params()
-    pass
+    """
+    Get the recent posts from author author_id (paginated).
+    Public posts made by author has the inbox and author_id as same.
+    """
+
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    posts = (
+        Post.query.filter_by(author=author.url, inbox=author_id)
+        .order_by(desc(Post.published))
+        .paginate(**get_pagination_params().as_dict())
+        .items
+    )
+
+    return {"types": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
@@ -51,20 +107,74 @@ def post_as_base64_img(author_id: str, post_id: str):
     The end point decodes image posts as images. This allows the use of image tags in markdown.
     You can use this to proxy or cache images.
     """
-    pass
+    author = Author.query.filter_all(id=author_id).first_or_404()
+    post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
+    valid = ["applicaiton/base64", "image/png;base64", "image/jpeg;base64"]
+    if post.contentType not in valid:
+        return "Not found", 404
+
+    decoded_img = base64.b64decode(post.content)
+    json = post.getJSON()
+    json["content"] = decoded_img
+
+    return json
 
 
-@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 def send_like(author_id: str):
-    """send a like object to author_id"""
-    # todo (matt): why doesn't this have post id in the URL?
-    pass
+    """
+    Send a like object to author_id.
+    Like could be made on either post or comments of the author.
+    """
+    # Author's inbox must exist on server
+    Author.query.filter_by(id=author_id).first_or_404()
+
+    data = request.json
+    object_id = data.get("object")
+    type = get_object_type(object_id)
+    made_by = data.get("author").get("id")
+    response = {}
+    match type:
+        case "comment":
+            stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
+            db.session.execute(stmt)
+            db.session.commit()
+            response = {"success": 1, "message": "Like created"}, 201
+        case "post":
+            stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
+            db.session.execute(stmt)
+            db.session.commit()
+            response = {"success": 1, "message": "Like created"}, 201
+        case None:
+            response = {"success": 0, "message": "Like not created"}, 404
+
+    return response
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
 def get_likes(author_id: str, post_id: str):
     """a list of likes from other authors on AUTHOR_ID’s post POST_ID"""
-    pass
+    # Author, post must exist on our server otherwise invalid request
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(author=author.url, id=post_id).first_or_404()
+
+    # fetch all author urls who like this post from database
+    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.url)
+    result = db.session.execute(stmt)
+    authors = result.all()
+    authors = [getattr(row, "author") for row in authors]
+
+    # Generating likes
+    likes = []
+    for author_url in authors:
+        author = get_author_info(author_url)
+        name = author.get("displayName")
+        summary = name + "likes your post." if name else ""
+        like = {"type": "like", "author": author, "object": post.url, "summary": summary}
+
+        likes.append(like)
+
+    return {"type": "likes", "items": likes}
 
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
@@ -75,14 +185,44 @@ def get_author_likes(author_id: str):
     It’s a list of of likes originating from this author
     Note: be careful here private information could be disclosed.
     """
-    pass
+    # Again author must exist on our server
+    author = Author.query.filter_by(id=author_id).first_or_404()
+
+    # Fetching object urls from database
+    stmt = author_likes_posts.select().where(author_likes_posts.c.author == author.url)
+    result = db.session.execute(stmt)
+    post_urls_rows = result.all()
+    post_urls = [getattr(row, "post") for row in post_urls_rows]
+
+    stmt = author_likes_comments.select().where(author_likes_comments.c.author == author.url)
+    result = db.session.execute(stmt)
+    comment_urls_rows = result.all()
+    comment_urls = [getattr(row, "comment") for row in comment_urls_rows]
+
+    # Generating objects
+    likes = []
+    for url in post_urls + comment_urls:
+        like = {"type": "like", "author": author.getJSON(), "object": url}
+
+        likes.append(like)
+
+    return {"type": "likes", "items": likes}
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 def get_inbox(author_id: str):
     """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
-    pagination = get_pagination_params()
-    pass
+
+    author = Author.query.filter_by(id=author_id).first_or_404()
+
+    posts = (
+        Post.query.filter_by(Post.author != author.url, inbox=author_id)
+        .order_by(desc(Post.published))
+        .paginate(**get_pagination_params().as_dict())
+        .items
+    )
+
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
@@ -93,10 +233,131 @@ def post_inbox(author_id: str):
     if the type is “like” then add that like to AUTHOR_ID’s inbox
     if the type is “comment” then add that comment to AUTHOR_ID’s inbox
     """
-    pass
+
+    data = request.json
+    type = data["type"].lower()
+    response = {}
+    match type:
+        case "post":
+            response = make_post(data, author_id)
+        case "like":
+            response = make_like(data, author_id)
+        case "follow":
+            response = make_follow(data, author_id)
+        case "comment":
+            response = make_comment(data, author_id)
+    return response
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
 def clear_inbox(author_id: str):
     """clear the inbox"""
+    post = Post.query.filter_by(inbox=author_id).first_or_404()
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return {"success": 1, "message": "Inbox cleared succesfully"}, 200
+
+
+def make_post(data, author_id, post_id=None):
+    """
+    Combined function to make new post using HTTP POST and PUT.
+    The author makes these api calls.
+    """
+    visibility = data.get("visibility")
+    if visibility == "PUBLIC":
+        visibility = Visibility.PUBLIC
+    elif visibility == "FRIENDS":
+        visibility = Visibility.FRIENDS
+
+    if post_id:
+        post = Post(
+            id=post_id,
+            published=data.get("published"),
+            title=data.get("title"),
+            origin=data.get("origin"),
+            source=data.get("source"),
+            description=data.get("description"),
+            content=data.get("content"),
+            contentType=data.get("contentType"),
+            categories=",".join(data.get("categories")),
+            visibility=visibility,
+            unlisted=data.get("unlisted"),
+            author=data.get("author").get("id"),
+            inbox=author_id,
+        )
+    else:
+        post = Post(
+            published=data.get("published"),
+            title=data.get("title"),
+            origin=data.get("origin"),
+            source=data.get("source"),
+            description=data.get("description"),
+            content=data.get("content"),
+            contentType=data.get("contentType"),
+            categories=",".join(data.get("categories")),
+            visibility=data.get("visibility"),
+            unlisted=data.get("unlisted"),
+            author=data.get("author").get("id"),
+            inbox=author_id,
+        )
+    db.session.add(post)
+    db.session.commit()
+
+    return {"message": "Post created successfully."}, 201
+
+
+def make_like(json, author_id):
+    # Author's inbox must exist on server
+    Author.query.filter_by(id=author_id).first_or_404()
+
+    data = request.json
+    object_id = data.get("object")
+    type = get_object_type(object_id)
+    made_by = data.get("author").get("id")
+    response = {}
+    try:
+        match type:
+            case "comment":
+                stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
+                db.session.execute(stmt)
+                db.session.commit()
+                response = {"success": 1, "message": "Like created"}, 201
+            case "post":
+                stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
+                db.session.execute(stmt)
+                db.session.commit()
+                response = {"success": 1, "message": "Like created"}, 201
+            case None:
+                response = {"success": 0, "message": "Like not created"}, 404
+    except IntegrityError:
+        response = {"success": 0, "message": "Already liked"}
+    return response
+
+
+def make_follow(json, author_id):
     pass
+
+
+def make_comment(json, author_id):
+    """
+    Submit a comment made on author's post with id as author_id.
+    Arguments:
+        author_id: ID of the author who made the
+    """
+    comment_id = json.get("id")
+    # TODO might need a better way
+    post_url = comment_id[: comment_id.index("comments") - 1]
+    comment = Comment(
+        created=json.get("published"),
+        content=json.get("comment"),
+        contentType=json.get("contentType"),
+        id=comment_id,
+        author_id=json.get("author").get("id"),
+        post_url=post_url,
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    return {"message": "Comment made succesfully."}, 201
