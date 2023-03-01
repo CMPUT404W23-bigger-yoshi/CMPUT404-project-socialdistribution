@@ -5,7 +5,6 @@ import re
 import time
 from dataclasses import asdict, dataclass
 
-import requests
 from flask import request
 
 increment = 0

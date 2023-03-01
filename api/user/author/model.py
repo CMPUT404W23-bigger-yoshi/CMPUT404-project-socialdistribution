@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass
+from datetime import datetime
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +17,9 @@ def _constructURL(context):
     return host + "authors/" + id
 
 
+from api.user.followers.model import follows_table
+
+
 @dataclass
 class Author(UserMixin, db.Model):
     id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
@@ -25,6 +29,14 @@ class Author(UserMixin, db.Model):
     password: str = db.Column("password", db.String(64), nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default="")
+    follows = db.relationship(
+        "Author",
+        secondary=follows_table,
+        primaryjoin=id == follows_table.c.followed_id,
+        secondaryjoin=id == follows_table.c.follower_id,
+        lazy="dynamic",
+    )  # only load followers when requested
+    non_local_follows = db.relationship("NonLocalFollower", lazy="dynamic")
 
     def getJSON(self) -> dict:
         json = asdict(self)

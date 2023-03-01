@@ -33,7 +33,7 @@ def create_author():
     host = data.get("host", None)
     profileImage = data.get("profileImage", None)
 
-    author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage)
+    author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage, password="hello")
     db.session.add(author_to_add)
     db.session.commit()
     return {"Success": 1}
