@@ -85,4 +85,4 @@ def check_is_follower(author_id: str, foreign_author_id: str):
 
     follower = followed.follows.filter_by(id=foreign_author_id).first_or_404()
 
-    return {"message": "Success"}, 200
+    return {"message": "Success", "found": True}, 200
