@@ -1,12 +1,13 @@
-import React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import './App.css'
-import Login from './components/Login/Login'
-import Notifications from './components/Notifications/Notifications'
+import React from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import './App.css';
+import Login from './components/Login/Login';
+import Sidebar from './components/Sidebar/Sidebar';
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Notifications />
+    element: <Sidebar />
   },
   {
     path: '/login',
@@ -16,10 +17,10 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Login type="Register" />
   }
-])
+]);
 
 function App() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

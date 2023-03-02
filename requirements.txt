@@ -3,3 +3,7 @@ python-dotenv==0.21.1
 gunicorn
 pre-commit
 Flask-SQLAlchemy
+sqlalchemy
+requests
+flask_bcrypt
+flask_login

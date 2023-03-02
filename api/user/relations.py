@@ -4,12 +4,18 @@ from api.app import db
 
 author_likes_comments = db.Table(
     "comment_like",
-    db.Column("author_id", db.Integer, db.ForeignKey("author.id"), primary_key=True),
-    db.Column("comment_id", db.Integer, db.ForeignKey("comment.id"), primary_key=True),
+    db.Column("author", db.Text, primary_key=True),
+    db.Column("comment", db.Text, primary_key=True),
 )
 
 author_likes_posts = db.Table(
     "post_like",
-    db.Column("author_id", db.Integer, db.ForeignKey("author.id"), primary_key=True),
-    db.Column("post_id", db.Integer, db.ForeignKey("post.id"), primary_key=True),
+    db.Column("author", db.Text, primary_key=True),
+    db.Column("post", db.Text, primary_key=True),
+)
+
+post_images = db.Table(
+    "post_images",
+    db.Column("post_id", db.String(50), db.ForeignKey("post.id")),
+    db.Column("image", db.Text, nullable=False),
 )
