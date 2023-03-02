@@ -10,6 +10,7 @@ body {
   color: #ffffff;
 }
 
-.modal-title, .modal-body {
-    color: #000;
+.modal-title,
+.modal-body {
+  color: #000;
 }

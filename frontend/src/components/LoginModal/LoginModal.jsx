@@ -15,9 +15,7 @@ export default function LoginModal(props) {
         <Modal.Header closeButton>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {error}
-        </Modal.Body>
+        <Modal.Body>{error}</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close

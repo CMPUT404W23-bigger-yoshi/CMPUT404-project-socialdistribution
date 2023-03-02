@@ -12,7 +12,7 @@ const textContent = {
     username: 'Username',
     password: 'Password',
     button: 'Login',
-    accountStatus: 'Don\'t have an account?',
+    accountStatus: "Don't have an account?",
     signup: 'Sign up here',
     redirect: '/register'
   },
@@ -63,27 +63,29 @@ function Login(props) {
   };
 
   return (
-    <div className='login'>
-      <div className='login-container'>
-        <LoginModal title={content.button}
-                    error={errorMsg}
-                    show={show}
-                    handleClose={handleClose} />
+    <div className="login">
+      <div className="login-container">
+        <LoginModal
+          title={content.button}
+          error={errorMsg}
+          show={show}
+          handleClose={handleClose}
+        />
         {/* Make the logo occupy 10% of the height of the screen */}
-        <Row className='login-logo'>
+        <Row className="login-logo">
           <Logo size={'100px'} />
         </Row>
-        <Row className='login-form-title'>
+        <Row className="login-form-title">
           <div>
             <h1>{content.title}</h1>
           </div>
         </Row>
-        <Row className='login-form-input'>
+        <Row className="login-form-input">
           <div>
             <Form>
               <Form.Group
-                controlId='formBasicUsername'
-                className='formBasicUsername'
+                controlId="formBasicUsername"
+                className="formBasicUsername"
                 as={Col}
               >
                 <Form.Label>{content.username}</Form.Label>
@@ -92,8 +94,8 @@ function Login(props) {
                     <PersonFill />
                   </InputGroup.Text>
                   <Form.Control
-                    type='text'
-                    placeholder='Enter username'
+                    type="text"
+                    placeholder="Enter username"
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -105,8 +107,8 @@ function Login(props) {
               </Form.Group>
 
               <Form.Group
-                controlId='formBasicPassword'
-                className='formBasicPassword'
+                controlId="formBasicPassword"
+                className="formBasicPassword"
                 as={Col}
               >
                 <Form.Label>{content.password}</Form.Label>
@@ -115,8 +117,8 @@ function Login(props) {
                     <KeyFill />
                   </InputGroup.Text>
                   <Form.Control
-                    type='password'
-                    placeholder='Password'
+                    type="password"
+                    placeholder="Password"
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -129,8 +131,8 @@ function Login(props) {
 
               {props.type === 'Register' && (
                 <Form.Group
-                  controlId='formBasicPassword'
-                  className='formBasicPassword'
+                  controlId="formBasicPassword"
+                  className="formBasicPassword"
                   as={Col}
                 >
                   <Form.Label>{content.confirmPassword}</Form.Label>
@@ -139,8 +141,8 @@ function Login(props) {
                       <KeyFill />
                     </InputGroup.Text>
                     <Form.Control
-                      type='password'
-                      placeholder='Confirm Password'
+                      type="password"
+                      placeholder="Confirm Password"
                       onChange={(e) => {
                         setFormData({
                           ...formData,
@@ -151,20 +153,20 @@ function Login(props) {
                   </InputGroup>
                 </Form.Group>
               )}
-              <Button variant='primary' type='submit' onClick={handleSubmit}>
+              <Button variant="primary" type="submit" onClick={handleSubmit}>
                 {content.button}
               </Button>
             </Form>
           </div>
         </Row>
-        <Row className='login-form-signup'>
+        <Row className="login-form-signup">
           <div>
             <Row>
-              <Col className='signup-text' xs={12}>
+              <Col className="signup-text" xs={12}>
                 <p>{content.accountStatus}</p>
               </Col>
               <Col
-                className='signup-link'
+                className="signup-link"
                 xs={12}
                 onClick={() => {
                   window.location.href = content.redirect;
