@@ -1,0 +1,34 @@
+.notification {
+  display: flex;
+  height: 100px;
+  border-bottom: solid #4b3131;
+  background-color: #141212;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.notification .left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 35px;
+  font-size: 25px;
+}
+
+.notification .right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: 35px;
+  height: 100%;
+  font-size: 200%;
+}
+
+.logo {
+  border: 4px solid white;
+  border-radius: 100%;
+}
+.logo img {
+  height: 60px;
+}

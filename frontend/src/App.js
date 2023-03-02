@@ -2,10 +2,11 @@ import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 import Login from './components/Login/Login'
+import Notifications from './components/Notifications/Notifications'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <div>Home</div>
+    element: <Notifications />
   },
   {
     path: '/login',
