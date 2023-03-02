@@ -9,3 +9,7 @@ body {
   font-weight: 700;
   color: #ffffff;
 }
+
+.modal-title, .modal-body {
+    color: #000;
+}
