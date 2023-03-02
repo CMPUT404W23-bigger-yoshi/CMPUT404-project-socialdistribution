@@ -1,9 +1,9 @@
-import './Login.css'
-import Logo from '../Logo/Logo'
-import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap'
-import { KeyFill, PersonFill } from 'react-bootstrap-icons'
-import React, { useState } from 'react'
-import { login, register } from '../../services/auth'
+import './Login.css';
+import Logo from '../Logo/Logo';
+import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
+import { KeyFill, PersonFill } from 'react-bootstrap-icons';
+import React, { useState } from 'react';
+import { login, register } from '../../services/auth';
 
 const textContent = {
   Login: {
@@ -25,37 +25,37 @@ const textContent = {
     signup: 'Login here',
     redirect: '/login'
   }
-}
+};
 
 function Login(props) {
-  const content = textContent[props.type]
+  const content = textContent[props.type];
 
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     confirmPassword: ''
-  })
+  });
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (props.type === 'Login') {
       login(formData)
         .then((response) => {
-          console.log(response)
+          console.log(response);
         })
         .then((error) => {
-          console.log(error)
-        })
+          console.log(error);
+        });
     } else {
       register(formData)
         .then((response) => {
-          console.log(response)
+          console.log(response);
         })
         .then((error) => {
-          console.log(error)
-        })
+          console.log(error);
+        });
     }
-  }
+  };
 
   return (
     <div className="login">
@@ -89,7 +89,7 @@ function Login(props) {
                       setFormData({
                         ...formData,
                         username: e.target.value
-                      })
+                      });
                     }}
                   />
                 </InputGroup>
@@ -112,7 +112,7 @@ function Login(props) {
                       setFormData({
                         ...formData,
                         password: e.target.value
-                      })
+                      });
                     }}
                   />
                 </InputGroup>
@@ -136,7 +136,7 @@ function Login(props) {
                         setFormData({
                           ...formData,
                           confirmPassword: e.target.value
-                        })
+                        });
                       }}
                     />
                   </InputGroup>
@@ -158,7 +158,7 @@ function Login(props) {
                 className="signup-link"
                 xs={12}
                 onClick={() => {
-                  window.location.href = content.redirect
+                  window.location.href = content.redirect;
                 }}
               >
                 <p>{content.signup}</p>
@@ -168,7 +168,7 @@ function Login(props) {
         </Row>
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;
