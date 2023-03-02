@@ -21,8 +21,7 @@ function Sidebar() {
     };
   }, []);
 
-  return !isSmallScreen
-    ? (
+  return !isSmallScreen ? (
     <Navbar className="sidebar">
       <Navbar.Brand href="/">
         <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
@@ -55,8 +54,7 @@ function Sidebar() {
         Admin
       </Button>
     </Navbar>
-      )
-    : (
+  ) : (
     <Navbar expand="lg" variant="dark" className="top-navbar">
       <Container>
         <Navbar.Brand href="/">
@@ -91,7 +89,7 @@ function Sidebar() {
         </Navbar.Collapse>
       </Container>
     </Navbar>
-      );
+  );
 }
 
 export default Sidebar;

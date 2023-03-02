@@ -18,6 +18,7 @@ module.exports = {
   rules: {
     'space-before-function-paren': 'off',
     'react/prop-types': 'off',
-    semi: 'off'
+    semi: 'off',
+    'multiline-ternary': 'off'
   }
 };
