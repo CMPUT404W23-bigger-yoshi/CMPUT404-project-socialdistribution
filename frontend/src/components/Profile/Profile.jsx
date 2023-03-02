@@ -24,7 +24,7 @@ const Profile = () => {
       const data = await res.json();
       setUser(data);
     };
-    fetchUser().then(r => console.log(r));
+    fetchUser().then((r) => console.log(r));
   }, []);
   useEffect(() => {
     const fetchUserFollowStats = async () => {
@@ -32,64 +32,59 @@ const Profile = () => {
       const data = await res.json();
       setUserFollowStats(data);
     };
-    fetchUserFollowStats().then(r => console.log(r));
+    fetchUserFollowStats().then((r) => console.log(r));
   }, []);
   return (
-    <div className='profile'>
-      <div className='profile-border'>
-        <div className='profile-container'>
-          <div className='profile-info'>
-            <div className='profile-image'>
-              <img src={user.profileImage}
-                   alt='profile' />
+    <div className="profile">
+      <div className="profile-border">
+        <div className="profile-container">
+          <div className="profile-info">
+            <div className="profile-image">
+              <img src={user.profileImage} alt="profile" />
             </div>
-            <div className='profile-name'>
+            <div className="profile-name">
               <h1>{user.displayName}</h1>
             </div>
-            <div className='profile-follow-stats'>
-              <Row className='profile-follow-stats-row' xs={3}>
-                <Col className='px-4'>
+            <div className="profile-follow-stats">
+              <Row className="profile-follow-stats-row" xs={3}>
+                <Col className="px-4">
                   <h3>{userFollowStats.following}</h3>
                   <p>Following</p>
                 </Col>
-                <Col className='px-4'>
+                <Col className="px-4">
                   <h3>{userFollowStats.friends}</h3>
                   <p>Friends</p>
                 </Col>
-                <Col className='px-4'>
+                <Col className="px-4">
                   <h3>{userFollowStats.followers}</h3>
                   <p>Followers</p>
                 </Col>
               </Row>
             </div>
-            <div className='profile-links'>
+            <div className="profile-links">
               <div
-                className='profile-link github'
+                className="profile-link github"
                 onClick={() => window.open(user.github, '_blank')}
               >
                 <Github />
               </div>
               <div
-                className='profile-link twitter'
+                className="profile-link twitter"
                 onClick={() => window.open(user.twitter, '_blank')}
               >
                 <Twitter />
               </div>
             </div>
           </div>
-          <div className='profile-buttons'>
-            <Button className='profile-button follow'>
-              Follow
-            </Button>
-            <Button className='profile-button share'>
-              Share
-            </Button>
+          <div className="profile-buttons">
+            <Button className="profile-button follow">Follow</Button>
+            <Button className="profile-button share">Share</Button>
           </div>
         </div>
       </div>
-      <div className='profile-post-border'>
-        <div className='profile-post-container'>
-          <div className='profile-posts'>
+      <div className="profile-post-border">
+        <div className="profile-post-container">
+          <div className="profile-posts">
             <h1>Posts</h1>
           </div>
         </div>
