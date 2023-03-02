@@ -1,12 +1,13 @@
 import './Sidebar.css';
-import { Nav, Navbar, Container } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { Nav, Navbar, Container, Button } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Gear, Bell, Person, Lock, HouseDoor } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import YoshiPhone from '../../static/Yoshi-phone.png';
 
 function Sidebar() {
   const location = useLocation(); // Need this for highlighting current location
+  const navigate = useNavigate(); // Need this for redirecting to login page
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
@@ -26,25 +27,32 @@ function Sidebar() {
         <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
       <Nav activeKey={location.pathname} className="nav-links">
-        <Nav.Link href="/login" className="nav-link">
+        <Nav.Link onClick={() => navigate('/')} className="nav-link">
           <HouseDoor /> Home
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
+        <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
+        <Nav.Link onClick={() => navigate('/private')} className="nav-link">
           <Lock /> Private Posts
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
+        <Nav.Link
+          onClick={() => navigate('/notifications')}
+          className="nav-link"
+        >
           <Bell /> Notifications
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
+        <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
           <Gear /> Settings
         </Nav.Link>
       </Nav>
-      <button type="button" className="admin-button">
+      <Button
+        variant="success"
+        className="admin-button"
+        onClick={() => navigate('/admin')}
+      >
         Admin
-      </button>
+      </Button>
     </Navbar>
   ) : (
     <Navbar expand="lg" variant="dark" className="top-navbar">
@@ -71,9 +79,13 @@ function Sidebar() {
               <Gear className="icon" /> Settings
             </Nav.Link>
           </Nav>
-          <button type="button" className="admin-button">
+          <Button
+            variant="success"
+            className="admin-button"
+            onClick={() => navigate('/admin')}
+          >
             Admin
-          </button>
+          </Button>
         </Navbar.Collapse>
       </Container>
     </Navbar>
