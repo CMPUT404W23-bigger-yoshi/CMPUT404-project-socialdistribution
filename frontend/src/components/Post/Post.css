@@ -127,11 +127,11 @@
 
 .post .post-footer {
     padding: 20px 0 0 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     text-align: center;
+}
+
+.post .post-footer .post-buttons button {
+    width: 100%;
 }
 
 .post .post-footer .post-buttons svg {

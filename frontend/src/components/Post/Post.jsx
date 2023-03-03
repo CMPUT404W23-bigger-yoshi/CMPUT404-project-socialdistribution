@@ -63,11 +63,6 @@ const Post = (props) => {
   });
 
   function formatDate(date) {
-    // Format it to show how long ago the post was published
-    // For example, if the post was published 5 minutes ago, it should show "5 minutes ago"
-    // If the post was published 1 hour ago, it should show "1 hour ago"
-    // If the post was published 1 day ago, it should show "1 day ago"
-    // Etcetera
     const now = new Date();
     const postDate = new Date(date);
     const diff = now - postDate;
