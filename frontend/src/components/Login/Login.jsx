@@ -33,7 +33,7 @@ function Login(props) {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const errorMsg = 'Invalid username or password';
+  const [errorMsg, setError] = useState('Error');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -48,7 +48,8 @@ function Login(props) {
         .then((response) => {
           console.log(response);
         })
-        .catch(() => {
+        .catch((error) => {
+          setError(error.message || error.response.data);
           handleShow();
         });
     } else {
@@ -56,7 +57,8 @@ function Login(props) {
         .then((response) => {
           console.log(response);
         })
-        .catch(() => {
+        .catch((error) => {
+          setError(error.message || error.response.data);
           handleShow();
         });
     }
