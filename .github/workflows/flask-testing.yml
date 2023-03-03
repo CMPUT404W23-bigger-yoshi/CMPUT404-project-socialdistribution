@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: bigger-yoshi
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -31,4 +32,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run pytest
       run: |
+        cd api
+        touch .env
+        echo SECRET_KEY='${{ secrets.BACKEND_AUTH_KEY }}' >> .env
         pytest
