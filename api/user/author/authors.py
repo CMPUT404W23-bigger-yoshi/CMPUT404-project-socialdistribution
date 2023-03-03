@@ -82,7 +82,7 @@ def register_user():
     username = data.get("username", None)
     password = data.get("password", None)
 
-    if username is None or password is None:
+    if not username or not password:
         return {"message": "Invalid Credentials"}, 400  # bad request
 
     # todo we can handle the error client side to make
