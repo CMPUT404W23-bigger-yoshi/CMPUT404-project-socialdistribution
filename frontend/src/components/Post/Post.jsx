@@ -17,7 +17,7 @@ const Post = (props) => {
     description: 'This post discusses stuff -- brief',
     contentType: 'text/markdown',
     content:
-      '# A post title about a post about web dev\n### AP is kinda OP ngl',
+      'A **post** title about a post about web dev\nAP is kinda OP ngl',
     author: {
       type: 'author',
       id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e',
