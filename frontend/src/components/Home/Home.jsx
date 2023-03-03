@@ -2,13 +2,14 @@ import React from 'react';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
 import { useLocation } from 'react-router-dom';
+import Post from '../Post/Post';
 
 function Home() {
   const location = useLocation();
 
   const renderHeading = () => {
     if (location.pathname === '/') {
-      return <h1>Home</h1>;
+      return <Post />;
     } else if (location.pathname === '/profile') {
       return <h1>Profile</h1>;
     } else if (location.pathname === '/private') {
