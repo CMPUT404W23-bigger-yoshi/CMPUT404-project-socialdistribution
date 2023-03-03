@@ -70,6 +70,7 @@ const Post = (props) => {
     <>
       <div className="post">
         <div className="post-container">
+
         </div>
       </div>
     </>
