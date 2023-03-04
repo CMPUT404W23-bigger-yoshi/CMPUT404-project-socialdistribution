@@ -9,3 +9,11 @@ body {
   font-weight: 700;
   color: #ffffff;
 }
+
+
+.modal-title,
+.modal-body,
+.share-modal-body,
+.share-modal-body input {
+  color: #000 !important;
+}

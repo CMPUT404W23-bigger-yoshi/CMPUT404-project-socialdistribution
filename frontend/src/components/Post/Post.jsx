@@ -5,8 +5,10 @@ import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
+import ShareModal from '../ShareModal/ShareModal';
 const Post = (props) => {
   const { postId, authorId } = props;
+  const [showShareModal, setShowShareModal] = useState(false);
   const [post, setPost] = useState({
     type: 'post',
     title: 'A post title about a post about web dev',
@@ -90,6 +92,11 @@ const Post = (props) => {
   }, [authorId, postId]);
   return (
     <>
+      <ShareModal
+        show={showShareModal}
+        handleClose={() => setShowShareModal(false)}
+        link={post.id}
+      />
       <div className="post">
         <div className="post-container">
           <Row className="post-header">
@@ -165,7 +172,7 @@ const Post = (props) => {
             </Col>
             <Col xs={4} className="post-buttons">
               <div className="post-share">
-                <Button variant="dark">
+                <Button variant="dark" onClick={() => setShowShareModal(true)}>
                   <ShareFill /> Share
                 </Button>
               </div>
