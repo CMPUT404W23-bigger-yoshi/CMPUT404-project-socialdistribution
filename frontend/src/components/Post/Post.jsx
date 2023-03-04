@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
+
 const Post = (props) => {
   const { postId, authorId } = props;
   const [showShareModal, setShowShareModal] = useState(false);
@@ -166,14 +167,15 @@ const Post = (props) => {
             <Col xs={4} className="post-buttons">
               <div className="post-comments-count">
                 <Button variant="dark">
-                  <ChatLeftTextFill /> {post.count} Comments
+                  <ChatLeftTextFill /> {post.count}{' '}
+                  <span className="icon-hint">Comments</span>
                 </Button>
               </div>
             </Col>
             <Col xs={4} className="post-buttons">
               <div className="post-share">
                 <Button variant="dark" onClick={() => setShowShareModal(true)}>
-                  <ShareFill /> Share
+                  <ShareFill /> <span className="icon-hint">Share</span>
                 </Button>
               </div>
             </Col>
@@ -181,7 +183,7 @@ const Post = (props) => {
               <div className="post-more">
                 <Dropdown>
                   <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                    <ThreeDots /> More
+                    <ThreeDots /> <span className="icon-hint">More</span>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>

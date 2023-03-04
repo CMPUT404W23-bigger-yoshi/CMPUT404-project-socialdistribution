@@ -2,8 +2,14 @@ import React, { useEffect, useState } from 'react';
 import './Profile.css';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
+import ShareModal from '../ShareModal/ShareModal';
+import Post from '../Post/Post';
+import { useLocation } from 'react-router-dom';
 
 const Profile = () => {
+  // Get url location using useLocation hook
+  const location = useLocation();
+  const [showShareModal, setShowShareModal] = useState(false);
   const [user, setUser] = useState({
     id: 'https://www.facebook.com/100009000000000',
     host: 'https://www.facebook.com',
@@ -36,6 +42,11 @@ const Profile = () => {
   }, []);
   return (
     <div className="profile">
+      <ShareModal
+        show={showShareModal}
+        handleClose={() => setShowShareModal(false)}
+        link={user.id}
+      />
       <div className="profile-border">
         <div className="profile-container">
           <div className="profile-info">
@@ -77,15 +88,23 @@ const Profile = () => {
             </div>
           </div>
           <div className="profile-buttons">
-            <Button className="profile-button follow">Follow</Button>
-            <Button className="profile-button share">Share</Button>
+            <Button className="profile-button follow">
+              {location.pathname === '/profile' ? 'Edit' : 'Follow'}
+            </Button>
+            <Button
+              className="profile-button share"
+              onClick={() => setShowShareModal(true)}
+            >
+              Share
+            </Button>
           </div>
         </div>
       </div>
-      <div className="profile-post-border">
-        <div className="profile-post-container">
-          <div className="profile-posts">
-            <h1>Posts</h1>
+      <div className=" profile-post-border">
+        <div className=" profile-post-container">
+          <div className=" profile-posts">
+            <Post />
+            <Post />
           </div>
         </div>
       </div>

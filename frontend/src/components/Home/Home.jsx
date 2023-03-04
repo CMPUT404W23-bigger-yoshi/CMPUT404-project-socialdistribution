@@ -4,13 +4,19 @@ import Sidebar from '../Sidebar/Sidebar';
 import { useLocation } from 'react-router-dom';
 import Post from '../Post/Post';
 import Profile from '../Profile/Profile';
+import CreatePost from '../Post/CreatePost';
 
 function Home() {
   const location = useLocation();
 
   const renderHeading = () => {
     if (location.pathname === '/') {
-      return <Post />;
+      return (
+        <>
+          <CreatePost />
+          <Post />
+        </>
+      );
     } else if (location.pathname === '/profile') {
       return <Profile />;
     } else if (location.pathname === '/private') {

@@ -11,31 +11,34 @@ export default function ShareModal(props) {
   const [copy, setCopy] = useState(false);
   const { link, show, handleClose } = props;
   return (
-    <div className='share-modal'>
-      <Modal show={show} onHide={handleClose} backdrop='static' keyboard={false}>
+    <div className="share-modal">
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Share</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className='share-modal-body'>
+          <div className="share-modal-body">
             <input
-              className='form-control'
-              id='formControlReadonly'
-              type='text'
+              className="form-control"
+              id="formControlReadonly"
+              type="text"
               value={link}
-              aria-label='readonly input example'
+              aria-label="readonly input example"
               readOnly
             />
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant='secondary' onClick={handleClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
           <Button
-            variant={
-              copy ? 'success' : 'primary'
-            }
+            variant={copy ? 'success' : 'primary'}
             onClick={() => {
               navigator.clipboard.writeText(link);
               // Change the button text to "Copied!"
@@ -44,7 +47,8 @@ export default function ShareModal(props) {
               setTimeout(() => {
                 setCopy(false);
               }, 1000);
-            }}>
+            }}
+          >
             {copy ? 'Copied!' : 'Copy'}
           </Button>
         </Modal.Footer>
