@@ -26,20 +26,25 @@ function CategoryInput() {
   }
 
   function removeRecipient(index) {
-    setRecipients([...recipients.slice(0, index), ...recipients.slice(index + 1)]);
+    setRecipients([
+      ...recipients.slice(0, index),
+      ...recipients.slice(index + 1)
+    ]);
   }
 
   return (
-    <div style={{ display: 'flex' }} className='category-input'>
+    <div style={{ display: 'flex' }} className="category-input">
       {recipients.map((recipient, index) => (
-        <span key={index} className='recipient' style={{ marginRight: '5px' }}>
+        <span key={index} className="recipient" style={{ marginRight: '5px' }}>
           {recipient}
-          <button className='remove' onClick={() => removeRecipient(index)}>x</button>
+          <button className="remove" onClick={() => removeRecipient(index)}>
+            x
+          </button>
         </span>
       ))}
       <input
-        className='category-input-field'
-        type='text'
+        className="category-input-field"
+        type="text"
         placeholder={recipients.length === 0 ? 'Add a category' : ''}
         value={currentRecipient}
         onChange={handleInputChange}
