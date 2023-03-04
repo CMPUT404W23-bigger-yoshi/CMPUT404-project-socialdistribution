@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './CreatePost.css';
 import { Button, Col, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
 
-export default function CreatePost() {
+export default function CreatePost(props) {
   const [post, setPost] = useState({
-    title: 'Test',
+    type: 'post',
+    title: '',
     content: '',
     contentType: 'text/plain',
     categories: [],
     visibility: 'public',
     unlisted: false
   });
+  useEffect(() => {
+    setPost({ ...props.post });
+  }, [props]);
   const [showPreview, setShowPreview] = useState(false);
   return (
     <div className='create-post'>
@@ -28,9 +32,11 @@ export default function CreatePost() {
                 required=''
                 type='text'
                 name='text'
+                placeholder='Big Yoshi is the best'
                 autoComplete='off'
                 className='input'
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
+                value={post.title}
               />
               <label className='user-label'>Post Title</label>
             </div>
