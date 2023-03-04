@@ -5,7 +5,6 @@ import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
-
 const Post = (props) => {
   const { postId, authorId } = props;
   const [post, setPost] = useState({
@@ -15,9 +14,9 @@ const Post = (props) => {
     source: 'http://lastplaceigotthisfrom.com/posts/yyyyy',
     origin: 'http://whereitcamefrom.com/posts/zzzzz',
     description: 'This post discusses stuff -- brief',
-    contentType: 'text/markdown',
+    contentType: 'text/plain',
     content:
-      'A **post** title about a post about web dev\nAP is kinda OP ngl',
+      '# A\n **post** title about a post about web dev\nAP is kinda OP ngl',
     author: {
       type: 'author',
       id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e',

@@ -4,7 +4,7 @@
     border-radius: 30px;
     width: 100%;
     max-width: 900px;
-    padding: 1px;
+    padding: 2px;
 }
 
 .post .post-container {
@@ -107,8 +107,15 @@
     margin: 20px 0;
     font-size: 1.2em;
     line-height: 1em;
+    font-weight: 400;
+
+}
+
+/* Reset the font weight for all text tags in .post .post-body */
+.post .post-body * {
     font-weight: normal;
 }
+
 
 .post .post-image {
     display: flex;
