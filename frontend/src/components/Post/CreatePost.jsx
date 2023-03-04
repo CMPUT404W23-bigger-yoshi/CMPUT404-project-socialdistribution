@@ -16,7 +16,9 @@ export default function CreatePost(props) {
     unlisted: false
   });
   useEffect(() => {
-    setPost({ ...props.post });
+    if (props.post) {
+      setPost(props.post);
+    }
   }, [props]);
   const [showPreview, setShowPreview] = useState(false);
   return (
@@ -32,7 +34,7 @@ export default function CreatePost(props) {
                 required=""
                 type="text"
                 name="text"
-                placeholder="Big Yoshi is the best"
+                placeholder="Write your post title here..."
                 autoComplete="off"
                 className="input"
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
@@ -77,6 +79,7 @@ export default function CreatePost(props) {
             <div className="post-content-text">
               {post.contentType === 'text/plain' ? (
                 <textarea
+                  placeholder="Write your post here..."
                   className="post-content-textarea"
                   rows={10}
                   onChange={(e) =>
@@ -96,6 +99,7 @@ export default function CreatePost(props) {
                   ) : (
                     <div className="post-content-markdown-textarea">
                       <textarea
+                        placeholder="Write your post here..."
                         className="post-content-textarea"
                         rows={10}
                         onChange={(e) =>
