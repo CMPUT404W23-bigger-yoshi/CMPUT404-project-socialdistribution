@@ -7,3 +7,4 @@ sqlalchemy
 requests
 flask_bcrypt
 flask_login
+pytest

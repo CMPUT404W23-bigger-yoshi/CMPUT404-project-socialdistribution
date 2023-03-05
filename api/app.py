@@ -21,7 +21,7 @@ from api.user.posts import model
 url = URL.create("", username="", password="", host="", database="")  # dialect+driver
 
 
-def create_app():
+def create_app(Testing=False):
     app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
     # note: Heroku will run things from the working directory as the root of this repo. Therefore, this path MUST
     # be relative to the root of the repo, NOT to this file. You will likely need to specify the working directory
@@ -31,13 +31,16 @@ def create_app():
 
     app.config.from_object("api.config.Config")
 
+    if Testing:
+        app.config.update({"SQLALCHEMY_DATABASE_URI": "sqlite:///testing.db"})
+
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
     @login_manager.user_loader
     def load_user(author_id):
-        return Author.query.filter(Author.id == int(author_id)).first()
+        return Author.query.filter(Author.id == author_id).first()
 
     with app.app_context():
         db.create_all()
