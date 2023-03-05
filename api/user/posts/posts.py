@@ -168,6 +168,12 @@ def get_likes(author_id: str, post_id: str):
     likes = []
     for author_url in authors:
         author = get_author_info(author_url)
+
+        # If the author (remote) has been deleted from there server
+        # or does not exist then we skip that like (TODO should we delete such a like)
+        if not author:
+            continue
+
         name = author.get("displayName")
         summary = name + "likes your post." if name else ""
         like = {"type": "like", "author": author, "object": post.url, "summary": summary}

@@ -5,6 +5,7 @@ import re
 import time
 from dataclasses import asdict, dataclass
 
+import requests
 from flask import request
 
 increment = 0
@@ -53,9 +54,17 @@ def get_object_type(ID) -> str:
 def get_author_info(url):
     # TODO this is error prone. Should we really do this
     try:
-        return requests.get(url).content
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise
+        # Does this need to be JSON??
+        return response.content
     except requests.exceptions.ConnectionError:
+        # We need to include in API spec that we didnt find info
+        # of the author so we are sending minimal info (all we have)
         return {"id": url, "url": url}
+    except Exception:
+        return None
 
 
 def generate_object_ID() -> str:
