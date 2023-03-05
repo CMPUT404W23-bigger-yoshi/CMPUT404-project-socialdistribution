@@ -8,3 +8,4 @@ requests
 flask_bcrypt
 flask_login
 pytest
+psycopg2
