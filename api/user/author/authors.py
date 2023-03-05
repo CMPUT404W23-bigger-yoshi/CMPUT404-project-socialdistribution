@@ -47,7 +47,7 @@ def get_single_author(author_id: str):
 
 @authors_bp.route("/authenticated_user_id", methods=["GET"])
 @login_required
-def manpreet():
+def authenticated_user_id():
     if current_user.is_authenticated:
         return {"id": current_user.id}
 

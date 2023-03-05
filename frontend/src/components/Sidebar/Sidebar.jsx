@@ -49,9 +49,9 @@ function Sidebar() {
       <Button
         variant="success"
         className="admin-button"
-        onClick={() => navigate('/admin')}
+        onClick={() => navigate('/logout')}
       >
-        Admin
+        Logout
       </Button>
     </Navbar>
   ) : (

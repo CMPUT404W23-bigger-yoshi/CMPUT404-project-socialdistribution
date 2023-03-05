@@ -1,13 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Post from '../Post/Post';
 import Profile from '../Profile/Profile';
 import CreatePost from '../Post/CreatePost';
+import { getCurrentUserId } from '../../services/auth';
 
 function Home() {
   const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Checks if user is logged in
+    const checkLogin = async () => {
+      try {
+        const response = await getCurrentUserId();
+        if (response.status === 200) {
+          console.log('Logged in');
+        }
+      } catch (error) {
+        navigate('/login')
+      }
+    };
+    checkLogin().then(r => console.log(r));
+  }, []);
 
   const renderHeading = () => {
     if (location.pathname === '/') {
