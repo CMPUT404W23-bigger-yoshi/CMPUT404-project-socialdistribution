@@ -51,7 +51,7 @@ def post_comment(author_id: str, post_id: str):
             published=data["published"],
             comment=data["comment"],
             contentType=data["contentType"],
-            post_url=data["id"][: data["id"].index("comments") - 1],
+            post_id=post_id,
             author_id=data["author"]["id"],
         )
     except Exception:
