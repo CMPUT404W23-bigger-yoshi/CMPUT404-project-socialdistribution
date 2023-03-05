@@ -139,7 +139,6 @@ export default function CreatePost(props) {
                   className="post-details-bar visibility"
                   aria-label="Default select example"
                   onChange={(e) => {
-                    console.log('Post', post);
                     if (e.target.value === 'unlisted') {
                       setPost({
                         ...post,

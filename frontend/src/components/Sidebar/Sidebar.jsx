@@ -63,28 +63,28 @@ function Sidebar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/login" className="nav-link">
+            <Nav.Link className="nav-link" onClick={() => navigate('/')}>
               <HouseDoor className="icon" /> Home
             </Nav.Link>
-            <Nav.Link href="/login" className="nav-link">
+            <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
               <Person className="icon" /> Profile
             </Nav.Link>
-            <Nav.Link href="/login" className="nav-link">
+            <Nav.Link onClick={() => navigate('/private')} className="nav-link">
               <Lock className="icon" /> Private Posts
             </Nav.Link>
-            <Nav.Link href="/login" className="nav-link">
+            <Nav.Link onClick={() => navigate('/notifications')} className="nav-link">
               <Bell className="icon" /> Notifications
             </Nav.Link>
-            <Nav.Link href="/login" className="nav-link">
+            <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
               <Gear className="icon" /> Settings
             </Nav.Link>
           </Nav>
           <Button
             variant="success"
             className="admin-button"
-            onClick={() => navigate('/admin')}
+            onClick={() => navigate('/logout')}
           >
-            Admin
+            Logout
           </Button>
         </Navbar.Collapse>
       </Container>
