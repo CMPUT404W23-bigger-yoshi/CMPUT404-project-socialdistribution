@@ -1,24 +1,30 @@
-import './Notifications.css'
-import Notification from './Notification'
-import React from 'react'
+import './Notifications.css';
+import Notification from './Notification';
+import React from 'react';
+import Sidebar from '../Sidebar/Sidebar';
 
 function Notifications() {
   return (
-    <div className="container">
-      <div className="header">
-        <a>All</a>
-        <a>Posts</a>
-        <a>Following</a>
+    <div className="page">
+      <Sidebar />
+      <div className="notifications">
+        <div className="notificationsbox">
+          <div className="header">
+            <a>All</a>
+            <a>Posts</a>
+            <a>Following</a>
+          </div>
+          <Notification />
+          <Notification />
+          <Notification />
+          <Notification />
+          <Notification />
+          <Notification />
+          <Notification />
+        </div>
       </div>
-      <Notification />
-      <Notification />
-      <Notification />
-      <Notification />
-      <Notification />
-      <Notification />
-      <Notification />
     </div>
-  )
+  );
 }
 
-export default Notifications
+export default Notifications;
