@@ -35,7 +35,7 @@ class Post(db.Model):
     # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
-    # Foreign Key
+    # Foreign Key - Recipient must be a local author
     inbox: str = db.Column("inbox", db.String(50), db.ForeignKey("author.id"), primary_key=True, nullable=False)
 
     # Complete URL of the author remote/local -> cant be a foreign key
