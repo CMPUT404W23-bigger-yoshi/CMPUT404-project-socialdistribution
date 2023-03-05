@@ -7,7 +7,7 @@ from sqlalchemy import event
 
 from api import db
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import generate_object_ID
+from api.utils import generate_object_ID, randomized_profile_img
 
 
 def _constructURL(context):
@@ -28,7 +28,7 @@ class Author(UserMixin, db.Model):
     username: str = db.Column("username", db.String(20), nullable=False, unique=True)
     password: str = db.Column("password", db.String(64), nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
-    profile_image: str = db.Column("profile_image", db.Text, default="")
+    profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
     follows = db.relationship(
         "Author",
         secondary=follows_table,

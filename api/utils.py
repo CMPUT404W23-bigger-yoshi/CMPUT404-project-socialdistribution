@@ -10,6 +10,12 @@ from flask import request
 
 increment = 0
 
+PROFILE_IMG_CHOICES = [
+    "https://play.nintendo.com/images/profile-mk-yoshi.babe07bc.7fdea5d658b63e27.png",
+    "https://www.lego.com/cdn/cs/catalog/assets/blt7ddbdd57883028de/1/Yoshi_Portrait_CH_Asset.png",
+    "https://www.giantbomb.com/a/uploads/scale_small/9/95666/1910416-yoshi_mario_s_hat_super_mario__64.png",
+]
+
 
 class Visibility(enum.Enum):
     PUBLIC = 0
@@ -65,6 +71,10 @@ def get_author_info(url):
         return {"id": url, "url": url}
     except Exception:
         return None
+
+
+def randomized_profile_img():
+    return random.choice(PROFILE_IMG_CHOICES)
 
 
 def generate_object_ID() -> str:
