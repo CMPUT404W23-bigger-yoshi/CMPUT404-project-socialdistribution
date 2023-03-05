@@ -26,7 +26,7 @@ class Author(UserMixin, db.Model):
     url: str = db.Column("url", db.Text, nullable=True, unique=False, default=_constructURL)
     host: str = db.Column("host", db.Text, nullable=False)
     username: str = db.Column("username", db.String(20), nullable=False, unique=True)
-    password: str = db.Column("password", db.String(64), nullable=False)
+    password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default="")
     follows = db.relationship(
