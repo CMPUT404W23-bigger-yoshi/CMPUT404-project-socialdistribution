@@ -14,11 +14,11 @@ const Profile = () => {
   const [user, setUser] = useState({
     id: 'https://www.facebook.com/100009000000000',
     host: 'https://www.facebook.com',
-    displayName: 'Username',
+    username: 'Username',
     url: 'https://www.facebook.com/100009000000000',
     github: 'https://github.com/manpreetkaur',
     twitter: 'https://twitter.com/manpreetkaur',
-    profileImage: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+    profile_image: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
     following: 56,
@@ -52,14 +52,14 @@ const Profile = () => {
         <div className='profile-container'>
           <div className='profile-info'>
             <div className='profile-image'>
-              {(user.profileImage ? (
-              <img src={user.profileImage} alt='profile' />
+              {(user.profile_image ? (
+              <img src={user.profile_image} alt='profile' />
               ) : (
               <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
               ))}
             </div>
             <div className='profile-name'>
-              <h1>{user.displayName}</h1>
+              <h1>{user.username}</h1>
             </div>
             <div className='profile-follow-stats'>
               <Row className='profile-follow-stats-row' xs={3}>
@@ -111,7 +111,6 @@ const Profile = () => {
       <div className='profile-post-border'>
         <div className='profile-post-container'>
           <div className='profile-posts'>
-            <Post />
             <Post />
           </div>
         </div>
