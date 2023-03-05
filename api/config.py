@@ -11,5 +11,5 @@ class Config:
     """Base config."""
 
     SECRET_KEY = environ.get("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI", environ.get("DATABASE_URL"))
     BCRYPT_LOG_ROUNDS = 13
