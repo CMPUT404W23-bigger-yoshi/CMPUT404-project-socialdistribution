@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './CategoryInput.css';
 
-function CategoryInput() {
-  const [recipients, setRecipients] = useState([]);
+function CategoryInput(props) {
+  const { categories, setCategories } = props;
   const [currentRecipient, setCurrentRecipient] = useState('');
 
   function handleInputChange(event) {
@@ -14,27 +14,27 @@ function CategoryInput() {
       event.preventDefault();
       addRecipient(currentRecipient);
     } else if (event.key === 'Backspace' && currentRecipient === '') {
-      removeRecipient(recipients.length - 1);
+      removeRecipient(categories.length - 1);
     }
   }
 
   function addRecipient(recipient) {
-    if (recipient !== '' && !recipients.includes(recipient)) {
-      setRecipients([...recipients, recipient]);
+    if (recipient !== '' && !categories.includes(recipient)) {
+      setCategories([...categories, recipient]);
       setCurrentRecipient('');
     }
   }
 
   function removeRecipient(index) {
-    setRecipients([
-      ...recipients.slice(0, index),
-      ...recipients.slice(index + 1)
+    setCategories([
+      ...categories.slice(0, index),
+      ...categories.slice(index + 1)
     ]);
   }
 
   return (
     <div style={{ display: 'flex' }} className="category-input">
-      {recipients.map((recipient, index) => (
+      {categories.map((recipient, index) => (
         <span key={index} className="recipient" style={{ marginRight: '5px' }}>
           {recipient}
           <button className="remove" onClick={() => removeRecipient(index)}>
@@ -45,11 +45,11 @@ function CategoryInput() {
       <input
         className="category-input-field"
         type="text"
-        placeholder={recipients.length === 0 ? 'Add a category' : ''}
+        placeholder={categories.length === 0 ? 'Add a category' : ''}
         value={currentRecipient}
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
-        disabled={recipients.length >= 3}
+        disabled={categories.length >= 3}
         style={{ flex: 1 }}
       />
     </div>

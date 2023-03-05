@@ -12,7 +12,7 @@ export default function CreatePost(props) {
     content: '',
     contentType: 'text/plain',
     categories: [],
-    visibility: 'public',
+    visibility: 'PUBLIC',
     unlisted: false
   });
   useEffect(() => {
@@ -127,16 +127,33 @@ export default function CreatePost(props) {
             {/* Unlisted */}
             <Row className="post-details-bar">
               <Col className="post-details-bar-item" xs={8}>
-                <CategoryInput />
+                <CategoryInput
+                  categories={post.categories}
+                  setCategories={(categories) =>
+                    setPost({ ...post, categories })
+                  }
+                />
               </Col>
               <Col className="post-details-bar-item" xs={4}>
                 <FormSelect
                   className="post-details-bar visibility"
                   aria-label="Default select example"
-                  onChange={(e) =>
-                    setPost({ ...post, visibility: e.target.value })
-                  }
-                  value={post.visibility}
+                  onChange={(e) => {
+                    if (e.target.value === 'unlisted') {
+                      setPost({
+                        ...post,
+                        visibility: 'PUBLIC',
+                        unlisted: true
+                      });
+                    } else {
+                      setPost({
+                        ...post,
+                        visibility: e.target.value.toUpperCase(),
+                        unlisted: false
+                      });
+                    }
+                  }}
+                  value={post.unlisted ? 'unlisted' : post.visibility}
                 >
                   <option value="public">Public</option>
                   <option value="private">Private</option>
@@ -147,7 +164,9 @@ export default function CreatePost(props) {
           </div>
           <div className="post-submit">
             <Button variant="danger">Cancel</Button>
-            <Button variant="success">Post</Button>
+            <Button variant="success" onClick={() => console.log(post)}>
+              Submit
+            </Button>
           </div>
         </div>
       </div>
