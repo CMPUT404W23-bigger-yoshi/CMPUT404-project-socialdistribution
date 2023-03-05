@@ -47,7 +47,6 @@ def post_comment(author_id: str, post_id: str):
 
     try:
         comment = Comment(
-            id=data["id"],
             published=data["published"],
             comment=data["comment"],
             contentType=data["contentType"],

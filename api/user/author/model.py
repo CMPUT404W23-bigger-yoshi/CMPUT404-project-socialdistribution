@@ -42,5 +42,10 @@ class Author(UserMixin, db.Model):
         json = asdict(self)
         json["type"] = "author"
         json["id"] = json["url"]
+        json["profileImage"] = json["profile_image"]
+        json["displayName"] = json["username"]
+
+        del json["username"]
+        del json["profile_image"]
         del json["password"]
         return json

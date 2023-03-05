@@ -6,7 +6,7 @@ from api.utils import generate_object_ID, get_author_info
 
 @dataclass
 class Comment(db.Model):
-    id: str = db.Column(db.String(50), primary_key=True, default="")
+    id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
     published: str = db.Column("published", db.String(20), nullable=False)
     contentType: str = db.Column("contentType", db.String(50), nullable=False)
     comment: str = db.Column("comment", db.String(50), nullable=False)
@@ -23,7 +23,7 @@ class Comment(db.Model):
             return {}
         json["author"] = author
         json["id"] = self.post.url + "/comments/" + self.id
-        
+
         del json["author_id"]
         del json["post_id"]
 
