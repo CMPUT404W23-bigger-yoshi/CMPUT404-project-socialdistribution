@@ -4,6 +4,7 @@ import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import { KeyFill, PersonFill } from 'react-bootstrap-icons';
 import React, { useState } from 'react';
 import { login, register } from '../../services/auth';
+import LoginModal from '../LoginModal/LoginModal';
 
 const textContent = {
   Login: {
@@ -29,6 +30,10 @@ const textContent = {
 
 function Login(props) {
   const content = textContent[props.type];
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+  const [errorMsg, setError] = useState('Error');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -43,16 +48,18 @@ function Login(props) {
         .then((response) => {
           console.log(response);
         })
-        .then((error) => {
-          console.log(error);
+        .catch((error) => {
+          setError(error.message || error.response.data);
+          handleShow();
         });
     } else {
       register(formData)
         .then((response) => {
           console.log(response);
         })
-        .then((error) => {
-          console.log(error);
+        .catch((error) => {
+          setError(error.message || error.response.data);
+          handleShow();
         });
     }
   };
@@ -60,6 +67,12 @@ function Login(props) {
   return (
     <div className="login">
       <div className="login-container">
+        <LoginModal
+          title={content.button}
+          error={errorMsg}
+          show={show}
+          handleClose={handleClose}
+        />
         {/* Make the logo occupy 10% of the height of the screen */}
         <Row className="login-logo">
           <Logo size={'100px'} />

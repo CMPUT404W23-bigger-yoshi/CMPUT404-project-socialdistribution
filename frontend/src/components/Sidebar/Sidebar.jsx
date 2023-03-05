@@ -1,12 +1,13 @@
 import './Sidebar.css';
-import { Nav, Navbar } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { Nav, Navbar, Container, Button } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Gear, Bell, Person, Lock, HouseDoor } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import YoshiPhone from '../../static/Yoshi-phone.png';
 
 function Sidebar() {
   const location = useLocation(); // Need this for highlighting current location
+  const navigate = useNavigate(); // Need this for redirecting to login page
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
@@ -20,36 +21,73 @@ function Sidebar() {
     };
   }, []);
 
-  const smallScreenClass = isSmallScreen ? 'sidebar-top' : '';
-  const navbarClassList = `sidebar ${smallScreenClass}`;
-
-  return (
-    <Navbar className={navbarClassList}>
+  return !isSmallScreen ? (
+    <Navbar className="sidebar">
       <Navbar.Brand href="/">
         <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
       <Nav activeKey={location.pathname} className="nav-links">
-        <Nav.Link href="/login" className="nav-link">
-          <HouseDoor /> {!isSmallScreen && 'Home'}
+        <Nav.Link onClick={() => navigate('/')} className="nav-link">
+          <HouseDoor /> Home
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
-          <Person /> {!isSmallScreen && 'Profile'}
+        <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
+          <Person /> Profile
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
-          <Lock /> {!isSmallScreen && 'Private Posts'}
+        <Nav.Link onClick={() => navigate('/private')} className="nav-link">
+          <Lock /> Private Posts
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
-          <Bell /> {!isSmallScreen && 'Notifications'}
+        <Nav.Link
+          onClick={() => navigate('/notifications')}
+          className="nav-link"
+        >
+          <Bell /> Notifications
         </Nav.Link>
-        <Nav.Link href="/login" className="nav-link">
-          <Gear /> {!isSmallScreen && 'Settings'}
+        <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
+          <Gear /> Settings
         </Nav.Link>
       </Nav>
-      {!isSmallScreen && (
-        <button type="button" className="admin-button">
-          Admin
-        </button>
-      )}
+      <Button
+        variant="success"
+        className="admin-button"
+        onClick={() => navigate('/admin')}
+      >
+        Admin
+      </Button>
+    </Navbar>
+  ) : (
+    <Navbar expand="lg" variant="dark" className="top-navbar">
+      <Container>
+        <Navbar.Brand href="/">
+          <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="/login" className="nav-link">
+              <HouseDoor className="icon" /> Home
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Person className="icon" /> Profile
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Lock className="icon" /> Private Posts
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Bell className="icon" /> Notifications
+            </Nav.Link>
+            <Nav.Link href="/login" className="nav-link">
+              <Gear className="icon" /> Settings
+            </Nav.Link>
+          </Nav>
+          <Button
+            variant="success"
+            className="admin-button"
+            onClick={() => navigate('/admin')}
+          >
+            Admin
+          </Button>
+        </Navbar.Collapse>
+      </Container>
     </Navbar>
   );
 }
