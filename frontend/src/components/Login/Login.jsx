@@ -3,7 +3,7 @@ import Logo from '../Logo/Logo';
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import { KeyFill, PersonFill } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
-import { getCurrentUserId, login, register } from '../../services/auth';
+import { getCurrentUserId, login, register } from '../../services/author';
 import LoginModal from '../LoginModal/LoginModal';
 import { useNavigate } from 'react-router-dom';
 

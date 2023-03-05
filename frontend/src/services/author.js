@@ -22,3 +22,7 @@ export const logout = async () => {
 export const getCurrentUserId = async () => {
   return await axios.get('/authors/authenticated_user_id');
 }
+
+export const getCurrentUserDetails = async (authorId) => {
+  return await axios.get(`/authors/${authorId}`);
+}

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { logout } from '../../services/auth';
+import { logout } from '../../services/author';
 import { useNavigate } from 'react-router-dom';
 
 export default function Logout() {

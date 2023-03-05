@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Post from '../Post/Post';
 import Profile from '../Profile/Profile';
 import CreatePost from '../Post/CreatePost';
-import { getCurrentUserId } from '../../services/auth';
+import { getCurrentUserId } from '../../services/author';
 
 function Home() {
   const location = useLocation();
@@ -16,7 +16,7 @@ function Home() {
       try {
         const response = await getCurrentUserId();
         if (response.status === 200) {
-          console.log('Logged in');
+          console.log('Logged in: ', response.data);
         }
       } catch (error) {
         navigate('/login')
