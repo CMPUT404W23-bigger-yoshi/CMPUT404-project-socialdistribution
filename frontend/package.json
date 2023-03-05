@@ -48,7 +48,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1:5000/",
+  "proxy": "https://bigger-yoshi.herokuapp.com/",
   "devDependencies": {
     "eslint": "^8.33.0",
     "eslint-config-standard": "^17.0.0",
