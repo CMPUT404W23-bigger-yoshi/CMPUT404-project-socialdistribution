@@ -66,10 +66,17 @@ function Login(props) {
           navigate('/');
         })
         .catch((error) => {
+          console.log(error)
           setError(error.message || error.response.data);
           handleShow();
         });
     } else {
+      // Check if passwords match
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        handleShow();
+        return;
+      }
       register(formData)
         .then((response) => {
           setError('Account created!');
@@ -77,7 +84,8 @@ function Login(props) {
           navigate('/login');
         })
         .catch((error) => {
-          setError(error.message || error.response.data);
+          console.log(error)
+          setError(error.response.data.message);
           handleShow();
         });
     }
