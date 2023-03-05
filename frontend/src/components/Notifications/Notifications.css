@@ -1,14 +1,3 @@
-.page {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.notifications {
-  display: flex;
-  justify-content: center;
-}
-
 .notificationsbox {
   display: flex;
   flex-direction: column;

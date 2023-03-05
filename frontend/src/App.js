@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login/Login';
 import Home from './components/Home/Home';
-import Notifications from './components/Notifications/Notifications';
 
 const router = createBrowserRouter([
   {
@@ -28,7 +27,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/notifications',
-    element: <Notifications />
+    element: <Home />
   },
   {
     path: '/settings',

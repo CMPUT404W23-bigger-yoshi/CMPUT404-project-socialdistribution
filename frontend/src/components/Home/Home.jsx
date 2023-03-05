@@ -3,6 +3,7 @@ import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
 import { useLocation } from 'react-router-dom';
 import Profile from '../Profile/Profile';
+import Notifications from '../Notifications/Notifications';
 
 function Home() {
   const location = useLocation();
@@ -15,7 +16,7 @@ function Home() {
     } else if (location.pathname === '/private') {
       return <h1>Private Posts</h1>;
     } else if (location.pathname === '/notifications') {
-      return <h1>Notifications</h1>;
+      return <Notifications />;
     } else if (location.pathname === '/settings') {
       return <h1>Settings</h1>;
     } else {
