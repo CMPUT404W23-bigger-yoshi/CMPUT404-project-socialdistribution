@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for
+from flask.helpers import send_from_directory
 from sqlalchemy import URL
 
 from api import bcrypt, db, login_manager
@@ -46,6 +47,12 @@ def create_app(Testing=False):
         db.create_all()
     return app
 
+app = create_app()
+
+@app.route("/")
+def serve():
+    return send_from_directory(create_app().static_folder, "index.html")
+
 
 if __name__ == "__main__":
-    create_app().run()
+    app.run()
