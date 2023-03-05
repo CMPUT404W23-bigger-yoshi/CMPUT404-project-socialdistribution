@@ -1,4 +1,4 @@
-from api.app import db
+from api import db
 
 # todo sqlalchemy docs use meta with tables? idk why. will also need a table name i think
 

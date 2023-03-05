@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 
 from sqlalchemy import Enum, event
 
-from api.app import db
+from api import db
 from api.user.author.model import Author
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 

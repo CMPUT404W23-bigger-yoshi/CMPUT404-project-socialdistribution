@@ -1,6 +1,6 @@
 from dataclasses import asdict, dataclass
 
-from api.app import db
+from api import db
 from api.utils import generate_object_ID
 
 
