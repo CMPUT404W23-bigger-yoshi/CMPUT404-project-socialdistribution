@@ -67,7 +67,7 @@ function Login(props) {
         })
         .catch((error) => {
           console.log(error)
-          setError(error.message || error.response.data);
+          setError(error.response.data.message);
           handleShow();
         });
     } else {
