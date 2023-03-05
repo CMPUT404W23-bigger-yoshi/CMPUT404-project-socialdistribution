@@ -139,6 +139,7 @@ export default function CreatePost(props) {
                   className="post-details-bar visibility"
                   aria-label="Default select example"
                   onChange={(e) => {
+                    console.log('Post', post);
                     if (e.target.value === 'unlisted') {
                       setPost({
                         ...post,
@@ -153,10 +154,11 @@ export default function CreatePost(props) {
                       });
                     }
                   }}
-                  value={post.unlisted ? 'unlisted' : post.visibility}
+                  value={post.unlisted ? 'unlisted' : post.visibility.toLowerCase()}
                 >
                   <option value="public">Public</option>
                   <option value="private">Private</option>
+                  <option value="friends">Friends</option>
                   <option value="unlisted">Unlisted</option>
                 </FormSelect>
               </Col>
