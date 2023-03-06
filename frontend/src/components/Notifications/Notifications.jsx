@@ -12,17 +12,6 @@ function Notifications() {
           <a>Following</a>
         </div>
         <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
-        <Notification />
       </div>
     </div>
   );

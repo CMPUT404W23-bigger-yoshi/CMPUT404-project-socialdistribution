@@ -1,20 +1,22 @@
-import './Notification.css'
-import React from 'react'
-import Logo from '../Logo/Logo'
-import { Gear } from 'react-bootstrap-icons'
+import './Notification.css';
+import React from 'react';
+import Logo from '../Logo/Logo';
+import { People } from 'react-bootstrap-icons';
 
 function Notification() {
   return (
     <div className="notification">
       <div className="left">
         <Logo className="logo" />
-        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p>
+        <p>
+          <b>Mohammad Hammad</b> and you are now friends
+        </p>
       </div>
       <div className="right">
-        <Gear />
+        <People />
       </div>
     </div>
-  )
+  );
 }
 
-export default Notification
+export default Notification;

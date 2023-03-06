@@ -1,6 +1,6 @@
 .notification {
   display: flex;
-  height: 100px;
+  height: 130px;
   border-bottom: solid #4b3131;
   background-color: #141212;
   align-items: center;
@@ -14,7 +14,7 @@
   align-items: center;
   gap: 16px;
   margin-left: 35px;
-  font-size: 1.3em;
+  font-size: 1.7em;
 }
 
 .notification .right {
@@ -32,5 +32,9 @@
 }
 
 .logo img {
-  height: 60px;
+  height: 70px;
+}
+
+b {
+  font-size: 1.1em;
 }
