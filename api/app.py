@@ -1,10 +1,12 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for
 from flask.helpers import send_from_directory
+from flask_swagger import swagger
 from sqlalchemy import URL
 
 # db must be initialized before importing models, that is what this import does
 from api import bcrypt, db, login_manager
 from api.admin import admin_bp
+from api.swagger.swagger_bp import swaggerui_blueprint
 from api.user import user_bp
 from api.user.author import model
 from api.user.author.model import Author
@@ -28,6 +30,7 @@ def create_app(testing_env=False):
     # as the root of this repo # when you run this file in your IDE
     app.register_blueprint(user_bp, url_prefix="/authors")
     app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(swaggerui_blueprint, url_prefix="/docs")
 
     app.config.from_object("api.config.Config")
 
@@ -44,6 +47,11 @@ def create_app(testing_env=False):
 
     with app.app_context():
         db.create_all()
+
+    @app.route("/spec")
+    def spec():
+        return jsonify(swagger(app))
+
     return app
 
 
