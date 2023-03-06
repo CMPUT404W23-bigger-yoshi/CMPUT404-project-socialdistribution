@@ -55,11 +55,22 @@ TODO (MATT): do we want autopushes to Heroku via CI? this can be setup. In the m
 
 #### Deploying
 
-- Run `npm build` in `./frontend` to build the React frontend
+- Run `npm run build` in `./frontend` to build the React frontend
 - Run `git push heroku <your current git branch>:master`
   - If your current git branch is `master` already, you can just write `git push heroku master`
   - You can use the following alias in your `.bashrc` to make this operation require less typing: `alias whateveruwant="git push heroku $(git branch --show-current):master"`
 
+#### Using Heroku's database locally
+
+To use the production database locally, set SQLALCHEMY_DATABASE_URI to the Postgres URI which Heroku sets. You can retrieve this by running `heroku config`:
+
+```shell
+(.venv) ➜ heroku config
+=== bigger-yoshi Config Vars
+DATABASE_URL:            postgres://afcocqutbilyft:759235b9bb0e3227b20079ef21fcae83e8a34fe97c12c1b0bc1f733f172ae758@ec2-54-157-79-121.compute-1.amazonaws.com:5432/dd3bpueruqk0s3
+...
+```
+Create a run configuration that sets the aforementioned environment variable to this value and the app should use the production database.
 
 ## Contributors / Licensing
 
