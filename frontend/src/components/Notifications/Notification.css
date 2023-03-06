@@ -26,14 +26,11 @@
   font-size: 2.5em;
 }
 
-.logo {
-  border: 4px solid white;
+.notification-logo {
+  border: 2px solid white;
   border-radius: 100%;
 }
 
-.logo img {
-  height: 70px;
-}
 
 b {
   font-size: 1.1em;

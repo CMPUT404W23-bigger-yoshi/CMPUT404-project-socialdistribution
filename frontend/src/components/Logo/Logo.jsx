@@ -3,7 +3,7 @@ import YoshiPhone from '../../static/Yoshi-phone.png';
 
 function Logo(props) {
   return (
-    <div className="logo">
+    <div className={props.className + ' logo'}>
       <img
         src={YoshiPhone}
         alt="Yoshi Phone"

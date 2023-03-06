@@ -7,7 +7,7 @@ function Notification() {
   return (
     <div className="notification">
       <div className="left">
-        <Logo className="logo" />
+        <Logo size={70} className="notification-logo" />
         <p>
           <b>Mohammad Hammad</b> and you are now friends
         </p>
