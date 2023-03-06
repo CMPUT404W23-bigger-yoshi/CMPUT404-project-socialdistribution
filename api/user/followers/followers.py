@@ -27,6 +27,19 @@ def followers(author_id: str):
     local_followers = local_followers + non_local_followers
     return jsonify(local_followers)
 
+@followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
+def followers_count(author_id: str):
+    """get a list of authors who are AUTHOR_ID’s followers"""
+    found_author = Author.query.filter_by(id=author_id).first()
+    if not found_author:
+        return {"message": "No Author found"}, 404
+    # todo : do we need to ask for more information? unless required will cause response
+    #  failure if other teams node throws an error
+    non_local_followers = list(found_author.non_local_follows.all())
+    local_followers = list(found_author.follows.all())
+    local_followers = local_followers + non_local_followers
+    return {"count": len(local_followers)}
+
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
 def remove_follower(author_id: str, foreign_author_id: str):
