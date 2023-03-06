@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './Feed.css';
-import { getInbox } from '../../services/post';
+import { getInbox, getPrivate } from '../../services/post';
 import Post from '../Post/Post';
 
 function Feed(props) {
@@ -10,7 +10,12 @@ function Feed(props) {
     // Fetch posts from backend
     const fetchPosts = async () => {
       try {
-        const response = await getInbox(userId);
+        let response;
+        if (!isPrivate) {
+          response = await getInbox(userId);
+        } else {
+          response = await getPrivate(userId);
+        }
         setPosts(response.data.items);
       } catch (error) {
         console.log(error);

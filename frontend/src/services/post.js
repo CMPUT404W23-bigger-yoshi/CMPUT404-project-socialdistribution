@@ -94,3 +94,12 @@ export async function getInbox(authorId) {
   };
   return axios(config);
 }
+
+export async function getPrivate(authorId) {
+  const config = {
+    method: 'get',
+    url: `/authors/${authorId}/private`,
+    headers: {}
+  };
+  return axios(config);
+}

@@ -35,13 +35,18 @@ function Home() {
       return (
         <>
           <CreatePost />
-          <Feed userId={userId} />
+          <Feed userId={userId} isPrivate={false} />
         </>
       );
     } else if (location.pathname === '/profile') {
       return <Profile />;
     } else if (location.pathname === '/private') {
-      return <h1>Private Posts</h1>;
+      return (
+        <>
+          <CreatePost />
+          <Feed userId={userId} isPrivate={true} />
+        </>
+      )
     } else if (location.pathname === '/notifications') {
       return <Notifications />;
     } else if (location.pathname === '/settings') {

@@ -230,6 +230,19 @@ def get_inbox(author_id: str):
 
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
+@posts_bp.route("/<string:author_id>/private", methods=["GET"])
+def get_private(author_id: str):
+    # Gets all the posts that are private from the author
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    posts = (
+        Post.query.filter(Post.author == author.url, Post.visibility == "FRIENDS")
+        .order_by(desc(Post.published))
+        .paginate(**get_pagination_params().dict)
+        .items
+    )
+
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
+
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
 def post_inbox(author_id: str):
