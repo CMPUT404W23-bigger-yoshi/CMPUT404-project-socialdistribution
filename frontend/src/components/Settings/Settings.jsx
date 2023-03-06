@@ -61,7 +61,7 @@ function Settings() {
               </Form.Group>
               <Form.Group className='settings-form-group'>
                 <Form.Label>Github Link</Form.Label>
-                <Form.Control type='text'
+                <Form.Control type='link'
                               placeholder='Enter github link'
                               value={userDetails.github}
                               onChange={(e) => setUserDetails({ ...userDetails, github: e.target.value })}

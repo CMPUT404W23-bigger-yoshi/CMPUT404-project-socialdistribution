@@ -4,13 +4,15 @@ import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [showShareModal, setShowShareModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
@@ -40,6 +42,7 @@ const Profile = (props) => {
         const user = await getCurrentUserDetails(userId.data.id);
         const posts = await getAllPosts(userId.data.id);
         setUser(user.data);
+
         // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
         posts.data.items.forEach((post) => {
           if (post.categories === '') {
@@ -54,9 +57,7 @@ const Profile = (props) => {
     };
     fetchUserId().catch((err) => console.log(err));
   }, []);
-  useEffect(() => {
-    console.log(posts);
-  }, [posts]);
+
   return (
     <div className='profile'>
       <ShareModal
@@ -69,9 +70,9 @@ const Profile = (props) => {
           <div className='profile-info'>
             <div className='profile-image'>
               {(user.profileImage ? (
-              <img src={user.profileImage} alt='profile' />
+                <img src={user.profileImage} alt='profile' />
               ) : (
-              <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
+                <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
               ))}
             </div>
             <div className='profile-name'>
@@ -112,7 +113,11 @@ const Profile = (props) => {
             </div>
           </div>
           <div className='profile-buttons'>
-            <Button className='profile-button follow'>
+            <Button className='profile-button follow' onClick={
+              () => {
+                navigate('/settings');
+              }
+            }>
               {location.pathname === '/profile' ? 'Edit' : 'Follow'}
             </Button>
             <Button

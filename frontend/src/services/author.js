@@ -42,3 +42,7 @@ export const updateCurrentUserDetails = async (authorId, data) => {
   }
   return axios(config);
 }
+
+export const getFollowersCount = async (authorId) => {
+  return await axios.get(`/authors/${authorId}/followers`);
+}
