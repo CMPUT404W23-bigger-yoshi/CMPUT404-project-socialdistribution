@@ -118,7 +118,7 @@ def register_user():
     if user_exists:
         return {"message": "User Already exists"}, 409  # username already exists
 
-    user = Author(username=username, password=bcrypt.generate_password_hash(password), host="bigger")
+    user = Author(username=username, password=bcrypt.generate_password_hash(password).decode("utf-8"), host="bigger")
     db.session.add(user)
     db.session.commit()
     login_user(user)
