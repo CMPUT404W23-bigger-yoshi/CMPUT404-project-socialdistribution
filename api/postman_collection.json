@@ -1,0 +1,475 @@
+{
+	"info": {
+		"_postman_id": "6e4f553a-e5ee-40d1-986d-d5f6b83cd71c",
+		"name": "cmput-404",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17746828"
+	},
+	"item": [
+		{
+			"name": "Author",
+			"item": [
+				{
+					"name": "get single author",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Author",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"displayName\": \"Shehraj Singh\",\r\n    \"github\": \"https://www.github.com/shehraj123\",\r\n    \"host\": \"https://localhost:5000\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/authors/admin",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"authors",
+								"admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all authors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors"
+							],
+							"query": [
+								{
+									"key": "url",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get followers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/1/followers",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"1",
+								"followers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add local follower",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/1/followers",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"1",
+								"followers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove follower",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/1/followers/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"1",
+								"followers",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "is follower",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/1/followers/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"1",
+								"followers",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "get single post",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts",
+								"{{mock_post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all recent posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post tweet(local without id)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"post\",\n    \"title\":\"A test post\",\n    \"source\":\"http://lastplaceigotthisfrom.com/posts/yyyyy\",\n    \"origin\":\"http://whereitcamefrom.com/posts/zzzzz\",\n    \"description\":\"This post discusses stuff -- brief\",\n    \"contentType\":\"text/plain\",\n    \"content\":\"Þā wæs on burgum Bēowulf Scyldinga, lēof lēod-cyning, longe þrāge folcum gefrǣge (fæder ellor hwearf, aldor of earde), oð þæt him eft onwōc hēah Healfdene; hēold þenden lifde, gamol and gūð-rēow, glæde Scyldingas. Þǣm fēower bearn forð-gerīmed in worold wōcun, weoroda rǣswan, Heorogār and Hrōðgār and Hālga til; hȳrde ic, þat Elan cwēn Ongenþēowes wæs Heaðoscilfinges heals-gebedde.\",\n    \"author\":{\n          \"type\":\"author\",\n          \"id\":\"https://localhost:5000/authors/{{mock_auth_id}}\",\n          \"host\":\"https://localhost:5000\",\n          \"displayName\":\"Lara Croft\",\n          \"url\":\"https://localhost:5000/authors/{{mock_auth_id}}\",\n          \"github\": \"http://github.com/laracroft\",\n          \"profileImage\": \"https://i.imgur.com/k7XVwpB.jpeg\"\n    },\n    \"categories\":[\"web\",\"tutorial\"],\n    \"published\":\"2015-03-09T13:07:04+00:00\",\n    \"visibility\":\"PUBLIC\",\n    \"unlisted\":false\n}\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editing post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Testing if content changes.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts",
+								"{{mock_post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts",
+								"{{mock_post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "put new post with id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"post\",\n    \"title\":\"A test post 3\",\n    \"source\":\"http://lastplaceigotthisfrom.com/posts/yyyyy\",\n    \"origin\":\"http://whereitcamefrom.com/posts/zzzzz\",\n    \"description\":\"This post discusses stuff -- brief\",\n    \"contentType\":\"text/plain\",\n    \"content\":\"Þā wæs on burgum Bēowulf Scyldinga, lēof lēod-cyning, longe þrāge folcum gefrǣge (fæder ellor hwearf, aldor of earde), oð þæt him eft onwōc hēah Healfdene; hēold þenden lifde, gamol and gūð-rēow, glæde Scyldingas. Þǣm fēower bearn forð-gerīmed in worold wōcun, weoroda rǣswan, Heorogār and Hrōðgār and Hālga til; hȳrde ic, þat Elan cwēn Ongenþēowes wæs Heaðoscilfinges heals-gebedde.\",\n    \"author\":{\n          \"type\":\"author\",\n          \"id\":\"https://localhost:5000/authors/{{mock_auth_id}}\",\n          \"host\":\"https://localhost:5000\",\n          \"displayName\":\"Lara Croft\",\n          \"url\":\"https://localhost:5000/authors/{{mock_auth_id}}\",\n          \"github\": \"http://github.com/laracroft\",\n          \"profileImage\": \"https://i.imgur.com/k7XVwpB.jpeg\"\n    },\n    \"categories\":[\"web\",\"tutorial\"],\n    \"published\":\"2015-03-09T13:07:04+00:00\",\n    \"visibility\":\"PUBLIC\",\n    \"unlisted\":false\n}\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts",
+								"{{mock_post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send post like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"@context\": \"https://www.w3.org/ns/activitystreams\",\n     \"summary\": \"Mock author Likes his own post\",\n     \"type\": \"Like\",\n     \"author\":{\n        \"displayName\": \"Shehraj Singh\",\n        \"github\": \"https://www.github.com/shehraj123\",\n        \"host\": \"https://localhost:5000\",\n        \"id\": \"https://localhost:5000/authors/63f6b8de00002cd6d8445a\",\n        \"profileImage\": \"\",\n        \"type\": \"author\",\n        \"url\": \"https://localhost:5000/authors/63f6b8de00002cd6d8445a\"\n    },\n     \"object\":\"https://localhost:5000/authors/63f6b8de00002cd6d8445a/posts/63f6b92000013b456a445a\"\n}\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/inbox/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"inbox",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "inbox comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\":\"comment\",\n    \"author\":{\n        \"displayName\": \"Shehraj Singh\",\n        \"github\": \"https://www.github.com/shehraj123\",\n        \"host\": \"https://localhost:5000\",\n        \"id\": \"https://localhost:5000/authors/63f6b8de00002cd6d8445a\",\n        \"profileImage\": \"\",\n        \"type\": \"author\",\n        \"url\": \"https://localhost:5000/authors/63f6b8de00002cd6d8445a\"\n    },\n    \"comment\":\"Sick Olde English\",\n    \"contentType\":\"text/markdown\",\n    \"published\":\"2015-03-09T13:07:04+00:00\",\n    \"id\":\"http://{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}/comments/f6255bb01c648fe967714d52a89e8e9c\"\n}\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/inbox",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"inbox"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send comment like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"@context\": \"https://www.w3.org/ns/activitystreams\",\n     \"summary\": \"Lara Croft Likes your comment\",\n     \"type\": \"Like\",\n     \"author\":{\n         \"type\":\"author\",\n         \"id\":\"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e\",\n         \"host\":\"http://127.0.0.1:5454/\",\n         \"displayName\":\"Lara Croft\",\n         \"url\":\"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e\",\n         \"github\":\"http://github.com/laracroft\",\n         \"profileImage\": \"https://i.imgur.com/k7XVwpB.jpeg\"\n     },\n     \"object\":\"http://localhost:5000/authors/{{mock_auth_id}}/posts/{{mock_post_id}}/comments/f6255bb01c648fe967714d52a89e8e9c\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/inbox",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"inbox"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Likes",
+			"item": [
+				{
+					"name": "Get Like",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/posts/{{mock_post_id}}/likes",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"posts",
+								"{{mock_post_id}}",
+								"likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All objects liked",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/authors/{{mock_auth_id}}/liked",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"authors",
+								"{{mock_auth_id}}",
+								"liked"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
