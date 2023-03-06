@@ -67,7 +67,7 @@ To use the production database locally, set SQLALCHEMY_DATABASE_URI to the Postg
 ```shell
 (.venv) ➜ heroku config
 === bigger-yoshi Config Vars
-DATABASE_URL:            postgres://afcocqutbilyft:759235b9bb0e3227b20079ef21fcae83e8a34fe97c12c1b0bc1f733f172ae758@ec2-54-157-79-121.compute-1.amazonaws.com:5432/dd3bpueruqk0s3
+DATABASE_URL:            postgres://afcocqutbilyft:<some id here>@ec2-54-157-79-121.compute-1.amazonaws.com:5432/dd3bpueruqk0s3
 ...
 ```
 Create a run configuration that sets the aforementioned environment variable to this value and the app should use the production database.
