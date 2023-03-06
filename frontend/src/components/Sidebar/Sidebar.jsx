@@ -1,7 +1,7 @@
 import './Sidebar.css';
 import { Nav, Navbar, Container, Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Gear, Bell, Person, Lock, HouseDoor } from 'react-bootstrap-icons';
+import { Gear, Bell, Person, Lock, Inbox } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import YoshiPhone from '../../static/Yoshi-phone.png';
 
@@ -28,7 +28,7 @@ function Sidebar() {
       </Navbar.Brand>
       <Nav activeKey={location.pathname} className="nav-links">
         <Nav.Link onClick={() => navigate('/')} className="nav-link">
-          <HouseDoor /> Home
+          <Inbox /> Inbox
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
@@ -64,7 +64,7 @@ function Sidebar() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link className="nav-link" onClick={() => navigate('/')}>
-              <HouseDoor className="icon" /> Home
+              <Inbox className="icon" /> Inbox
             </Nav.Link>
             <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
               <Person className="icon" /> Profile
