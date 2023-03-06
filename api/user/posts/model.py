@@ -17,8 +17,8 @@ def _constructURL(context):
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.String(50), default=_constructURL)
-    published: str = db.Column("published", db.String(20), nullable=False)
+    url: str = db.Column(db.Text, default=_constructURL)
+    published: str = db.Column("published", db.String(50), nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     # server -> the last server from which this post was sent into the inbox of the receiver
@@ -35,7 +35,7 @@ class Post(db.Model):
     # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
-    # Foreign Key
+    # Foreign Key - Recipient must be a local author
     inbox: str = db.Column("inbox", db.String(50), db.ForeignKey("author.id"), primary_key=True, nullable=False)
 
     # Complete URL of the author remote/local -> cant be a foreign key
@@ -67,25 +67,25 @@ class Post(db.Model):
             post["visibility"] = "FRIENDS"
 
         # Comments
-        post["count"] = len(self.comments.all())
-        comments_url = post["url"] + "/comments"
-        post["comments"] = comments_url
-
-        commentSrc = {
-            "id": comments_url,
-            "type": "comments",
-            "page": get_pagination_params().page,
-            "size": get_pagination_params().size,
-            "post": post["url"],
-        }
+        # post["count"] = len(self.comments.all())
+        # comments_url = post["url"] + "/comments"
+        # post["comments"] = comments_url
+        #
+        # commentSrc = {
+        #     "id": comments_url,
+        #     "type": "comments",
+        #     "page": get_pagination_params().page,
+        #     "size": get_pagination_params().size,
+        #     "post": post["url"],
+        # }
 
         # Renaming url to id
         post["id"] = post["url"]
 
         # TODO jsonify comments correctly here
-        commentSrc["comments"] = self.comments.paginate(**get_pagination_params().dict).items
-
-        post["commentSrc"] = commentSrc
+        # commentSrc["comments"] = self.comments.paginate(**get_pagination_params().dict).items
+        #
+        # post["commentSrc"] = commentSrc
         del post["inbox"]
         del post["url"]
         return post

@@ -1,0 +1,37 @@
+.notification {
+  display: flex;
+  height: 130px;
+  border-bottom: solid #4b3131;
+  background-color: #141212;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  font-weight: bold;
+  font-size: 1em; /* set font size for the container */
+}
+
+.notification .left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 35px;
+  font-size: 1.7em;
+}
+
+.notification .right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: 35px;
+  height: 100%;
+  font-size: 2.5em;
+}
+
+.notification-logo {
+  border: 2px solid white;
+  border-radius: 100%;
+}
+
+b {
+  font-size: 1.1em;
+}

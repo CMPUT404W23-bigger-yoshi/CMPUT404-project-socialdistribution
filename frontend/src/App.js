@@ -11,6 +11,10 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
+    path: '/author/:id/posts/:postId',
+    element: <Home />
+  },
+  {
     path: '/login',
     element: <Login type="Login" />
   },
@@ -24,6 +28,10 @@ const router = createBrowserRouter([
   },
   {
     path: '/profile',
+    element: <Home />
+  },
+  {
+    path: '/author/:id/posts/:postId',
     element: <Home />
   },
   {

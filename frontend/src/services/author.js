@@ -26,3 +26,23 @@ export const getCurrentUserId = async () => {
 export const getCurrentUserDetails = async (authorId) => {
   return await axios.get(`/authors/${authorId}`);
 };
+
+export const updateCurrentUserDetails = async (authorId, data) => {
+  const userDetails = {
+    ...data,
+    type: 'author'
+  };
+  const config = {
+    method: 'post',
+    url: `/authors/${authorId}`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(userDetails)
+  };
+  return axios(config);
+};
+
+export const getFollowersCount = async (authorId) => {
+  return await axios.get(`/authors/${authorId}/followers`);
+};

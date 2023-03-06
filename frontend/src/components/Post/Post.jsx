@@ -1,68 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './Post.css';
-import { getPost } from '../../services/post';
+import { deletePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
+import CreatePostModal from './CreatePostModal';
 
 const Post = (props) => {
-  const { postId, authorId } = props;
+  const { post } = props;
   const [showShareModal, setShowShareModal] = useState(false);
-  const [post, setPost] = useState({
-    type: 'post',
-    title: 'A post title about a post about web dev',
-    id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e',
-    source: 'http://lastplaceigotthisfrom.com/posts/yyyyy',
-    origin: 'http://whereitcamefrom.com/posts/zzzzz',
-    description: 'This post discusses stuff -- brief',
-    contentType: 'text/plain',
-    content:
-      '# A\n **post** title about a post about web dev\nAP is kinda OP ngl',
-    author: {
-      type: 'author',
-      id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e',
-      host: 'http://127.0.0.1:5454/',
-      displayName: 'Lara Croft',
-      url: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e',
-      github: 'http://github.com/laracroft',
-      profileImage: 'https://i.imgur.com/k7XVwpB.jpeg'
-    },
-    categories: ['web', 'tutorial'],
-    count: 1023,
-    comments:
-      'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments',
-    commentsSrc: {
-      type: 'comments',
-      page: 1,
-      size: 5,
-      post: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e',
-      id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments',
-      comments: [
-        {
-          type: 'comment',
-          author: {
-            type: 'author',
-            id: 'http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471',
-            url: 'http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471',
-            host: 'http://127.0.0.1:5454/',
-            displayName: 'Greg Johnson',
-            github: 'http://github.com/gjohnson',
-            profileImage: 'https://i.imgur.com/k7XVwpB.jpeg'
-          },
-          comment: 'Sick Olde English',
-          contentType: 'text/markdown',
-          published: '2015-03-09T13:07:04+00:00',
-          id: 'http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments/f6255bb01c648fe967714d52a89e8e9c'
-        }
-      ]
-    },
-    image: 'https://i.imgur.com/k7XVwpB.jpeg',
-    published: '2015-03-09T13:07:04+00:00',
-    visibility: 'PUBLIC',
-    unlisted: false
-  });
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  function getIdFromUrl(url) {
+    const urlParts = url.split('/');
+    return urlParts[urlParts.length - 1];
+  }
 
   function formatDate(date) {
     const now = new Date();
@@ -82,17 +36,13 @@ const Post = (props) => {
     return diffInWeeks + ' w';
   }
 
-  useEffect(() => {
-    getPost(authorId, postId)
-      .then((response) => {
-        setPost(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [authorId, postId]);
   return (
     <>
+      <CreatePostModal
+        post={post}
+        show={showEditModal}
+        handleClose={() => setShowEditModal(false)}
+      />
       <ShareModal
         show={showShareModal}
         handleClose={() => setShowShareModal(false)}
@@ -111,6 +61,7 @@ const Post = (props) => {
                 <img
                   src={post.author.profileImage}
                   className="post-profile-image"
+                  alt={post.author.displayName}
                 />
                 <div className="post-info-author">
                   <div className="post-author-name">
@@ -137,11 +88,12 @@ const Post = (props) => {
               <h3>{post.title}</h3>
             </div>
             <div className="post-categories">
-              {post.categories.map((category, idx) => (
-                <div key={idx} className="post-category">
-                  {category}
-                </div>
-              ))}
+              {post.categories.length > 0 &&
+                post.categories.map((category, idx) => (
+                  <div key={idx} className="post-category">
+                    {category}
+                  </div>
+                ))}
             </div>
             <div className="post-body">
               {post.contentType === 'text/markdown' ? (
@@ -187,8 +139,30 @@ const Post = (props) => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item href="#/action-1">Edit</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Delete</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setShowEditModal(true)}>
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={async () => {
+                        const confirmDelete = window.confirm(
+                          'Are you sure you want to delete this post?'
+                        );
+                        if (confirmDelete) {
+                          try {
+                            const res = await deletePost(
+                              getIdFromUrl(post.author.id),
+                              getIdFromUrl(post.id)
+                            );
+                            console.log(res);
+                            window.location.reload();
+                          } catch (error) {
+                            console.log(error);
+                          }
+                        }
+                      }}
+                    >
+                      Delete
+                    </Dropdown.Item>
                     <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
                     <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
                   </Dropdown.Menu>

@@ -16,6 +16,18 @@ class Comment(db.Model):
 
     def getJSON(self):
         json = asdict(self)
+        json["type"] = "comment"
+
+        author = get_author_info(json["author_id"])
+        if not author:
+            return {}
+        json["author"] = author
+        json["id"] = self.post.url + "/comments/" + self.id
+
+        del json["author_id"]
+        del json["post_id"]
+
+        return json
 
     def __repr__(self) -> str:
         return f"<Comment {self.id}  author={self.author_id} post={self.post_id}>"
