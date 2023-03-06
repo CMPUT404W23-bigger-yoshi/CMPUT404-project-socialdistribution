@@ -7,18 +7,18 @@ import Post from '../Post/Post';
 import { useLocation } from 'react-router-dom';
 import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 
-const Profile = () => {
+const Profile = (props) => {
   // Get url location using useLocation hook
   const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [user, setUser] = useState({
     id: 'https://www.facebook.com/100009000000000',
     host: 'https://www.facebook.com',
-    username: 'Username',
+    displayName: 'Username',
     url: 'https://www.facebook.com/100009000000000',
     github: 'https://github.com/manpreetkaur',
     twitter: 'https://twitter.com/manpreetkaur',
-    profile_image: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+    profileImage: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
     following: 56,
@@ -29,7 +29,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        const userId = await getCurrentUserId();
+        let userId;
+        if (!props?.authorId) {
+          userId = await getCurrentUserId();
+        } else {
+          userId = { data: { id: props.authorId } };
+        }
         const user = await getCurrentUserDetails(userId.data.id);
         console.log(user.data);
         setUser(user.data);
@@ -53,13 +58,13 @@ const Profile = () => {
           <div className='profile-info'>
             <div className='profile-image'>
               {(user.profile_image ? (
-              <img src={user.profile_image} alt='profile' />
+              <img src={user.profileImage} alt='profile' />
               ) : (
               <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
               ))}
             </div>
             <div className='profile-name'>
-              <h1>{user.username}</h1>
+              <h1>{user.displayName}</h1>
             </div>
             <div className='profile-follow-stats'>
               <Row className='profile-follow-stats-row' xs={3}>

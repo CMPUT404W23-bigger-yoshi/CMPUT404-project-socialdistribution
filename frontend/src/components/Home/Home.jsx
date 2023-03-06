@@ -41,6 +41,20 @@ function Home() {
       return <h1>Notifications</h1>;
     } else if (location.pathname === '/settings') {
       return <h1>Settings</h1>;
+    } else if (
+      location.pathname.split('/').length === 5 &&
+      location.pathname.split('/')[1] === 'author' &&
+      location.pathname.split('/')[3] === 'posts'
+    ) {
+      const authorId = location.pathname.split('/')[2];
+      const postId = location.pathname.split('/')[4];
+      return <Post authorId={authorId} postId={postId} />;
+    } else if (
+      location.pathname.split('/').length === 3 &&
+      location.pathname.split('/')[1] === 'author'
+    ) {
+      const authorId = location.pathname.split('/')[2];
+      return <Profile authorId={authorId} />;
     } else {
       return <h1>404</h1>;
     }

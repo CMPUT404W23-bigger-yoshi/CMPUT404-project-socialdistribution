@@ -4,6 +4,8 @@ import { Button, Col, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
+import { generatePostId } from '../../services/post';
+import { getCurrentUserId } from '../../services/author';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(true);
@@ -21,6 +23,16 @@ export default function CreatePost(props) {
       setPost(props.post);
     }
   }, [props]);
+  async function createPost() {
+    try {
+      const userId = await getCurrentUserId();
+      const postId = await generatePostId(userId.data.id, post);
+      console.log(postId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const [showPreview, setShowPreview] = useState(false);
   return (
     toggleCreatePost
@@ -196,7 +208,7 @@ export default function CreatePost(props) {
                   >
                     Cancel
                   </Button>
-                  <Button variant='success' onClick={() => console.log(post)}>
+                  <Button variant='success' onClick={() => createPost()}>
                     Submit
                   </Button>
                 </div>
