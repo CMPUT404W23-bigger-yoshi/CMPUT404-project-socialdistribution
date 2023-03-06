@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for
+from flask.helpers import send_from_directory
 from sqlalchemy import URL
 
 # db must be initialized before importing models, that is what this import does
@@ -15,8 +16,13 @@ from api.user.posts import model
 url = URL.create("", username="", password="", host="", database="")  # dialect+driver
 
 
-def create_app(Testing=False):
+def create_app(testing_env=False):
     app = Flask(__name__, static_folder="../frontend/build", static_url_path="/")
+
+    @app.route("/")
+    def serve():
+        return send_from_directory(app.static_folder, "index.html")
+
     # note: Heroku will run things from the working directory as the root of this repo. Therefore, this path MUST
     # be relative to the root of the repo, NOT to this file. You will likely need to specify the working directory
     # as the root of this repo # when you run this file in your IDE
@@ -25,7 +31,7 @@ def create_app(Testing=False):
 
     app.config.from_object("api.config.Config")
 
-    if Testing:
+    if testing_env:
         app.config.update({"SQLALCHEMY_DATABASE_URI": "sqlite:///testing.db"})
 
     db.init_app(app)
@@ -42,4 +48,5 @@ def create_app(Testing=False):
 
 
 if __name__ == "__main__":
-    create_app().run()
+    app = create_app()
+    app.run()

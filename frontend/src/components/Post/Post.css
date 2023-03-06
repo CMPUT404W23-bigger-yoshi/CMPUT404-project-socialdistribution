@@ -1,0 +1,146 @@
+.post {
+  position: relative;
+  background: linear-gradient(90deg, #32ac74 0%, #1a8cd8 100%);
+  border-radius: 30px;
+  width: 100%;
+  max-width: 800px;
+  padding: 2px;
+  margin: 20px auto;
+}
+
+.post .post-container {
+  background-color: #090808;
+  border-radius: 30px;
+  padding: 20px;
+}
+
+.post .post-header {
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post .post-header .post-info {
+  padding: 0;
+  margin: 0;
+}
+
+.post .post-header .post-info .post-info-author {
+  display: inline-block;
+  float: left;
+  padding: 10px;
+}
+
+.post .post-header .post-info .post-info-author .post-date {
+  visibility: hidden;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: lightgray;
+}
+
+.post .post-header .post-info img {
+  display: inline-block;
+  float: left;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.post .post-header .post-profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  /* Align image to the right of the container */
+}
+
+.post .post-header .post-author-name {
+  /* Align text to the left of the container */
+  font-size: 1.5em;
+}
+
+.post .post-header .post-visibility {
+  /* Align text to the left of the container */
+  font-size: 1em;
+  font-weight: bold;
+  opacity: 1;
+  color: lightgray;
+}
+
+.post .post-header .post-published {
+  /* Align text to the top right of the container */
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 1em;
+  font-weight: bold;
+  color: lightgray;
+}
+
+@media only screen and (max-width: 768px) {
+  .post .post-header .post-published {
+    visibility: hidden;
+  }
+
+  .post .post-header .post-info .post-info-author .post-date {
+    visibility: visible;
+  }
+
+  .post .post-footer .post-buttons .icon-hint {
+    position: absolute;
+    visibility: hidden;
+  }
+}
+
+.post .post-categories {
+  margin: 10px auto;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.post .post-categories .post-category {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 0 10px 0 0;
+  border-radius: 5px;
+  background-color: #1a8cd8;
+  color: white;
+}
+
+.post .post-body {
+  margin: 20px 0;
+  font-size: 1.2em;
+  line-height: 1em;
+  font-weight: 400;
+}
+
+/* Reset the font weight for all text tags in .post .post-body */
+.post .post-body * {
+  font-weight: normal;
+}
+
+.post .post-image {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+}
+
+.post .post-image img {
+  width: 80%;
+  height: auto;
+}
+
+.post .post-footer {
+  padding: 20px 0 0 0;
+  text-align: center;
+}
+
+.post .post-footer .post-buttons button {
+  width: 100%;
+}
+
+.post .post-footer .post-buttons svg {
+  margin-right: 10px;
+}

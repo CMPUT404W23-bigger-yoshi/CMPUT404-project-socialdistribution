@@ -45,6 +45,13 @@ def get_single_author(author_id: str):
     return found_author.getJSON()
 
 
+@authors_bp.route("/authenticated_user_id", methods=["GET"])
+@login_required
+def authenticated_user_id():
+    if current_user.is_authenticated:
+        return {"id": current_user.id}
+
+
 @authors_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():

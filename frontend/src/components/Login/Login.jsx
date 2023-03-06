@@ -2,9 +2,10 @@ import './Login.css';
 import Logo from '../Logo/Logo';
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import { KeyFill, PersonFill } from 'react-bootstrap-icons';
-import React, { useState } from 'react';
-import { login, register } from '../../services/auth';
+import React, { useEffect, useState } from 'react';
+import { getCurrentUserId, login, register } from '../../services/author';
 import LoginModal from '../LoginModal/LoginModal';
+import { useNavigate } from 'react-router-dom';
 
 const textContent = {
   Login: {
@@ -29,11 +30,27 @@ const textContent = {
 };
 
 function Login(props) {
+  const navigate = useNavigate();
   const content = textContent[props.type];
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [errorMsg, setError] = useState('Error');
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const response = await getCurrentUserId();
+        if (response.status === 200) {
+          // Navigate to /
+          navigate('/');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getUserId().then((r) => console.log(r));
+  }, []);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -46,19 +63,29 @@ function Login(props) {
     if (props.type === 'Login') {
       login(formData)
         .then((response) => {
-          console.log(response);
+          navigate('/');
         })
         .catch((error) => {
-          setError(error.message || error.response.data);
+          console.log(error);
+          setError(error.response.data.message);
           handleShow();
         });
     } else {
+      // Check if passwords match
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        handleShow();
+        return;
+      }
       register(formData)
         .then((response) => {
-          console.log(response);
+          setError('Account created!');
+          handleShow();
+          navigate('/login');
         })
         .catch((error) => {
-          setError(error.message || error.response.data);
+          console.log(error);
+          setError(error.response.data.message);
           handleShow();
         });
     }
@@ -171,7 +198,7 @@ function Login(props) {
                 className="signup-link"
                 xs={12}
                 onClick={() => {
-                  window.location.href = content.redirect;
+                  navigate(content.redirect);
                 }}
               >
                 <p>{content.signup}</p>
