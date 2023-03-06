@@ -1,0 +1,25 @@
+.notificationsbox {
+  display: flex;
+  flex-direction: column;
+  border-style: solid;
+  border-color: rgb(45, 153, 104);
+  border-radius: 25px;
+  width: 55vw;
+  min-height: 90vh;
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  min-height: 8vh;
+  justify-content: space-evenly;
+  align-items: center;
+  font-size: 200%;
+  border-bottom: solid;
+  border-color: rgb(45, 153, 104);
+}
+
+.notificationsbox .notification:last-of-type {
+  border-radius: 0px 0px 25px 25px; /*Round bottom edges of last notification to match container*/
+}

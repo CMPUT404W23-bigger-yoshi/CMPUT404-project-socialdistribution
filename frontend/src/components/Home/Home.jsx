@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getCurrentUserId } from '../../services/author';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
-import { useLocation, useNavigate } from 'react-router-dom';
 import Post from '../Post/Post';
 import Profile from '../Profile/Profile';
+import Notifications from '../Notifications/Notifications';
 import CreatePost from '../Post/CreatePost';
-import { getCurrentUserId } from '../../services/author';
 import Settings from '../Settings/Settings';
 
 function Home() {
@@ -38,7 +39,7 @@ function Home() {
     } else if (location.pathname === '/private') {
       return <h1>Private Posts</h1>;
     } else if (location.pathname === '/notifications') {
-      return <h1>Notifications</h1>;
+      return <Notifications />;
     } else if (location.pathname === '/settings') {
       return <Settings />;
     } else if (
