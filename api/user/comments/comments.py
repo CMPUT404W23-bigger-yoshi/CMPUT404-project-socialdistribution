@@ -17,7 +17,7 @@ def get_comments(author_id: str, post_id: str):
     if not post:
         return {"message": "Post not found."}, 404
 
-    comments = post.comments.paginate(**get_pagination_params().as_dict()).items
+    comments = post.comments.paginate(**get_pagination_params().dict).items
     comment_list = []
 
     # If author (local or remote) is missing, skip that comment
