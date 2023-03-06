@@ -8,3 +8,5 @@ requests
 flask_bcrypt
 flask_login
 pytest
+flask-swagger
+flask-swagger-ui
