@@ -52,6 +52,13 @@ def get_single_author(author_id: str):
     return found_author.getJSON()
 
 
+@authors_bp.route("/authenticated_user_id", methods=["GET"])
+@login_required
+def authenticated_user_id():
+    if current_user.is_authenticated:
+        return {"id": current_user.id}
+
+
 @authors_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
@@ -97,7 +104,7 @@ def register_user():
     if user_exists:
         return {"message": "User Already exists"}, 409  # username already exists
 
-    user = Author(username=username, password=bcrypt.generate_password_hash(password), host="bigger")
+    user = Author(username=username, password=bcrypt.generate_password_hash(password).decode("utf-8"), host="bigger")
     db.session.add(user)
     db.session.commit()
     login_user(user)

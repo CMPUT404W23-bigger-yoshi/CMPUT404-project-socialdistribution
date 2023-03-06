@@ -24,7 +24,7 @@ def auth(client):
 
 @pytest.fixture
 def app():
-    app = create_app(Testing=True)
+    app = create_app(testing_env=True)
     app.config.update({"TESTING": True})
 
     yield app
