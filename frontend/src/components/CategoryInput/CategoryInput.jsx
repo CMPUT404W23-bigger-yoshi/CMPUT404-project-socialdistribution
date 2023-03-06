@@ -36,11 +36,7 @@ function CategoryInput(props) {
     <div style={{ display: 'flex' }} className="category-input">
       {categories.map((recipient, index) => (
         <span key={index} className="recipient" style={{ marginRight: '5px' }}>
-          {
-            recipient.length > 7
-              ? recipient.substring(0, 7) + '...'
-              : recipient
-          }
+          {recipient.length > 7 ? recipient.substring(0, 7) + '...' : recipient}
           <button className="remove" onClick={() => removeRecipient(index)}>
             x
           </button>

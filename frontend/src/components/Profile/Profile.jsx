@@ -18,7 +18,8 @@ const Profile = () => {
     url: 'https://www.facebook.com/100009000000000',
     github: 'https://github.com/manpreetkaur',
     twitter: 'https://twitter.com/manpreetkaur',
-    profile_image: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+    profile_image:
+      'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
     following: 56,
@@ -42,52 +43,56 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className='profile'>
+    <div className="profile">
       <ShareModal
         show={showShareModal}
         handleClose={() => setShowShareModal(false)}
         link={user.id}
       />
-      <div className='profile-border'>
-        <div className='profile-container'>
-          <div className='profile-info'>
-            <div className='profile-image'>
-              {(user.profile_image ? (
-              <img src={user.profile_image} alt='profile' />
+      <div className="profile-border">
+        <div className="profile-container">
+          <div className="profile-info">
+            <div className="profile-image">
+              {user.profile_image ? (
+                <img src={user.profile_image} alt="profile" />
               ) : (
-              <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
-              ))}
+                <img
+                  src="https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg"
+                  alt="profile"
+                />
+              )}
             </div>
-            <div className='profile-name'>
+            <div className="profile-name">
               <h1>{user.username}</h1>
             </div>
-            <div className='profile-follow-stats'>
-              <Row className='profile-follow-stats-row' xs={3}>
-                <Col className='px-4'>
+            <div className="profile-follow-stats">
+              <Row className="profile-follow-stats-row" xs={3}>
+                <Col className="px-4">
                   <h3>{userFollowStats.following}</h3>
                   <p>Following</p>
                 </Col>
-                <Col className='px-4'>
+                <Col className="px-4">
                   <h3>{userFollowStats.friends}</h3>
                   <p>Friends</p>
                 </Col>
-                <Col className='px-4'>
+                <Col className="px-4">
                   <h3>{userFollowStats.followers}</h3>
                   <p>Followers</p>
                 </Col>
               </Row>
             </div>
-            <div className='profile-links'>
+            <div className="profile-links">
               {user.github && (
                 <div
-                  className='profile-link github'
+                  className="profile-link github"
                   onClick={() => window.open(user.github, '_blank')}
                 >
                   <Github />
-                </div>)}
+                </div>
+              )}
               {user.twitter && (
                 <div
-                  className='profile-link twitter'
+                  className="profile-link twitter"
                   onClick={() => window.open(user.twitter, '_blank')}
                 >
                   <Twitter />
@@ -95,12 +100,12 @@ const Profile = () => {
               )}
             </div>
           </div>
-          <div className='profile-buttons'>
-            <Button className='profile-button follow'>
+          <div className="profile-buttons">
+            <Button className="profile-button follow">
               {location.pathname === '/profile' ? 'Edit' : 'Follow'}
             </Button>
             <Button
-              className='profile-button share'
+              className="profile-button share"
               onClick={() => setShowShareModal(true)}
             >
               Share
@@ -108,9 +113,9 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className='profile-post-border'>
-        <div className='profile-post-container'>
-          <div className='profile-posts'>
+      <div className="profile-post-border">
+        <div className="profile-post-container">
+          <div className="profile-posts">
             <Post />
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function Logout() {
         console.error(error);
       }
     };
-    logoutUser().then(r => console.log(r));
+    logoutUser().then((r) => console.log(r));
     navigate('/login');
   }, []);
   return <div></div>;

@@ -19,10 +19,10 @@ function Home() {
           console.log('Logged in: ', response.data);
         }
       } catch (error) {
-        navigate('/login')
+        navigate('/login');
       }
     };
-    checkLogin().then(r => console.log(r));
+    checkLogin().then((r) => console.log(r));
   }, []);
 
   const renderHeading = () => {
