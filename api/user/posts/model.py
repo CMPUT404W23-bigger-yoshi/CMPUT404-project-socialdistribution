@@ -17,7 +17,7 @@ def _constructURL(context):
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.String(50), default=_constructURL)
+    url: str = db.Column(db.Text, default=_constructURL)
     published: str = db.Column("published", db.String(20), nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)

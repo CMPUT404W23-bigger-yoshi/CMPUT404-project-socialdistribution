@@ -11,7 +11,10 @@ function Notifications() {
           <a>Posts</a>
           <a>Following</a>
         </div>
-        <Notification />
+        <Notification type="friend" person="Akshat" />
+        <Notification type="like" person="Manpreet" />
+        <Notification type="comment" person="Matty" />
+        <Notification type="follow" person="Your mom" />
       </div>
     </div>
   );

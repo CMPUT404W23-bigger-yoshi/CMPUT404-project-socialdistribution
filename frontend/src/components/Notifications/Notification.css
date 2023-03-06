@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: space-between;
   margin: 0;
+  font-weight: bold;
   font-size: 1em; /* set font size for the container */
 }
 
@@ -30,7 +31,6 @@
   border: 2px solid white;
   border-radius: 100%;
 }
-
 
 b {
   font-size: 1.1em;
