@@ -24,6 +24,7 @@ export default function CreatePost(props) {
       setPost(props.post);
     }
   }, [props]);
+
   async function createPost() {
     try {
       const userId = await getCurrentUserId();
@@ -44,9 +45,9 @@ export default function CreatePost(props) {
   }
 
   return toggleCreatePost ? (
-    <div className="create-post-button">
+    <div className='create-post-button'>
       <Button
-        variant="primary"
+        variant='primary'
         onClick={() => {
           setToggleCreatePost(props.post ? true : !toggleCreatePost);
         }}
@@ -55,28 +56,26 @@ export default function CreatePost(props) {
       </Button>
     </div>
   ) : (
-    <div>
-      <div className="create-post">
-        <div className="create-post-container">
-          <div className="create-post-header">
-            <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
-          </div>
+    <div className='create-post'>
+      <div className='create-post-container'>
+        <div className='create-post-header'>
+          <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
         </div>
-        <div className="post-content">
+        <div className='post-content'>
           {/* This will contain: */}
           {/* A bar that displays the content type on the left */}
           {/* The bar will allow user to toggle between text/plain and
             text/markdown using a button on the right */}
           {/* If the content type is text/plain, a textarea will be displayed */}
           {/* If the content type is text/markdown, a textarea will be displayed with a preview on the bottom right */}
-          <div className="post-content-type-bar">
-            <Row className="post-content-type">
-              <Col className="post-content-type-text" md={6} xs={12}>
+          <div className='post-content-type-bar'>
+            <Row className='post-content-type'>
+              <Col className='post-content-type-text' md={6} xs={12}>
                 {post.contentType === 'text/plain' ? 'Plain Text' : 'Markdown'}
               </Col>
-              <Col className="post-content-type-toggle" md={6} xs={12}>
+              <Col className='post-content-type-toggle' md={6} xs={12}>
                 <Button
-                  variant="outline-light"
+                  variant='outline-light'
                   onClick={() =>
                     setPost({
                       ...post,
@@ -93,29 +92,29 @@ export default function CreatePost(props) {
               </Col>
             </Row>
           </div>
-          <div className="post-content-text">
+          <div className='post-content-text'>
             {post.contentType === 'text/plain' ? (
               <textarea
-                placeholder="Write your post here..."
-                className="post-content-textarea"
+                placeholder='Write your post here...'
+                className='post-content-textarea'
                 rows={10}
                 onChange={(e) => setPost({ ...post, content: e.target.value })}
                 value={post.content}
               />
             ) : (
-              <div className="post-content-markdown">
+              <div className='post-content-markdown'>
                 {showPreview ? (
-                  <div className="post-content-markdown-preview">
+                  <div className='post-content-markdown-preview'>
                     <ReactMarkdown
                       children={post.content}
                       remarkPlugins={[remarkGfm]}
                     />
                   </div>
                 ) : (
-                  <div className="post-content-markdown-textarea">
+                  <div className='post-content-markdown-textarea'>
                     <textarea
-                      placeholder="Write your post here..."
-                      className="post-content-textarea"
+                      placeholder='Write your post here...'
+                      className='post-content-textarea'
                       rows={10}
                       onChange={(e) =>
                         setPost({ ...post, content: e.target.value })
@@ -125,7 +124,7 @@ export default function CreatePost(props) {
                   </div>
                 )}
                 <Button
-                  variant="outline-light"
+                  variant='outline-light'
                   onClick={() => setShowPreview(!showPreview)}
                 >
                   {showPreview ? 'Hide' : 'Show'} Preview
@@ -133,9 +132,9 @@ export default function CreatePost(props) {
               </div>
             )}
           </div>
-          <div className="post-details">
-            <Row className="post-details-bar">
-              <Col className="post-details-bar-item" xs={8}>
+          <div className='post-details'>
+            <Row className='post-details-bar'>
+              <Col className='post-details-bar-item' xs={8}>
                 <CategoryInput
                   categories={post.categories}
                   setCategories={(categories) =>
@@ -143,10 +142,10 @@ export default function CreatePost(props) {
                   }
                 />
               </Col>
-              <Col className="post-details-bar-item" xs={4}>
+              <Col className='post-details-bar-item' xs={4}>
                 <FormSelect
-                  className="post-details-bar visibility"
-                  aria-label="Default select example"
+                  className='post-details-bar visibility'
+                  aria-label='Default select example'
                   onChange={(e) => {
                     if (e.target.value === 'unlisted') {
                       setPost({
@@ -166,16 +165,16 @@ export default function CreatePost(props) {
                     post.unlisted ? 'unlisted' : post.visibility.toLowerCase()
                   }
                 >
-                  <option value="public">Public</option>
-                  <option value="friends">Friends</option>
-                  <option value="unlisted">Unlisted</option>
+                  <option value='public'>Public</option>
+                  <option value='friends'>Friends</option>
+                  <option value='unlisted'>Unlisted</option>
                 </FormSelect>
               </Col>
             </Row>
           </div>
-          <div className="post-submit">
+          <div className='post-submit'>
             <Button
-              variant="danger"
+              variant='danger'
               onClick={() => {
                 setToggleCreatePost(props.post ? false : !toggleCreatePost);
                 setPost({
@@ -192,7 +191,7 @@ export default function CreatePost(props) {
               Cancel
             </Button>
             <Button
-              variant="success"
+              variant='success'
               onClick={() => {
                 if (post.id) {
                   editPost();
@@ -204,72 +203,6 @@ export default function CreatePost(props) {
               Submit
             </Button>
           </div>
-        </div>
-        <div className="post-details">
-          {/* This will contain: */}
-          {/* A bar with three options: */}
-          {/* Categories */}
-          {/* Visibility */}
-          {/* Unlisted */}
-          <Row className="post-details-bar">
-            <Col className="post-details-bar-item" xs={8}>
-              <CategoryInput
-                categories={post.categories}
-                setCategories={(categories) => setPost({ ...post, categories })}
-              />
-            </Col>
-            <Col className="post-details-bar-item" xs={4}>
-              <FormSelect
-                className="post-details-bar visibility"
-                aria-label="Default select example"
-                onChange={(e) => {
-                  if (e.target.value === 'unlisted') {
-                    setPost({
-                      ...post,
-                      visibility: 'PUBLIC',
-                      unlisted: true
-                    });
-                  } else {
-                    setPost({
-                      ...post,
-                      visibility: e.target.value.toUpperCase(),
-                      unlisted: false
-                    });
-                  }
-                }}
-                value={
-                  post.unlisted ? 'unlisted' : post.visibility.toLowerCase()
-                }
-              >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="friends">Friends</option>
-                <option value="unlisted">Unlisted</option>
-              </FormSelect>
-            </Col>
-          </Row>
-        </div>
-        <div className="post-submit">
-          <Button
-            variant="danger"
-            onClick={() => {
-              setToggleCreatePost(!toggleCreatePost);
-              setPost({
-                type: 'post',
-                title: '',
-                content: '',
-                contentType: 'text/plain',
-                categories: [],
-                visibility: 'PUBLIC',
-                unlisted: false
-              });
-            }}
-          >
-            Cancel
-          </Button>
-          <Button variant="success" onClick={() => console.log(post)}>
-            Submit
-          </Button>
         </div>
       </div>
     </div>
