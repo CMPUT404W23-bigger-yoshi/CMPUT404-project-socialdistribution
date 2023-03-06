@@ -20,7 +20,7 @@ def get_authors():
       200:
         description: User created
     """
-    authors = Author.query.paginate(**get_pagination_params().as_dict()).items
+    authors = Author.query.paginate(**get_pagination_params().dict).items
     items = [author.getJSON() for author in authors]
     authors_json = {}
     authors_json["type"] = "authors"

@@ -83,7 +83,7 @@ class Post(db.Model):
         post["id"] = post["url"]
 
         # TODO jsonify comments correctly here
-        commentSrc["comments"] = self.comments.paginate(**get_pagination_params().as_dict()).items
+        commentSrc["comments"] = self.comments.paginate(**get_pagination_params().dict).items
 
         post["commentSrc"] = commentSrc
         del post["inbox"]

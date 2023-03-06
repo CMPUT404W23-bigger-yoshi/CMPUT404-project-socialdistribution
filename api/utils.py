@@ -22,7 +22,7 @@ class Paginator:
     page: int
 
     @property
-    def as_dict(self):
+    def dict(self):
         """returns a dictionary"""
         return asdict(self)
 
