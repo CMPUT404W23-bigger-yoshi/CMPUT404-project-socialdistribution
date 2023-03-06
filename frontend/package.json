@@ -27,8 +27,8 @@
     "eject": "react-scripts eject",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "prettier": "prettier src",
-    "prettier:fix": "prettier src --write"
+    "prettier": "prettier . --write --ignore-path='{\"^\":[\"build\"]}'",
+    "prettier:fix": "prettier . --write"
   },
   "eslintConfig": {
     "extends": [
