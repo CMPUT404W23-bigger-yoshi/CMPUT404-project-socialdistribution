@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 
 from sqlalchemy import Enum, event
 
-from api.app import db
+from api import db
 from api.user.author.model import Author
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
@@ -16,8 +16,8 @@ def _constructURL(context):
 
 @dataclass
 class Post(db.Model):
-    id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID)
-    url: str = db.Column(db.String(50), primary_key=True, default=_constructURL)
+    id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
+    url: str = db.Column(db.String(50), default=_constructURL)
     published: str = db.Column("published", db.String(20), nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)

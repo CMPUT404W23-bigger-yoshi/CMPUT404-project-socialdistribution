@@ -43,7 +43,7 @@ with `--no-verify` on the command line, or uninstall hooks entirely by running `
 
 The first time committing, hooks may take some time to install.
 
-### Deployment to Heroku
+### Heroku Usage
 
 TODO (MATT): do we want autopushes to Heroku via CI? this can be setup. In the meantime, manual deployments:
 
