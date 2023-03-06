@@ -18,7 +18,7 @@ def _constructURL(context):
 class Post(db.Model):
     id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
     url: str = db.Column(db.Text, default=_constructURL)
-    published: str = db.Column("published", db.String(20), nullable=False)
+    published: str = db.Column("published", db.String(50), nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     # server -> the last server from which this post was sent into the inbox of the receiver
