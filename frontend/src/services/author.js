@@ -31,7 +31,7 @@ export const updateCurrentUserDetails = async (authorId, data) => {
   const userDetails = {
     ...data,
     type: 'author'
-  }
+  };
   const config = {
     method: 'post',
     url: `/authors/${authorId}`,
@@ -39,10 +39,10 @@ export const updateCurrentUserDetails = async (authorId, data) => {
       'Content-Type': 'application/json'
     },
     data: JSON.stringify(userDetails)
-  }
+  };
   return axios(config);
-}
+};
 
 export const getFollowersCount = async (authorId) => {
   return await axios.get(`/authors/${authorId}/followers`);
-}
+};

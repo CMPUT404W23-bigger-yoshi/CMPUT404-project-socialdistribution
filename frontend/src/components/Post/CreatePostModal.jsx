@@ -22,7 +22,7 @@ function CreatePostModal(props) {
         </Modal.Footer>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default CreatePostModal;

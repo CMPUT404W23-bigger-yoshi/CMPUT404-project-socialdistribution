@@ -88,11 +88,12 @@ const Post = (props) => {
               <h3>{post.title}</h3>
             </div>
             <div className="post-categories">
-              {post.categories.length > 0 && post.categories.map((category, idx) => (
-                <div key={idx} className="post-category">
-                  {category}
-                </div>
-              ))}
+              {post.categories.length > 0 &&
+                post.categories.map((category, idx) => (
+                  <div key={idx} className="post-category">
+                    {category}
+                  </div>
+                ))}
             </div>
             <div className="post-body">
               {post.contentType === 'text/markdown' ? (
@@ -138,23 +139,30 @@ const Post = (props) => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={
-                      () => setShowEditModal(true)
-                    }>Edit</Dropdown.Item>
-                    <Dropdown.Item onClick={
-                      async () => {
-                        const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+                    <Dropdown.Item onClick={() => setShowEditModal(true)}>
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={async () => {
+                        const confirmDelete = window.confirm(
+                          'Are you sure you want to delete this post?'
+                        );
                         if (confirmDelete) {
                           try {
-                            const res = await deletePost(getIdFromUrl(post.author.id), getIdFromUrl(post.id));
+                            const res = await deletePost(
+                              getIdFromUrl(post.author.id),
+                              getIdFromUrl(post.id)
+                            );
                             console.log(res);
                             window.location.reload();
                           } catch (error) {
                             console.log(error);
                           }
                         }
-                      }
-                    }>Delete</Dropdown.Item>
+                      }}
+                    >
+                      Delete
+                    </Dropdown.Item>
                     <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
                     <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
                   </Dropdown.Menu>

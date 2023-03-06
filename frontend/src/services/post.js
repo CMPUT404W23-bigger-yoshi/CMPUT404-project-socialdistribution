@@ -53,7 +53,12 @@ export async function deletePost(authorId, postId) {
   return axios(config);
 }
 
-export async function updatePost(authorId, postId, newPostContent, oldPostContent) {
+export async function updatePost(
+  authorId,
+  postId,
+  newPostContent,
+  oldPostContent
+) {
   // authorId = last part of author url
   // postId = last part of post url
   const newAuthorId = authorId.split('/').pop();
@@ -66,8 +71,7 @@ export async function updatePost(authorId, postId, newPostContent, oldPostConten
         acc[key] = newPostContent[key];
       }
       return acc;
-    }
-    , {});
+    }, {});
     const config = {
       method: 'post',
       url: `/authors/${newAuthorId}/posts/${newPostId}`,

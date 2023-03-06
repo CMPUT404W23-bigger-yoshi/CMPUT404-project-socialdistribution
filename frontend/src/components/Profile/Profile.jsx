@@ -22,7 +22,8 @@ const Profile = (props) => {
     url: 'https://www.facebook.com/100009000000000',
     github: 'https://github.com/manpreetkaur',
     twitter: 'https://twitter.com/manpreetkaur',
-    profileImage: 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+    profileImage:
+      'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
     following: 56,
@@ -65,17 +66,20 @@ const Profile = (props) => {
         handleClose={() => setShowShareModal(false)}
         link={user.id}
       />
-      <div className='profile-border'>
-        <div className='profile-container'>
-          <div className='profile-info'>
-            <div className='profile-image'>
-              {(user.profileImage ? (
-                <img src={user.profileImage} alt='profile' />
+      <div className="profile-border">
+        <div className="profile-container">
+          <div className="profile-info">
+            <div className="profile-image">
+              {user.profileImage ? (
+                <img src={user.profileImage} alt="profile" />
               ) : (
-                <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
-              ))}
+                <img
+                  src="https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg"
+                  alt="profile"
+                />
+              )}
             </div>
-            <div className='profile-name'>
+            <div className="profile-name">
               <h1>{user.displayName}</h1>
             </div>
             <div className="profile-follow-stats">
@@ -113,12 +117,13 @@ const Profile = (props) => {
               )}
             </div>
           </div>
-          <div className='profile-buttons'>
-            <Button className='profile-button follow' onClick={
-              () => {
+          <div className="profile-buttons">
+            <Button
+              className="profile-button follow"
+              onClick={() => {
                 navigate('/settings');
-              }
-            }>
+              }}
+            >
               {location.pathname === '/profile' ? 'Edit' : 'Follow'}
             </Button>
             <Button
@@ -130,14 +135,20 @@ const Profile = (props) => {
           </div>
         </div>
       </div>
-      <div className='profile-post-border'>
-        <div className='profile-post-container'>
-          <div className='profile-posts'>
+      <div className="profile-post-border">
+        <div className="profile-post-container">
+          <div className="profile-posts">
             {posts?.items?.length > 0 ? (
               posts.items.map((post) => (
-                <Post key={post.id} post={post} setPosts={setPosts} posts={posts} />
-              ))) : (
-              <div className='no-posts'>
+                <Post
+                  key={post.id}
+                  post={post}
+                  setPosts={setPosts}
+                  posts={posts}
+                />
+              ))
+            ) : (
+              <div className="no-posts">
                 <h1>No posts to show</h1>
               </div>
             )}
