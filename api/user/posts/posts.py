@@ -92,7 +92,7 @@ def get_recent_posts(author_id: str):
     posts = (
         Post.query.filter_by(author=author.url, inbox=author_id)
         .order_by(desc(Post.published))
-        .paginate(**get_pagination_params().as_dict)
+        .paginate(**get_pagination_params().dict)
         .items
     )
 
@@ -224,7 +224,7 @@ def get_inbox(author_id: str):
     posts = (
         Post.query.filter_by(Post.author != author.url, inbox=author_id)
         .order_by(desc(Post.published))
-        .paginate(**get_pagination_params().as_dict())
+        .paginate(**get_pagination_params().dict)
         .items
     )
 
