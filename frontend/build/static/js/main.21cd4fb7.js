@@ -1,4 +1,4 @@
-/*! For license information please see main.5e8202d4.js.LICENSE.txt */
+/*! For license information please see main.21cd4fb7.js.LICENSE.txt */
 !(function () {
   var e = {
       694: function (e, t) {
@@ -32180,16 +32180,14 @@
                 })
               })
             : (0, Wt.jsx)('div', {
+                className: 'create-post',
                 children: (0, Wt.jsxs)('div', {
-                  className: 'create-post',
+                  className: 'create-post-container',
                   children: [
                     (0, Wt.jsx)('div', {
-                      className: 'create-post-container',
-                      children: (0, Wt.jsx)('div', {
-                        className: 'create-post-header',
-                        children: (0, Wt.jsx)('h2', {
-                          children: e.post ? 'Edit Post' : 'Create Post'
-                        })
+                      className: 'create-post-header',
+                      children: (0, Wt.jsx)('h2', {
+                        children: e.post ? 'Edit Post' : 'Create Post'
                       })
                     }),
                     (0, Wt.jsxs)('div', {
@@ -32407,102 +32405,6 @@
                               children: 'Submit'
                             })
                           ]
-                        })
-                      ]
-                    }),
-                    (0, Wt.jsx)('div', {
-                      className: 'post-details',
-                      children: (0, Wt.jsxs)(on, {
-                        className: 'post-details-bar',
-                        children: [
-                          (0, Wt.jsx)(Mn, {
-                            className: 'post-details-bar-item',
-                            xs: 8,
-                            children: (0, Wt.jsx)(Ug, {
-                              categories: s.categories,
-                              setCategories: function (e) {
-                                return c(Ht(Ht({}, s), {}, { categories: e }));
-                              }
-                            })
-                          }),
-                          (0, Wt.jsx)(Mn, {
-                            className: 'post-details-bar-item',
-                            xs: 4,
-                            children: (0, Wt.jsxs)(Kn, {
-                              className: 'post-details-bar visibility',
-                              'aria-label': 'Default select example',
-                              onChange: function (e) {
-                                'unlisted' === e.target.value
-                                  ? c(
-                                      Ht(
-                                        Ht({}, s),
-                                        {},
-                                        { visibility: 'PUBLIC', unlisted: !0 }
-                                      )
-                                    )
-                                  : c(
-                                      Ht(
-                                        Ht({}, s),
-                                        {},
-                                        {
-                                          visibility:
-                                            e.target.value.toUpperCase(),
-                                          unlisted: !1
-                                        }
-                                      )
-                                    );
-                              },
-                              value: s.unlisted
-                                ? 'unlisted'
-                                : s.visibility.toLowerCase(),
-                              children: [
-                                (0, Wt.jsx)('option', {
-                                  value: 'public',
-                                  children: 'Public'
-                                }),
-                                (0, Wt.jsx)('option', {
-                                  value: 'private',
-                                  children: 'Private'
-                                }),
-                                (0, Wt.jsx)('option', {
-                                  value: 'friends',
-                                  children: 'Friends'
-                                }),
-                                (0, Wt.jsx)('option', {
-                                  value: 'unlisted',
-                                  children: 'Unlisted'
-                                })
-                              ]
-                            })
-                          })
-                        ]
-                      })
-                    }),
-                    (0, Wt.jsxs)('div', {
-                      className: 'post-submit',
-                      children: [
-                        (0, Wt.jsx)(yr, {
-                          variant: 'danger',
-                          onClick: function () {
-                            r(!n),
-                              c({
-                                type: 'post',
-                                title: '',
-                                content: '',
-                                contentType: 'text/plain',
-                                categories: [],
-                                visibility: 'PUBLIC',
-                                unlisted: !1
-                              });
-                          },
-                          children: 'Cancel'
-                        }),
-                        (0, Wt.jsx)(yr, {
-                          variant: 'success',
-                          onClick: function () {
-                            return console.log(s);
-                          },
-                          children: 'Submit'
                         })
                       ]
                     })
@@ -33525,4 +33427,4 @@
       );
     })();
 })();
-//# sourceMappingURL=main.5e8202d4.js.map
+//# sourceMappingURL=main.21cd4fb7.js.map
