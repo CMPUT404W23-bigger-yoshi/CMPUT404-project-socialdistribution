@@ -1,4 +1,4 @@
-from api.app import db
+from api import db
 
 # todo sqlalchemy docs use meta with tables? idk why. will also need a table name i think
 
@@ -16,6 +16,6 @@ author_likes_posts = db.Table(
 
 post_images = db.Table(
     "post_images",
-    db.Column("post_id", db.String(50), db.ForeignKey("post.id")),
+    db.Column("post_id", db.String(200), db.ForeignKey("post.id")),
     db.Column("image", db.Text, nullable=False),
 )

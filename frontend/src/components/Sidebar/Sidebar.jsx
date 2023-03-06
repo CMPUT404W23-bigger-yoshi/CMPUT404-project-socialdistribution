@@ -72,10 +72,16 @@ function Sidebar() {
             <Nav.Link onClick={() => navigate('/private')} className="nav-link">
               <Lock className="icon" /> Private Posts
             </Nav.Link>
-            <Nav.Link onClick={() => navigate('/notifications')} className="nav-link">
+            <Nav.Link
+              onClick={() => navigate('/notifications')}
+              className="nav-link"
+            >
               <Bell className="icon" /> Notifications
             </Nav.Link>
-            <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
+            <Nav.Link
+              onClick={() => navigate('/settings')}
+              className="nav-link"
+            >
               <Gear className="icon" /> Settings
             </Nav.Link>
           </Nav>
