@@ -4,11 +4,12 @@ import { Button, Col, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
-import { generatePostId } from '../../services/post';
+import { generatePostId, updatePost } from '../../services/post';
 import { getCurrentUserId } from '../../services/author';
 
 export default function CreatePost(props) {
-  const [toggleCreatePost, setToggleCreatePost] = useState(true);
+  const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
+  const [showPreview, setShowPreview] = useState(false);
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -33,7 +34,15 @@ export default function CreatePost(props) {
     }
   }
 
-  const [showPreview, setShowPreview] = useState(false);
+  async function editPost() {
+    try {
+      const res = await updatePost(post.author.id, post.id, post, props.post);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   return (
     toggleCreatePost
       ? (
@@ -41,10 +50,10 @@ export default function CreatePost(props) {
           <Button
             variant='primary'
             onClick={() => {
-              setToggleCreatePost(!toggleCreatePost);
+              setToggleCreatePost(props.post ? true : !toggleCreatePost);
             }}
           >
-            Create Post
+            {props.post ? 'Edit Post' : 'Create Post'}
           </Button>
         </div>
         )
@@ -53,7 +62,7 @@ export default function CreatePost(props) {
           <div className='create-post'>
             <div className='create-post-container'>
               <div className='create-post-header'>
-                <h2>Create Post</h2>
+                <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
               </div>
               <div className='create-post-body'>
                 <div className='post-title'>
@@ -184,7 +193,6 @@ export default function CreatePost(props) {
                         value={post.unlisted ? 'unlisted' : post.visibility.toLowerCase()}
                       >
                         <option value='public'>Public</option>
-                        <option value='private'>Private</option>
                         <option value='friends'>Friends</option>
                         <option value='unlisted'>Unlisted</option>
                       </FormSelect>
@@ -194,7 +202,7 @@ export default function CreatePost(props) {
                 <div className='post-submit'>
                   <Button variant='danger'
                           onClick={() => {
-                            setToggleCreatePost(!toggleCreatePost);
+                            setToggleCreatePost(props.post ? false : !toggleCreatePost);
                             setPost({
                               type: 'post',
                               title: '',
@@ -208,7 +216,13 @@ export default function CreatePost(props) {
                   >
                     Cancel
                   </Button>
-                  <Button variant='success' onClick={() => createPost()}>
+                  <Button variant='success' onClick={() => {
+                    if (post.id) {
+                      editPost();
+                    } else {
+                      createPost();
+                    }
+                  }}>
                     Submit
                   </Button>
                 </div>

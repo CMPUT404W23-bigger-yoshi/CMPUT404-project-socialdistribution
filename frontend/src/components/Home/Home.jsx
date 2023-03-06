@@ -6,6 +6,7 @@ import Post from '../Post/Post';
 import Profile from '../Profile/Profile';
 import CreatePost from '../Post/CreatePost';
 import { getCurrentUserId } from '../../services/author';
+import Settings from '../Settings/Settings';
 
 function Home() {
   const location = useLocation();
@@ -30,7 +31,6 @@ function Home() {
       return (
         <>
           <CreatePost />
-          <Post />
         </>
       );
     } else if (location.pathname === '/profile') {
@@ -40,7 +40,7 @@ function Home() {
     } else if (location.pathname === '/notifications') {
       return <h1>Notifications</h1>;
     } else if (location.pathname === '/settings') {
-      return <h1>Settings</h1>;
+      return <Settings />;
     } else if (
       location.pathname.split('/').length === 5 &&
       location.pathname.split('/')[1] === 'author' &&

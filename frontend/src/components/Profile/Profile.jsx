@@ -6,11 +6,13 @@ import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
 import { useLocation } from 'react-router-dom';
 import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
+import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
   const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
     id: 'https://www.facebook.com/100009000000000',
     host: 'https://www.facebook.com',
@@ -36,8 +38,15 @@ const Profile = (props) => {
           userId = { data: { id: props.authorId } };
         }
         const user = await getCurrentUserDetails(userId.data.id);
-        console.log(user.data);
+        const posts = await getAllPosts(userId.data.id);
         setUser(user.data);
+        // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
+        posts.data.items.forEach((post) => {
+          if (post.categories === '') {
+            post.categories = [];
+          }
+        });
+        setPosts(posts.data);
         setUserFollowStats({ ...userFollowStats });
       } catch (err) {
         console.log(err);
@@ -45,7 +54,9 @@ const Profile = (props) => {
     };
     fetchUserId().catch((err) => console.log(err));
   }, []);
-
+  useEffect(() => {
+    console.log(posts);
+  }, [posts]);
   return (
     <div className='profile'>
       <ShareModal
@@ -57,7 +68,7 @@ const Profile = (props) => {
         <div className='profile-container'>
           <div className='profile-info'>
             <div className='profile-image'>
-              {(user.profile_image ? (
+              {(user.profileImage ? (
               <img src={user.profileImage} alt='profile' />
               ) : (
               <img src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg' alt='profile' />
@@ -116,7 +127,14 @@ const Profile = (props) => {
       <div className='profile-post-border'>
         <div className='profile-post-container'>
           <div className='profile-posts'>
-            <Post />
+            {posts?.items?.length > 0 ? (
+              posts.items.map((post) => (
+                <Post key={post.id} post={post} setPosts={setPosts} posts={posts} />
+              ))) : (
+              <div className='no-posts'>
+                <h1>No posts to show</h1>
+              </div>
+            )}
           </div>
         </div>
       </div>

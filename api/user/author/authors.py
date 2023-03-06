@@ -44,6 +44,27 @@ def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
 
+@authors_bp.route("/<string:author_id>", methods=["POST"])
+def update_author(author_id: str):
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
+    data = request.json
+    displayName = data.get("displayName", None)
+    github = data.get("github", None)
+    host = data.get("host", None)
+    profileImage = data.get("profileImage", None)
+
+    if displayName:
+        found_author.username = displayName
+    if github:
+        found_author.github = github
+    if host:
+        found_author.host = host
+    if profileImage:
+        found_author.profile_image = profileImage
+
+    db.session.commit()
+    return found_author.getJSON()
+
 
 @authors_bp.route("/authenticated_user_id", methods=["GET"])
 @login_required
