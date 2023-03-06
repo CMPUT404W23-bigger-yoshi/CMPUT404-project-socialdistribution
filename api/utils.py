@@ -35,7 +35,7 @@ class Paginator:
 
 
 def get_pagination_params() -> Paginator:
-    return Paginator(page=request.args.get("page", 1, type=int), size=request.args.get("size", 10, type=int))
+    return Paginator(page=request.args.get("page", 1, type=int), per_page=request.args.get("size", 10, type=int))
 
 
 def get_object_type(ID) -> str:
