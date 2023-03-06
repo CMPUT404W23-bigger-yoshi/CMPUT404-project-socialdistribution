@@ -222,7 +222,7 @@ def get_inbox(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     posts = (
-        Post.query.filter_by(Post.author != author.url, inbox=author_id)
+        Post.query.filter(Post.author != author.url, Post.inbox == author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items

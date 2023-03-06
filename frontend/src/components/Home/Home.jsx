@@ -8,10 +8,12 @@ import Profile from '../Profile/Profile';
 import Notifications from '../Notifications/Notifications';
 import CreatePost from '../Post/CreatePost';
 import Settings from '../Settings/Settings';
+import Feed from '../Feed/Feed';
 
 function Home() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [userId, setUserId] = React.useState(null);
   useEffect(() => {
     // Checks if user is logged in
     const checkLogin = async () => {
@@ -19,6 +21,7 @@ function Home() {
         const response = await getCurrentUserId();
         if (response.status === 200) {
           console.log('Logged in: ', response.data);
+          setUserId(response.data.id);
         }
       } catch (error) {
         navigate('/login');
@@ -32,6 +35,7 @@ function Home() {
       return (
         <>
           <CreatePost />
+          <Feed userId={userId} />
         </>
       );
     } else if (location.pathname === '/profile') {

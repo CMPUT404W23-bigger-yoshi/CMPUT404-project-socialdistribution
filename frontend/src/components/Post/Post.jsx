@@ -12,7 +12,6 @@ const Post = (props) => {
   const { post } = props;
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];

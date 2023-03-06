@@ -85,3 +85,12 @@ export async function updatePost(
     console.log(error);
   }
 }
+
+export async function getInbox(authorId) {
+  const config = {
+    method: 'get',
+    url: `/authors/${authorId}/inbox`,
+    headers: {}
+  };
+  return axios(config);
+}
