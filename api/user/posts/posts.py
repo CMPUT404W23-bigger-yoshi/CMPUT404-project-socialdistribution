@@ -230,6 +230,7 @@ def get_inbox(author_id: str):
 
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
+
 @posts_bp.route("/<string:author_id>/private", methods=["GET"])
 def get_private(author_id: str):
     # Gets all the posts that are private from the author
