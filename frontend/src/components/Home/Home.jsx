@@ -53,7 +53,7 @@ function Home() {
       return <Settings />;
     } else if (
       location.pathname.split('/').length === 5 &&
-      location.pathname.split('/')[1] === 'author' &&
+      location.pathname.split('/')[1] === 'authors' &&
       location.pathname.split('/')[3] === 'posts'
     ) {
       const authorId = location.pathname.split('/')[2];
@@ -61,7 +61,7 @@ function Home() {
       return <Post authorId={authorId} postId={postId} />;
     } else if (
       location.pathname.split('/').length === 3 &&
-      location.pathname.split('/')[1] === 'author'
+      location.pathname.split('/')[1] === 'authors'
     ) {
       const authorId = location.pathname.split('/')[2];
       return <Profile authorId={authorId} />;

@@ -1,20 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost } from '../../services/post';
+import { deletePost, getPost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
+import { useLocation } from 'react-router-dom';
 
 const Post = (props) => {
-  const { post } = props;
+  const [post, setPost] = useState(props.post);
+  const [postDetails, setPostDetails] = useState({
+    authorId: '',
+    postId: ''
+  });
+  const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];
+  }
+
+  useEffect(() => {
+    if (post) {
+      setPostDetails({
+        authorId: getIdFromUrl(post.author.id),
+        postId: getIdFromUrl(post.id)
+      });
+    } else if (location.pathname.split('/').length === 5) {
+      const authorId = location.pathname.split('/')[2];
+      const postId = location.pathname.split('/')[4];
+      console.log('Testing')
+      try {
+        getPost(authorId, postId).then((response) => {
+          setPost(response.data);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log('Post not found');
+    }
+  }, [postDetails]);
+
+  if (!post) {
+    return (
+      <div>
+        <h1>Post not found</h1>
+      </div>
+    )
   }
 
   function formatDate(date) {

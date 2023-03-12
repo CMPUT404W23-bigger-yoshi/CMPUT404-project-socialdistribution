@@ -33,9 +33,6 @@ function Sidebar() {
         <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
         </Nav.Link>
-        <Nav.Link onClick={() => navigate('/private')} className="nav-link">
-          <Lock /> Private Posts
-        </Nav.Link>
         <Nav.Link
           onClick={() => navigate('/notifications')}
           className="nav-link"
