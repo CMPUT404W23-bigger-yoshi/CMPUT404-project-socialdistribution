@@ -128,7 +128,7 @@ const Profile = (props) => {
                   navigate('/settings');
                 } else {
                   try {
-                    const res = followUser(props.authorId, getAuthorIdFromUrl(user.id));
+                    const res = followUser(props.currentUser, props.authorId);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
