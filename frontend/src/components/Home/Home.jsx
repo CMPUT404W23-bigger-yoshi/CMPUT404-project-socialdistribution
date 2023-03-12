@@ -39,13 +39,6 @@ function Home() {
       );
     } else if (location.pathname === '/profile') {
       return <Profile currentUser={userId} />;
-    } else if (location.pathname === '/private') {
-      return (
-        <>
-          <CreatePost />
-          <Feed userId={userId} isPrivate={true} />
-        </>
-      );
     } else if (location.pathname === '/notifications') {
       return <Notifications />;
     } else if (location.pathname === '/settings') {

@@ -5,7 +5,7 @@ import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
+import { followUser, getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
@@ -127,7 +127,12 @@ const Profile = (props) => {
                 if (props.currentUser === getAuthorIdFromUrl(user.id)) {
                   navigate('/settings');
                 } else {
-                  console.log('Followed');
+                  try {
+                    const res = followUser(props.authorId, getAuthorIdFromUrl(user.id));
+                    console.log(res);
+                  } catch (err) {
+                    console.log(err);
+                  }
                 }
               }}
             >

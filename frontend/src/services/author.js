@@ -54,3 +54,7 @@ export const searchSingleUser = async (username) => {
 export const searchMultipleUsers = async (username) => {
   return await axios.get(`/authors/${username}/search/multiple`);
 };
+
+export const followUser = async (authorId, foreignAuthorId) => {
+  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
+}
