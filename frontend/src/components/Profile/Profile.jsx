@@ -4,13 +4,14 @@ import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
   const navigate = useNavigate();
+  const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
@@ -55,7 +56,7 @@ const Profile = (props) => {
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, []);
+  }, [location.pathname]);
   const getAuthorIdFromUrl = (url) => {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];
