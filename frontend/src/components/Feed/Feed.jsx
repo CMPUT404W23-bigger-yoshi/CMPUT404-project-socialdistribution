@@ -21,10 +21,10 @@ function Feed(props) {
         console.log(error);
       }
     };
-    fetchPosts().then(r => console.log(r));
+    fetchPosts().then((r) => console.log(r));
   }, [userId, isPrivate]);
   return (
-    <div className='feed'>
+    <div className="feed">
       {posts.length > 0 ? (
         posts.map((post) => <Post post={post} key={post.id} />)
       ) : (

@@ -25,15 +25,15 @@ function Sidebar() {
   }, []);
 
   return !isSmallScreen ? (
-    <Navbar className='sidebar'>
-      <Navbar.Brand href='/'>
-        <img src={YoshiPhone} alt='BiggerYoshiLogo' className='sidelogo' />
+    <Navbar className="sidebar">
+      <Navbar.Brand href="/">
+        <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
       {/* Include search bar here */}
-      <Form className='d-flex search-bar'>
+      <Form className="d-flex search-bar">
         <Typeahead
-          id='search-bar'
-          labelKey='displayName'
+          id="search-bar"
+          labelKey="displayName"
           onChange={(selected) => {
             if (selected.length > 0) {
               // Get the last part of the URL (that is the id)
@@ -52,69 +52,69 @@ function Sidebar() {
             });
           }}
           options={usernames}
-          placeholder='Search for users...'
+          placeholder="Search for users..."
           selected={[]}
         />
       </Form>
-      <Nav activeKey={location.pathname} className='nav-links'>
-        <Nav.Link onClick={() => navigate('/')} className='nav-link'>
+      <Nav activeKey={location.pathname} className="nav-links">
+        <Nav.Link onClick={() => navigate('/')} className="nav-link">
           <Inbox /> Inbox
         </Nav.Link>
-        <Nav.Link onClick={() => navigate('/profile')} className='nav-link'>
+        <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
         </Nav.Link>
         <Nav.Link
           onClick={() => navigate('/notifications')}
-          className='nav-link'
+          className="nav-link"
         >
           <Bell /> Notifications
         </Nav.Link>
-        <Nav.Link onClick={() => navigate('/settings')} className='nav-link'>
+        <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
           <Gear /> Settings
         </Nav.Link>
       </Nav>
       <Button
-        variant='success'
-        className='admin-button'
+        variant="success"
+        className="admin-button"
         onClick={() => navigate('/logout')}
       >
         Logout
       </Button>
     </Navbar>
   ) : (
-    <Navbar expand='lg' variant='dark' className='top-navbar'>
+    <Navbar expand="lg" variant="dark" className="top-navbar">
       <Container>
-        <Navbar.Brand href='/'>
-          <img src={YoshiPhone} alt='BiggerYoshiLogo' className='sidelogo' />
+        <Navbar.Brand href="/">
+          <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls='basic-navbar-nav' />
-        <Navbar.Collapse id='basic-navbar-nav'>
-          <Nav className='me-auto'>
-            <Nav.Link className='nav-link' onClick={() => navigate('/')}>
-              <Inbox className='icon' /> Inbox
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link className="nav-link" onClick={() => navigate('/')}>
+              <Inbox className="icon" /> Inbox
             </Nav.Link>
-            <Nav.Link onClick={() => navigate('/profile')} className='nav-link'>
-              <Person className='icon' /> Profile
+            <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
+              <Person className="icon" /> Profile
             </Nav.Link>
-            <Nav.Link onClick={() => navigate('/private')} className='nav-link'>
-              <Lock className='icon' /> Private Posts
+            <Nav.Link onClick={() => navigate('/private')} className="nav-link">
+              <Lock className="icon" /> Private Posts
             </Nav.Link>
             <Nav.Link
               onClick={() => navigate('/notifications')}
-              className='nav-link'
+              className="nav-link"
             >
-              <Bell className='icon' /> Notifications
+              <Bell className="icon" /> Notifications
             </Nav.Link>
             <Nav.Link
               onClick={() => navigate('/settings')}
-              className='nav-link'
+              className="nav-link"
             >
-              <Gear className='icon' /> Settings
+              <Gear className="icon" /> Settings
             </Nav.Link>
           </Nav>
           <Button
-            variant='success'
-            className='admin-button'
+            variant="success"
+            className="admin-button"
             onClick={() => navigate('/logout')}
           >
             Logout

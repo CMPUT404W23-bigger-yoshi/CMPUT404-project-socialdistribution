@@ -73,11 +73,15 @@ def update_author(author_id: str):
     db.session.commit()
     return found_author.getJSON()
 
+
 @authors_bp.route("/<string:author_username>/search/multiple", methods=["GET"])
 def get_author_id_all(author_username: str):
-    found_authors = Author.query.filter(Author.username.like(f"%{author_username}%"), Author.id != current_user.id).all()
+    found_authors = Author.query.filter(
+        Author.username.like(f"%{author_username}%"), Author.id != current_user.id
+    ).all()
     authors_json = {"type": "authors", "items": [author.getJSON() for author in found_authors]}
     return authors_json
+
 
 @authors_bp.route("/authenticated_user_id", methods=["GET"])
 @login_required

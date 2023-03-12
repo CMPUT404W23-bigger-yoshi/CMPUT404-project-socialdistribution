@@ -45,7 +45,7 @@ function Home() {
           <CreatePost />
           <Feed userId={userId} isPrivate={true} />
         </>
-      )
+      );
     } else if (location.pathname === '/notifications') {
       return <Notifications />;
     } else if (location.pathname === '/settings') {
@@ -55,9 +55,7 @@ function Home() {
       location.pathname.split('/')[3] === 'posts'
     ) {
       return <Post />;
-    } else if (
-      location.pathname.split('/')[1] === 'authors'
-    ) {
+    } else if (location.pathname.split('/')[1] === 'authors') {
       const authorId = location.pathname.split('/')[2];
       return <Profile currentUser={userId} authorId={authorId} />;
     } else {

@@ -60,7 +60,7 @@ const Profile = (props) => {
   const getAuthorIdFromUrl = (url) => {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];
-  }
+  };
 
   return (
     <div className="profile">
@@ -131,7 +131,9 @@ const Profile = (props) => {
                 }
               }}
             >
-              {props.currentUser === getAuthorIdFromUrl(user.id) ? 'Edit' : 'Follow'}
+              {props.currentUser === getAuthorIdFromUrl(user.id)
+                ? 'Edit'
+                : 'Follow'}
             </Button>
             <Button
               className="profile-button share"

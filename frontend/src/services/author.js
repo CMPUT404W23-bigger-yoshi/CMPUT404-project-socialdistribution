@@ -49,8 +49,8 @@ export const getFollowersCount = async (authorId) => {
 
 export const searchSingleUser = async (username) => {
   return await axios.get(`/authors/${username}/search`);
-}
+};
 
 export const searchMultipleUsers = async (username) => {
   return await axios.get(`/authors/${username}/search/multiple`);
-}
+};
