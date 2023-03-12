@@ -31,6 +31,12 @@
     color: #fff;
 }
 
+.sidebar .search-bar a .rbt-highlight-text {
+    color: black;
+    font-weight: 600;
+    padding: 0;
+}
+
 .sidebar .search-bar input {
     width: 100%;
     border: none;

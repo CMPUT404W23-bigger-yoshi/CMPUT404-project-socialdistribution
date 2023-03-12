@@ -24,13 +24,6 @@ function Sidebar() {
     };
   }, []);
 
-  const handleSearch = (username) => {
-    // Search for users
-    searchMultipleUsers(username).then((response) => {
-      setUsernames(response.data.items);
-    });
-  };
-
   return !isSmallScreen ? (
     <Navbar className='sidebar'>
       <Navbar.Brand href='/'>
@@ -44,11 +37,20 @@ function Sidebar() {
           onChange={(selected) => {
             if (selected.length > 0) {
               // Get the last part of the URL (that is the id)
+              setUsernames([]);
               const id = selected[0].id.split('/').pop();
               navigate(`/authors/${id}`);
             }
           }}
-          onInputChange={(text) => handleSearch(text)}
+          onInputChange={(username) => {
+            if (username.length === 0) {
+              setUsernames([]);
+              return;
+            }
+            searchMultipleUsers(username).then((response) => {
+              setUsernames(response.data.items);
+            });
+          }}
           options={usernames}
           placeholder='Search for users...'
           selected={[]}
