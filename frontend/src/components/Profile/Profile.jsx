@@ -4,15 +4,13 @@ import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
-  const location = useLocation();
   const navigate = useNavigate();
-
   const [showShareModal, setShowShareModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
@@ -121,10 +119,16 @@ const Profile = (props) => {
             <Button
               className="profile-button follow"
               onClick={() => {
-                navigate('/settings');
+                // If props.currentUser == user.id, then navigate('/settings')
+                // Else make a dummy follow console.log('Followed')
+                if (props.currentUser === user.id) {
+                  navigate('/settings');
+                } else {
+                  console.log('Followed');
+                }
               }}
             >
-              {location.pathname === '/profile' ? 'Edit' : 'Follow'}
+              {props.currentUser === user.id ? 'Edit' : 'Follow'}
             </Button>
             <Button
               className="profile-button share"

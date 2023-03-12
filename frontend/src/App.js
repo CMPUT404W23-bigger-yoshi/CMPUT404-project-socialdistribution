@@ -35,6 +35,10 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
+    path: '/authors/:id',
+    element: <Home />
+  },
+  {
     path: '/private',
     element: <Home />
   },

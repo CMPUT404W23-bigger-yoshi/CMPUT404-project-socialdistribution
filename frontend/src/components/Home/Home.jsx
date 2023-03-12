@@ -31,6 +31,7 @@ function Home() {
   }, []);
 
   const renderHeading = () => {
+    console.log(location.pathname)
     if (location.pathname === '/') {
       return (
         <>
@@ -39,7 +40,7 @@ function Home() {
         </>
       );
     } else if (location.pathname === '/profile') {
-      return <Profile />;
+      return <Profile currentUser={userId} />;
     } else if (location.pathname === '/private') {
       return (
         <>
@@ -52,17 +53,14 @@ function Home() {
     } else if (location.pathname === '/settings') {
       return <Settings />;
     } else if (
-      location.pathname.split('/').length === 5 &&
       location.pathname.split('/')[1] === 'authors' &&
       location.pathname.split('/')[3] === 'posts'
     ) {
-      const authorId = location.pathname.split('/')[2];
-      const postId = location.pathname.split('/')[4];
-      return <Post authorId={authorId} postId={postId} />;
+      return <Post />;
     } else if (
-      location.pathname.split('/').length === 3 &&
       location.pathname.split('/')[1] === 'authors'
     ) {
+      console.log('Testing')
       const authorId = location.pathname.split('/')[2];
       return <Profile authorId={authorId} />;
     } else {
