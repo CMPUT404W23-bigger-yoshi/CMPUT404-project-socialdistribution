@@ -51,6 +51,7 @@ def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
 
+
 @authors_bp.route("/<string:author_id>", methods=["POST"])
 def update_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()

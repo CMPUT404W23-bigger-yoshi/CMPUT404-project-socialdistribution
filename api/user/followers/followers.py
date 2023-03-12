@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 
 from api import db
 from api.user.author.model import Author
-from api.user.followers.model import NonLocalFollower
+from api.user.followers.model import NonLocalFollower, follows_table
 
 followers_bp = Blueprint("followers", __name__)
 
@@ -27,18 +27,24 @@ def followers(author_id: str):
     local_followers = local_followers + non_local_followers
     return jsonify(local_followers)
 
+
 @followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
 def followers_count(author_id: str):
     """get a list of authors who are AUTHOR_ID’s followers"""
-    found_author = Author.query.filter_by(id=author_id).first()
-    if not found_author:
-        return {"message": "No Author found"}, 404
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
+
     # todo : do we need to ask for more information? unless required will cause response
     #  failure if other teams node throws an error
     non_local_followers = list(found_author.non_local_follows.all())
     local_followers = list(found_author.follows.all())
-    local_followers = local_followers + non_local_followers
-    return {"count": len(local_followers)}
+    return {"count": len(local_followers) + len(non_local_followers)}
+
+
+@followers_bp.route("/<string:author_id>/following/count/", methods=["GET"])
+def following_count(author_id: str):
+    following = Author.query.filter_by(id=author_id).join(follows_table, follows_table.c.follower_id == Author.id).all()
+    non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).all()
+    return {"count": len(following) + len(non_local_following)}
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
