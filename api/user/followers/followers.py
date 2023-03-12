@@ -43,7 +43,8 @@ def followers_count(author_id: str):
 @followers_bp.route("/<string:author_id>/following/count/", methods=["GET"])
 def following_count(author_id: str):
     following = Author.query.filter_by(id=author_id).join(follows_table, follows_table.c.follower_id == Author.id).all()
-    return jsonify(len(following))
+    non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).all()
+    return {"count": len(following) + len(non_local_following)}
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
