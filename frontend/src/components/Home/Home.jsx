@@ -20,7 +20,6 @@ function Home() {
       try {
         const response = await getCurrentUserId();
         if (response.status === 200) {
-          console.log('Logged in: ', response.data);
           setUserId(response.data.id);
         }
       } catch (error) {
@@ -31,7 +30,6 @@ function Home() {
   }, []);
 
   const renderHeading = () => {
-    console.log(location.pathname)
     if (location.pathname === '/') {
       return (
         <>
@@ -60,9 +58,8 @@ function Home() {
     } else if (
       location.pathname.split('/')[1] === 'authors'
     ) {
-      console.log('Testing')
       const authorId = location.pathname.split('/')[2];
-      return <Profile authorId={authorId} />;
+      return <Profile currentUser={userId} authorId={authorId} />;
     } else {
       return <h1>404</h1>;
     }

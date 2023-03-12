@@ -56,6 +56,10 @@ const Profile = (props) => {
     };
     fetchUserId().catch((err) => console.log(err));
   }, []);
+  const getAuthorIdFromUrl = (url) => {
+    const urlParts = url.split('/');
+    return urlParts[urlParts.length - 1];
+  }
 
   return (
     <div className="profile">
@@ -119,16 +123,14 @@ const Profile = (props) => {
             <Button
               className="profile-button follow"
               onClick={() => {
-                // If props.currentUser == user.id, then navigate('/settings')
-                // Else make a dummy follow console.log('Followed')
-                if (props.currentUser === user.id) {
+                if (props.currentUser === getAuthorIdFromUrl(user.id)) {
                   navigate('/settings');
                 } else {
                   console.log('Followed');
                 }
               }}
             >
-              {props.currentUser === user.id ? 'Edit' : 'Follow'}
+              {props.currentUser === getAuthorIdFromUrl(user.id) ? 'Edit' : 'Follow'}
             </Button>
             <Button
               className="profile-button share"
