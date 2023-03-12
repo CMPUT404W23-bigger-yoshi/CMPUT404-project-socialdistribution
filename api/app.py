@@ -27,8 +27,8 @@ def create_app(testing_env=False):
     react_build_dir = Path("../frontend/build")
     app = Flask(__name__, static_folder=react_build_dir)
 
-    @app.route('/', defaults={'path': 'index.html'})
-    @app.route('/<path:path>')
+    @app.route("/", defaults={"path": "index.html"})
+    @app.route("/<path:path>")
     def serve(path):
         if not (react_build_dir / path).exists():
             # for anything that we don't recognize, it's likely a frontend path, so we can serve index.html
