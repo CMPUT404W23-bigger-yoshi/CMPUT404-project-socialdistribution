@@ -72,11 +72,6 @@ def update_author(author_id: str):
     db.session.commit()
     return found_author.getJSON()
 
-@authors_bp.route("/<string:author_username>/search", methods=["GET"])
-def get_author_id(author_username: str):
-    found_author = Author.query.filter_by(username=author_username).first_or_404()
-    return found_author.getJSON()
-
 # Get multiple authors with the username similar to the query string using fuzzy search
 @authors_bp.route("/<string:author_username>/search/multiple", methods=["GET"])
 def get_author_id_all(author_username: str):
