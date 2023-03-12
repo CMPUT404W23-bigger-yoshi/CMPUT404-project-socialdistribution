@@ -21,6 +21,41 @@
   gap: 20px;
 }
 
+.sidebar .search-bar {
+  width: 80%;
+  margin: 15%;
+  border-radius: 15px;
+  border-color: #09b14f;
+  background-color: #414141;
+  padding: 5px;
+  color: #fff;
+}
+
+.sidebar .search-bar a .rbt-highlight-text {
+  color: black;
+  font-weight: 600;
+  padding: 0;
+}
+
+.sidebar .search-bar input {
+  width: 100%;
+  border: none;
+  background-color: #414141;
+  color: #fff;
+}
+
+.sidebar .search-bar input:focus,
+.sidebar .search-bar input:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.sidebar .search-bar button {
+  border: none;
+  border-radius: 15px;
+  color: #fff;
+}
+
 .sidebar .nav-links {
   height: 100%;
   display: flex;

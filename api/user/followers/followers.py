@@ -68,7 +68,7 @@ def remove_follower(author_id: str, foreign_author_id: str):
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["PUT"])
-# @login_required
+@login_required
 def add_follower(author_id: str, foreign_author_id: str):
     """Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (must be authenticated)"""
     # todo need clarification: does this authentication need an admin? or author_id should be the one authenticated

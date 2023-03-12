@@ -5,14 +5,13 @@ import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
+import { followUser, getCurrentUserDetails, getCurrentUserId } from '../../services/author';
 import { getAllPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
-  const location = useLocation();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
@@ -57,7 +56,11 @@ const Profile = (props) => {
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, []);
+  }, [location.pathname]);
+  const getAuthorIdFromUrl = (url) => {
+    const urlParts = url.split('/');
+    return urlParts[urlParts.length - 1];
+  };
 
   return (
     <div className="profile">
@@ -121,10 +124,21 @@ const Profile = (props) => {
             <Button
               className="profile-button follow"
               onClick={() => {
-                navigate('/settings');
+                if (props.currentUser === getAuthorIdFromUrl(user.id)) {
+                  navigate('/settings');
+                } else {
+                  try {
+                    const res = followUser(props.currentUser, props.authorId);
+                    console.log(res);
+                  } catch (err) {
+                    console.log(err);
+                  }
+                }
               }}
             >
-              {location.pathname === '/profile' ? 'Edit' : 'Follow'}
+              {props.currentUser === getAuthorIdFromUrl(user.id)
+                ? 'Edit'
+                : 'Follow'}
             </Button>
             <Button
               className="profile-button share"

@@ -46,3 +46,15 @@ export const updateCurrentUserDetails = async (authorId, data) => {
 export const getFollowersCount = async (authorId) => {
   return await axios.get(`/authors/${authorId}/followers`);
 };
+
+export const searchSingleUser = async (username) => {
+  return await axios.get(`/authors/${username}/search`);
+};
+
+export const searchMultipleUsers = async (username) => {
+  return await axios.get(`/authors/${username}/search/multiple`);
+};
+
+export const followUser = async (authorId, foreignAuthorId) => {
+  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
+}
