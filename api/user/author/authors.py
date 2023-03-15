@@ -29,21 +29,21 @@ def get_authors():
     return authors_json
 
 
-@authors_bp.route("/admin", methods=["POST"])
-def create_author():
-    """
-    Endpoint for Only Testing purposes
-    """
-    data = request.json
-    displayName = data.get("displayName", None)
-    github = data.get("github", None)
-    host = data.get("host", None)
-    profileImage = data.get("profileImage", None)
+# @authors_bp.route("/admin", methods=["POST"])
+# def create_author():
+#     """
+#     Endpoint for Only Testing purposes
+#     """
+#     data = request.json
+#     displayName = data.get("displayName", None)
+#     github = data.get("github", None)
+#     host = data.get("host", None)
+#     profileImage = data.get("profileImage", None)
 
-    author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage, password="hello")
-    db.session.add(author_to_add)
-    db.session.commit()
-    return {"Success": 1}
+#     author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage, password="hello")
+#     db.session.add(author_to_add)
+#     db.session.commit()
+#     return {"Success": 1}
 
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])

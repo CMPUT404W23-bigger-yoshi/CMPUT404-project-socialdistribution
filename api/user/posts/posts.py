@@ -96,7 +96,7 @@ def get_recent_posts(author_id: str):
         .items
     )
 
-    return {"types": "posts", "items": [post.getJSON() for post in posts]}, 200
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
