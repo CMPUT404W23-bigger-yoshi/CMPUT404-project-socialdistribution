@@ -15,3 +15,5 @@ class Config:
         "postgres://", "postgresql://"
     )
     BCRYPT_LOG_ROUNDS = 13
+    BASIC_AUTH_REALM = "Bigger-Yoshi"
+    FLASK_ADMIN_SWATCH = "cerulean"

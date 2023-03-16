@@ -3,7 +3,7 @@ from dataclasses import asdict
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from api import bcrypt, db
+from api import basic_auth, bcrypt, db
 from api.user.author.model import Author
 from api.utils import get_pagination_params
 
@@ -12,6 +12,7 @@ authors_bp = Blueprint("authors", __name__)
 
 
 @authors_bp.route("/", methods=["GET"])
+@basic_auth.required
 def get_authors():
     """
     Get all the authors
@@ -47,12 +48,14 @@ def get_authors():
 
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
+@basic_auth.required
 def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
 
 
 @authors_bp.route("/<string:author_id>", methods=["POST"])
+@login_required
 def update_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     data = request.json

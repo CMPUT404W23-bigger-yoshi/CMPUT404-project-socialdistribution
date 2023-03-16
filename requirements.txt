@@ -33,3 +33,5 @@ Werkzeug==2.2.3
 pytest
 flask-swagger
 flask-swagger-ui
+flask_admin
+Flask-BasicAuth
