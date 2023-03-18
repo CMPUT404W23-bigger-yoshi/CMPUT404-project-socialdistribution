@@ -1,5 +1,3 @@
-import base64
-
 from flask import Blueprint, request
 
 from api import db
@@ -17,6 +15,7 @@ def register_node():
     data = request.json
     username = data.get("hostname", None)
     password = data.get("password", None)
+    email = data.get("email", None)
 
     if not username or not password:
         return {"message": "Invalid Credentials"}, 400
@@ -25,7 +24,7 @@ def register_node():
     if host_exists:
         return {"message": "Service already connected."}, 409
 
-    connnection = Connection(username=username, password=password)
+    connnection = Connection(username=username, password=password, email=email)
 
     db.session.add(connnection)
     db.session.commit()

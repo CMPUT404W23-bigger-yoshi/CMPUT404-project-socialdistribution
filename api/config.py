@@ -17,3 +17,6 @@ class Config:
     BCRYPT_LOG_ROUNDS = 13
     BASIC_AUTH_REALM = "Bigger-Yoshi"
     FLASK_ADMIN_SWATCH = "cerulean"
+    BASIC_AUTH_FORCE = True
+    SELF_USERNAME = environ.get("SELF_AUTH_USERNAME")
+    SELF_PASSWORD = environ.get("SELF_AUTH_PASSWORD")

@@ -1,5 +1,3 @@
-import base64
-
 from flask import request
 from flask_basicauth import BasicAuth
 
@@ -31,5 +29,8 @@ class APIAuth(BasicAuth):
         auth = request.authorization
         path = request.full_path
         return (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password)) or path in {
-            "/nodes/register?"
+            "/nodes/register?",
+            "/authors/register?",
+            "/authors/login?",
+            "/authors/authenticated_user_id?",
         }

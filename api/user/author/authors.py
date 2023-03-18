@@ -1,9 +1,11 @@
+import base64
 from dataclasses import asdict
 
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import basic_auth, bcrypt, db
+from api.config import Config
 from api.user.author.model import Author
 from api.utils import get_pagination_params
 
@@ -12,7 +14,6 @@ authors_bp = Blueprint("authors", __name__)
 
 
 @authors_bp.route("/", methods=["GET"])
-@basic_auth.required
 def get_authors():
     """
     Get all the authors
@@ -48,7 +49,6 @@ def get_authors():
 
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
-@basic_auth.required
 def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
@@ -81,7 +81,11 @@ def update_author(author_id: str):
 @login_required
 def authenticated_user_id():
     if current_user.is_authenticated:
-        return {"id": current_user.id}
+        auth_key = base64.b64encode((Config.SELF_USERNAME + ":" + Config.SELF_PASSWORD).encode("utf-8"))
+        return {
+            "id": current_user.id,
+            "auth_key": auth_key.decode("utf-8"),
+        }
 
 
 @authors_bp.route("/logout", methods=["POST"])
@@ -111,8 +115,13 @@ def login():
 
     login_user(user)
 
+    auth_key = base64.b64encode((Config.SELF_USERNAME + ":" + Config.SELF_PASSWORD).encode("utf-8"))
+
     # todo redirect hello
-    return {"message": "Success"}, 200
+    return {
+        "message": "Success",
+        "auth_key": auth_key.decode("utf-8"),
+    }, 200
 
 
 @authors_bp.route("/register", methods=["POST"])
@@ -127,7 +136,8 @@ def register_user():
     # todo we can handle the error client side to make
     user_exists = Author.query.filter_by(username=username).first()
     if user_exists:
-        return {"message": "User Already exists"}, 409  # username already exists
+        # username already exists
+        return {"message": "User Already exists"}, 409
 
     user = Author(username=username, password=bcrypt.generate_password_hash(password).decode("utf-8"), host="bigger")
     db.session.add(user)
