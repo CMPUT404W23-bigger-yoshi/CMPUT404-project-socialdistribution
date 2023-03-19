@@ -28,9 +28,11 @@ class APIAuth(BasicAuth):
     def authenticate(self):
         auth = request.authorization
         path = request.full_path
-        return (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password)) or path in {
+        ret = (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password)) or path in {
             "/nodes/register?",
             "/authors/register?",
             "/authors/login?",
             "/authors/authenticated_user_id?",
+            "/authors/logout?",
         }
+        return ret

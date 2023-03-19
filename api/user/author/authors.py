@@ -1,10 +1,9 @@
 import base64
-from dataclasses import asdict
 
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from api import basic_auth, bcrypt, db
+from api import bcrypt, db
 from api.config import Config
 from api.user.author.model import Author
 from api.utils import get_pagination_params
