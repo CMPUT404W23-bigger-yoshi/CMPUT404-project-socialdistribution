@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 
 from api import db
+from api.admin.APIConfig import APIConfig
 from api.admin.model import Connection
 
 nodes_bp = Blueprint("node", __name__)
@@ -16,6 +17,10 @@ def register_node():
     username = data.get("hostname", None)
     password = data.get("password", None)
     email = data.get("email", None)
+
+    count = Connection.query.count()
+    if count >= APIConfig.node_limit:
+        return {"message": "Maximum nodes connected."}, 503
 
     if not username or not password:
         return {"message": "Invalid Credentials"}, 400

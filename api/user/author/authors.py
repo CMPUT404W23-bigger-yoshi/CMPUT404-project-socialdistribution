@@ -4,7 +4,7 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import bcrypt, db
-from api.config import Config
+from api.admin import APIConfig
 from api.user.author.model import Author
 from api.utils import get_pagination_params
 
@@ -28,23 +28,6 @@ def get_authors():
     authors_json["items"] = items
 
     return authors_json
-
-
-# @authors_bp.route("/admin", methods=["POST"])
-# def create_author():
-#     """
-#     Endpoint for Only Testing purposes
-#     """
-#     data = request.json
-#     displayName = data.get("displayName", None)
-#     github = data.get("github", None)
-#     host = data.get("host", None)
-#     profileImage = data.get("profileImage", None)
-
-#     author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage, password="hello")
-#     db.session.add(author_to_add)
-#     db.session.commit()
-#     return {"Success": 1}
 
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
@@ -80,7 +63,7 @@ def update_author(author_id: str):
 @login_required
 def authenticated_user_id():
     if current_user.is_authenticated:
-        auth_key = base64.b64encode((Config.SELF_USERNAME + ":" + Config.SELF_PASSWORD).encode("utf-8"))
+        auth_key = base64.b64encode((APIConfig.SELF_USERNAME + ":" + APIConfig.SELF_PASSWORD).encode("utf-8"))
         return {
             "id": current_user.id,
             "auth_key": auth_key.decode("utf-8"),
@@ -114,7 +97,7 @@ def login():
 
     login_user(user)
 
-    auth_key = base64.b64encode((Config.SELF_USERNAME + ":" + Config.SELF_PASSWORD).encode("utf-8"))
+    auth_key = base64.b64encode((APIConfig.SELF_USERNAME + ":" + APIConfig.SELF_PASSWORD).encode("utf-8"))
 
     # todo redirect hello
     return {

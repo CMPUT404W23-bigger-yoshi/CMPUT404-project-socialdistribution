@@ -9,8 +9,16 @@ from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEqual
 from sqlalchemy import Enum
 
 from api import db
+from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
 from api.utils import Approval
+
+
+def _default_approval_from_config(context):
+    if APIConfig.connection_approval:
+        return Approval.APPROVED
+    else:
+        return Approval.PENDING
 
 
 @dataclass
@@ -18,7 +26,7 @@ class Connection(db.Model):
     username: str = db.Column(db.Text, primary_key=True)
     password: str = db.Column(db.Text, nullable=False)
     email: str = db.Column(db.String(50), nullable=True)
-    approval: Approval = db.Column(Enum(Approval), nullable=False, default=Approval.APPROVED)
+    approval: Approval = db.Column(Enum(Approval), nullable=False, default=_default_approval_from_config)
 
 
 class ConnectionAdmin(sqla.ModelView):

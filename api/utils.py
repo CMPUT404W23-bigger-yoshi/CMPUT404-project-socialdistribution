@@ -62,6 +62,11 @@ def get_object_type(ID) -> str:
         return None
 
 
+def is_admin_endpoint(path):
+    pattern = "/admin/.*"
+    return True if re.match(pattern, path) else False
+
+
 def get_author_info(url):
     # TODO this is error prone. Should we really do this
     try:

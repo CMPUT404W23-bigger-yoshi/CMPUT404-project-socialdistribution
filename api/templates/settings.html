@@ -1,0 +1,48 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+    function changeLimit() {
+        const limitField = document.querySelector("#node-limit");
+        const val = limitField.value;
+        let url = {{ url_for("settings.index") }};
+        url += "node-limit/" + val;
+        $.ajax({
+            url: url,
+            type: "POST"
+        });
+    }
+</script>
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+
+{{ super() }}
+
+
+<h3>
+    Enable or disable API-protection
+    <input type="checkbox" id="api-auth" name="API" value="API-protection" style="display: inline;">
+</h3>
+
+<h3>
+    Auto approve authors
+    <input type="checkbox" id="auto-auth" name="Approve-authors" value="Approve-authors" style="display: inline;">
+</h3>
+<h3>
+    Auto approve connection requests
+    <input type="checkbox" id="auto-connect" name="Approve-nodes" value="Approve-nodes" style="display: inline;">
+</h3>
+<h3>
+    Maximum node connection limit
+    <input type="number" id="node-limit" name="Node-limit" value="Node-limit" style="display: inline;">
+</h3>
+
+<input type="submit" name="button" value="button" onClick="changeLimit();">
+{% endblock %}

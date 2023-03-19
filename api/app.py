@@ -6,9 +6,11 @@ from sqlalchemy import URL
 
 # db must be initialized before importing models, that is what this import does
 from api import bcrypt, db, login_manager
+from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
 from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
+from api.admin.views import SettingsView
 from api.swagger.swagger_bp import swaggerui_blueprint
 from api.user import user_bp
 from api.user.author import model as AuthModel
@@ -32,6 +34,7 @@ def create_app(testing_env=False):
     # as the root of this repo # when you run this file in your IDE
     app.register_blueprint(user_bp, url_prefix="/authors")
     app.register_blueprint(nodes_bp, url_prefix="/nodes")
+    app.register_blueprint(actions_bp, url_prefix="/admin/action")
     app.register_blueprint(swaggerui_blueprint, url_prefix="/docs")
 
     app.config.from_object("api.config.Config")
@@ -46,9 +49,11 @@ def create_app(testing_env=False):
     login_manager.init_app(app)
 
     # admin views
+    app.config.update({"FLASK_ADMIN_SWATCH": "cerulean"})
     admin = Admin(app, name="bigger-yoshi", template_mode="bootstrap3")
     admin.add_view(AuthAdmin(AuthModel.Author, db.session))
     admin.add_view(ConnectionAdmin(Connection, db.session))
+    admin.add_view(SettingsView(name="Settings", endpoint="settings"))
 
     @login_manager.user_loader
     def load_user(author_id):

@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Enum, event
 
 from api import db
+from api.admin.APIConfig import APIConfig
 from api.user.followers.model import follows_table
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Approval, generate_object_ID, randomized_profile_img
@@ -18,6 +19,13 @@ def _constructURL(context):
     return host + "authors/" + id
 
 
+def _default_approval_from_config(context):
+    if APIConfig.author_approval:
+        return Approval.APPROVED
+    else:
+        return Approval.PENDING
+
+
 @dataclass
 class Author(UserMixin, db.Model):
     id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
@@ -27,7 +35,7 @@ class Author(UserMixin, db.Model):
     password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
-    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=Approval.APPROVED)
+    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
 
     follows = db.relationship(
         "Author",
