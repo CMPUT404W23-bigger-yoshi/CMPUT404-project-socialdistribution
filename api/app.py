@@ -7,13 +7,11 @@ from sqlalchemy import URL
 # db must be initialized before importing models, that is what this import does
 from api import bcrypt, db, login_manager
 from api.admin.APIAuth import APIAuth
-from api.admin.model import AuthAdmin
+from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.swagger.swagger_bp import swaggerui_blueprint
 from api.user import user_bp
 from api.user.author import model as AuthModel
-
-# from api.user.author.model import Author
 from api.user.comments import model as CommentModel
 from api.user.followers import model as FollowerModel
 from api.user.posts import model as PostModel
@@ -50,6 +48,7 @@ def create_app(testing_env=False):
     # admin views
     admin = Admin(app, name="bigger-yoshi", template_mode="bootstrap3")
     admin.add_view(AuthAdmin(AuthModel.Author, db.session))
+    admin.add_view(ConnectionAdmin(Connection, db.session))
 
     @login_manager.user_loader
     def load_user(author_id):

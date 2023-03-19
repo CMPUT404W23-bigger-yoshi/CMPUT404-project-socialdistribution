@@ -2,6 +2,7 @@ from flask import request
 from flask_basicauth import BasicAuth
 
 from api.admin.model import Connection
+from api.utils import Approval
 
 
 class APIAuth(BasicAuth):
@@ -15,7 +16,7 @@ class APIAuth(BasicAuth):
     def check_credentials(self, username, password):
         exist = Connection.query.filter_by(username=username, password=password).first()
 
-        if exist:
+        if exist and exist.approval == Approval.APPROVED:
             return True
         return False
 

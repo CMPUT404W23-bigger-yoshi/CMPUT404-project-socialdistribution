@@ -22,6 +22,11 @@ class Visibility(enum.Enum):
     FRIENDS = 1
 
 
+class Approval(enum.Enum):
+    APPROVED = "APPROVED"
+    PENDING = "PENDING"
+
+
 @dataclass
 class Paginator:
     # property names chose to match SQLA's API

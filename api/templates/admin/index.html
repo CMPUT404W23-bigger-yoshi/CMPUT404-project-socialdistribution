@@ -2,5 +2,20 @@
 
 {% block body %}
 {{ super() }}
-  <p>Admin tasks</p>
+<h1>Admin Tasks</h1>
+<h3>Usage</h4>
+<ul>
+<li>
+    <a href="/admin/author">Author</a>
+    <p>
+    Use this to Add/Modify/Delete authors. You can also perform batch actions to approve authors or batch delete.
+    </p>
+</li>
+<li>
+    <a href="/admin/connection">Connection</a>
+    <p>
+    Use this to Add/Modify/Delete registered connections to bigger yoshi. Can perform batch actions similar to above.
+    </p>
+</li>
+</ul>
 {% endblock %}

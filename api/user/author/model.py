@@ -3,11 +3,12 @@ from datetime import datetime
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event
+from sqlalchemy import Enum, event
 
 from api import db
+from api.user.followers.model import follows_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import generate_object_ID, randomized_profile_img
+from api.utils import Approval, generate_object_ID, randomized_profile_img
 
 
 def _constructURL(context):
@@ -15,9 +16,6 @@ def _constructURL(context):
     id = context.get_current_parameters()["id"]
     host = host + "/" if not host.endswith("/") else host
     return host + "authors/" + id
-
-
-from api.user.followers.model import follows_table
 
 
 @dataclass
@@ -29,6 +27,8 @@ class Author(UserMixin, db.Model):
     password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
+    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=Approval.APPROVED)
+
     follows = db.relationship(
         "Author",
         secondary=follows_table,
@@ -48,4 +48,5 @@ class Author(UserMixin, db.Model):
         del json["username"]
         del json["profile_image"]
         del json["password"]
+        del json["approval"]
         return json
