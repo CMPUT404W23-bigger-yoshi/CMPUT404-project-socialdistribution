@@ -96,7 +96,7 @@ def login():
         return {"message": "Invalid credentials"}, 401
 
     if user.approval == Approval.PENDING:
-        return {"message": "Author approval pending,"}, 401
+        return {"message": "Author approval pending"}, 401
 
     login_user(user)
 

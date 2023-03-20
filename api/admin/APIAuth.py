@@ -37,18 +37,18 @@ class APIAuth(BasicAuth):
         path = request.full_path
 
         if is_admin_endpoint(path):
-            ret = auth and auth.type == "basic" and self.check_admin_credentials(auth.username, auth.password)
-        else:
-            ret = (
-                not APIConfig.is_API_protected
-                or (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password))
-                or path
-                in {
-                    "/nodes/register?",
-                    "/authors/register?",
-                    "/authors/login?",
-                    "/authors/authenticated_user_id?",
-                    "/authors/logout?",
-                }
-            )
+            return auth and auth.type == "basic" and self.check_admin_credentials(auth.username, auth.password)
+
+        ret = (
+            not APIConfig.is_API_protected
+            or (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password))
+            or path
+            in {
+                "/nodes/register?",
+                "/authors/register?",
+                "/authors/login?",
+                "/authors/authenticated_user_id?",
+                "/authors/logout?",
+            }
+        )
         return ret
