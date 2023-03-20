@@ -6,7 +6,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from api import bcrypt, db
 from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
-from api.utils import get_pagination_params
+from api.utils import Approval, get_pagination_params
 
 # note: this blueprint is usually mounted under /authors URL prefix
 authors_bp = Blueprint("authors", __name__)
@@ -94,6 +94,9 @@ def login():
     user = Author.query.filter_by(username=username).first()
     if not user or not bcrypt.check_password_hash(user.password, password):
         return {"message": "Invalid credentials"}, 401
+
+    if user.approval == Approval.PENDING:
+        return {"message": "Author approval pending,"}, 401
 
     login_user(user)
 

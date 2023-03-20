@@ -40,7 +40,7 @@ class APIAuth(BasicAuth):
             ret = auth and auth.type == "basic" and self.check_admin_credentials(auth.username, auth.password)
         else:
             ret = (
-                not APIConfig.IS_API_PROTECTED
+                not APIConfig.is_API_protected
                 or (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password))
                 or path
                 in {
