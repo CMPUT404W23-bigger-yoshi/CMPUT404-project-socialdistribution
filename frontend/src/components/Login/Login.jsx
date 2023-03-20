@@ -45,7 +45,6 @@ function Login(props) {
         axios.defaults.headers.common = {
           Authorization: 'Basic ' + response.data.auth_key
         };
-        console.log('Here');
         // Navigate to /
         navigate('/');
       } catch (error) {
