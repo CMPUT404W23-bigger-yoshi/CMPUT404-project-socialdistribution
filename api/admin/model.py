@@ -4,8 +4,6 @@ from flask import flash
 from flask_admin.actions import action
 from flask_admin.babel import gettext, ngettext
 from flask_admin.contrib import sqla
-from flask_admin.contrib.sqla import filters
-from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEqual
 from sqlalchemy import Enum
 
 from api import db
@@ -15,7 +13,7 @@ from api.utils import Approval
 
 
 def _default_approval_from_config(context):
-    if APIConfig.connection_approval:
+    if APIConfig.NODE_AUTO_APPROVAL:
         return Approval.APPROVED
     else:
         return Approval.PENDING

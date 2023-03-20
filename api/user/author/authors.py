@@ -4,7 +4,7 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import bcrypt, db
-from api.admin import APIConfig
+from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
 from api.utils import get_pagination_params
 

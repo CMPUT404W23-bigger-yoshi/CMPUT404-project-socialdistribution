@@ -19,7 +19,7 @@ def register_node():
     email = data.get("email", None)
 
     count = Connection.query.count()
-    if count >= APIConfig.node_limit:
+    if count >= APIConfig.NODE_LIMIT:
         return {"message": "Maximum nodes connected."}, 503
 
     if not username or not password:

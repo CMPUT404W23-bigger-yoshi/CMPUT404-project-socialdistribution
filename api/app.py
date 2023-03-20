@@ -8,6 +8,7 @@ from sqlalchemy import URL
 from api import bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
+from api.admin.APIConfig import APIConfig
 from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import SettingsView
@@ -49,11 +50,12 @@ def create_app(testing_env=False):
     login_manager.init_app(app)
 
     # admin views
-    app.config.update({"FLASK_ADMIN_SWATCH": "cerulean"})
+    app.config.update({"FLASK_ADMIN_SWATCH": "cerulean", "BASIC_AUTH_FORCE": APIConfig.is_API_protected})
     admin = Admin(app, name="bigger-yoshi", template_mode="bootstrap3")
     admin.add_view(AuthAdmin(AuthModel.Author, db.session))
     admin.add_view(ConnectionAdmin(Connection, db.session))
     admin.add_view(SettingsView(name="Settings", endpoint="settings"))
+    app.jinja_env.globals.update(APIConfig=APIConfig)
 
     @login_manager.user_loader
     def load_user(author_id):

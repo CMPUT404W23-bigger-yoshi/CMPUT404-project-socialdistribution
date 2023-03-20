@@ -1,34 +1,38 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
 from api.admin.APIConfig import APIConfig
 
 actions_bp = Blueprint("actions", __name__)
 
 
-@actions_bp.route("/protection/<int:val>", methods=["POST"])
-def modify_api_protection(val):
-    value = True if val == 1 else False
-    APIConfig.set_API_protection(value)
-    return {"message", "API Protection modified."}, 200
+@actions_bp.route("/config", methods=["POST"])
+def modify_config():
+    form_data = request.form
 
+    api_protect = form_data.get("API")
+    author_auto = form_data.get("Approve-authors")
+    nodes_auto = form_data.get("Approve-nodes")
+    node_limit = form_data.get("Node-limit")
 
-@actions_bp.route("/auth-approval/<int:val>", methods=["POST"])
-def modify_author_approval(val):
-    value = True if val == 1 else False
-    APIConfig.set_author_approval(value)
-    return {"message", "Author Auto-approval rule modified."}, 200
+    if api_protect:
+        APIConfig.set_API_protection(True)
+    else:
+        APIConfig.set_API_protection(False)
 
+    if author_auto:
+        APIConfig.set_author_approval(True)
+    else:
+        APIConfig.set_author_approval(False)
 
-@actions_bp.route("/node-approval/<int:val>", methods=["POST"])
-def modify_node_approval(val):
-    value = True if val == 1 else False
-    APIConfig.set_node_approval(value)
-    return {"message": "Node Auto-approval rule modified."}, 200
+    if nodes_auto:
+        APIConfig.set_node_approval(True)
+    else:
+        APIConfig.set_node_approval(False)
 
+    if node_limit:
+        val = int(node_limit)
+        if val >= 0:
+            APIConfig.set_node_limit(val)
 
-@actions_bp.route("/node-limit/<int:val>", methods=["POST"])
-def modify_node_limit(val):
-    if val < 0:
-        return {"message": "Invalid node limit"}, 400
-    APIConfig.set_node_limit(val)
-    return {"message": "Node limit changed."}, 200
+    APIConfig.reload()
+    return {"message": "Success"}, 200

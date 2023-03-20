@@ -20,7 +20,7 @@ def _constructURL(context):
 
 
 def _default_approval_from_config(context):
-    if APIConfig.author_approval:
+    if APIConfig.AUTHOR_AUTO_APPROVAL:
         return Approval.APPROVED
     else:
         return Approval.PENDING
