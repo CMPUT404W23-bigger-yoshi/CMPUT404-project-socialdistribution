@@ -14,18 +14,18 @@ class APIConfig:
     BASIC_AUTH_REALM = "Bigger-Yoshi"
     SELF_USERNAME = environ.get("SELF_AUTH_USERNAME")
     SELF_PASSWORD = environ.get("SELF_AUTH_PASSWORD")
-    IS_API_PROTECTED = True if environ.get("BASIC_AUTH_FORCE").lower() == "true" else False
-    NODE_AUTO_APPROVAL = True if environ.get("NODE_AUTO_APPROVAL").lower() == "true" else False
-    AUTHOR_AUTO_APPROVAL = True if environ.get("AUTHOR_AUTO_APPROVAL").lower() == "true" else False
+    IS_API_PROTECTED = environ.get("BASIC_AUTH_FORCE").lower() == "true"
+    NODE_AUTO_APPROVAL = environ.get("NODE_AUTO_APPROVAL").lower() == "true"
+    AUTHOR_AUTO_APPROVAL = environ.get("AUTHOR_AUTO_APPROVAL").lower() == "true"
     NODE_LIMIT = int(environ.get("NODE_LIMIT"))
 
     @classmethod
     def reload(self):
         self.SELF_USERNAME = environ.get("SELF_AUTH_USERNAME")
         self.SELF_PASSWORD = environ.get("SELF_AUTH_PASSWORD")
-        self.IS_API_PROTECTED = True if environ.get("BASIC_AUTH_FORCE").lower() == "true" else False
-        self.NODE_AUTO_APPROVAL = True if environ.get("NODE_AUTO_APPROVAL").lower() == "true" else False
-        self.AUTHOR_AUTO_APPROVAL = True if environ.get("AUTHOR_AUTO_APPROVAL").lower() == "true" else False
+        self.IS_API_PROTECTED = environ.get("BASIC_AUTH_FORCE").lower() == "true"
+        self.NODE_AUTO_APPROVAL = environ.get("NODE_AUTO_APPROVAL").lower() == "true"
+        self.AUTHOR_AUTO_APPROVAL = environ.get("AUTHOR_AUTO_APPROVAL").lower() == "true"
         self.NODE_LIMIT = int(environ.get("NODE_LIMIT"))
 
     @staticmethod
