@@ -21,10 +21,7 @@ url = URL.create("", username="", password="", host="", database="")  # dialect+
 
 
 def create_app(testing_env=False):
-    # note: Heroku will run things from the working directory as the root of this repo. Therefore, this path MUST
-    # be relative to the root of the repo, NOT to this file. You will likely need to specify the working directory
-    # as the root of this repo # when you run this file in your IDE
-    react_build_dir = Path("../frontend/build")
+    react_build_dir = Path(__file__).parents[1] / "frontend" / "build"
     app = Flask(__name__, static_folder=react_build_dir)
 
     @app.route("/", defaults={"path": "index.html"})
