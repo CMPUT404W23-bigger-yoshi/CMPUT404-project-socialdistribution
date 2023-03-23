@@ -109,7 +109,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     """
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
-    valid = ["applicaiton/base64", "image/png;base64", "image/jpeg;base64"]
+    valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
     if post.contentType not in valid:
         return "Not found", 404
 
