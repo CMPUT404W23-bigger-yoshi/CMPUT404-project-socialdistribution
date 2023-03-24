@@ -12,8 +12,6 @@ load_dotenv(path_to_env)
 class APIConfig:
     """Base config."""
 
-    SELF_USERNAME = environ.get("SELF_AUTH_USERNAME")
-    SELF_PASSWORD = environ.get("SELF_AUTH_PASSWORD")
     IS_API_PROTECTED = False
     NODE_AUTO_APPROVE = True
     AUTHOR_AUTO_APPROVE = False
