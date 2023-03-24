@@ -14,7 +14,7 @@ from api.admin.APIConfig import APIConfig
 from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import Logout, SettingsView
-from api.swagger.swagger_bp import swaggerui_blueprint
+from api.swagger.swagger_bp import swaggerui_bp
 from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
