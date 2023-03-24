@@ -6,7 +6,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from api import basic_auth, bcrypt, db
 from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
-from api.utils import Approval, get_pagination_params
+from api.utils import Approval, Role, get_pagination_params
 
 # note: this blueprint is usually mounted under /authors URL prefix
 authors_bp = Blueprint("authors", __name__)
@@ -121,7 +121,13 @@ def register_user():
         # username already exists
         return {"message": "User Already exists"}, 409
 
-    user = Author(username=username, password=bcrypt.generate_password_hash(password).decode("utf-8"), host="bigger")
+    user = Author(
+        username=username,
+        password=bcrypt.generate_password_hash(password).decode("utf-8"),
+        host=request.host,
+        approval=Approval.APPROVED,
+        role=Role.ADMIN,
+    )
     db.session.add(user)
     db.session.commit()
     login_user(user)
