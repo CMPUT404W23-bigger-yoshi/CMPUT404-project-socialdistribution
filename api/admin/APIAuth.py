@@ -32,7 +32,7 @@ class APIAuth(BasicAuth):
         if current_user.is_authenticated:
             return True
 
-        if is_admin_endpoint(path):
+        if is_admin_endpoint(path) or request.host in ["localhost:5000", "bigger-yoshi.herokuapp.com"]:
             # Basic authorization is not required for admin endpoints. Instead
             # the flask login will handle User permissions and only let the admin people in.
             return True

@@ -15,7 +15,12 @@ authors_bp = Blueprint("authors", __name__)
 
 
 @authors_bp.route("/", methods=["GET"])
-@swag_from({"responses": {200: {"description": "A List of authors", "schema": authors_schema}}})
+@swag_from(
+    {
+        "description": "Returns list of authors",
+        "responses": {200: {"description": "A List of authors", "schema": authors_schema}},
+    }
+)
 @basic_auth.required
 def get_authors():
     authors = Author.query.paginate(**get_pagination_params().dict).items
@@ -28,6 +33,15 @@ def get_authors():
 
 
 @authors_bp.route("/<string:author_id>", methods=["GET"])
+@swag_from(
+    {
+        "description": "Returns an Author with id",
+        "parameters": [
+            {"name": "author_id", "type": "string", "required": "true", "description": "The id of author to retrieve"}
+        ],
+        "responses": {200: {"description": "Returns a single author", "schema": author_schema}},
+    }
+)
 @basic_auth.required
 def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
