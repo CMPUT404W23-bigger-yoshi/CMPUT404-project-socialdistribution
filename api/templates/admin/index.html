@@ -2,27 +2,36 @@
 
 {% block body %}
 {{ super() }}
-<h1>Admin Tasks</h1>
-<h3>Usage</h4>
+<h2>Login as admin to perform following</h2>
 <ul>
 <li>
-    <a href="/admin/author">Author</a>
+    <h5>Authors</h5>
     <p>
     Use this to Add/Modify/Delete authors. You can also perform batch actions to approve authors or batch delete.
     </p>
 </li>
 <li>
-    <a href="/admin/connection">Connection</a>
+    <h5>Connections</h5>
     <p>
     Use this to Add/Modify/Delete registered connections to bigger yoshi. Can perform batch actions similar to above.
     </p>
 </li>
 <li>
-    <a href="/admin/settings">Settings</a>
+    <h5>Settings</h5>
     <p>
     Additional admin tasks for global configuration.
     </p>
 </li>
-
+<form action="/admin/action/login" method="POST">
+<div class="form-group">
+<label for="username">Enter Admin username</label>
+<input type="text" name="username" id="username">
+    </div>
+<div class="form-group">
+<label for="password">Enter Admin password</label>
+<input type="password" name="password" id="password">
+    </div>
+<input class="btn-primary" type="submit" value="Login">
+</form>
 </ul>
 {% endblock %}

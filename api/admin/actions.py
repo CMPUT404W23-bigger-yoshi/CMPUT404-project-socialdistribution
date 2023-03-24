@@ -1,12 +1,43 @@
-from flask import Blueprint, request
+from flask import Blueprint, redirect, request
+from flask_login import current_user, login_required, login_user
 
+from api import bcrypt
 from api.admin.APIConfig import APIConfig
+from api.user.author.model import Author
+from api.utils import Approval, Role
 
 actions_bp = Blueprint("actions", __name__)
 
 
+@actions_bp.route("/login", methods=["POST"])
+def login_admin():
+    form_data = request.form
+
+    username = form_data.get("username")
+    password = form_data.get("password")
+
+    if not username or not password:
+        return {"message": "Invalid Credentials"}, 400
+
+    user = Author.query.filter_by(username=username).first()
+
+    if not user or not user.role == Role.ADMIN or not bcrypt.check_password_hash(user.password, password):
+        return {"message": "Incorrect credentials"}, 401
+
+    if user.approval == Approval.PENDING:
+        return {"message": "User not approved"}, 401
+
+    login_user(user)
+
+    return redirect("/admin/author"), 302
+
+
 @actions_bp.route("/config", methods=["POST"])
+@login_required
 def modify_config():
+    if not (current_user.is_authenticated and current_user.role == Role.ADMIN):
+        return {"message": "Admin login required."}, 401
+
     form_data = request.form
 
     api_protect = form_data.get("API")

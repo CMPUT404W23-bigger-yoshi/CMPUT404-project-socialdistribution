@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 
-from flask import flash
+from flask import flash, redirect
 from flask_admin.actions import action
 from flask_admin.babel import gettext, ngettext
 from flask_admin.contrib import sqla
+from flask_login import current_user
 from sqlalchemy import Enum
 
 from api import db
 from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
-from api.utils import Approval
+from api.utils import Approval, Role
 
 
 def _default_approval_from_config(context):
@@ -45,6 +46,12 @@ class ConnectionAdmin(sqla.ModelView):
     form_create_rules = ["username", "password", "email"]
 
     form_edit_rules = ["username", "email"]
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role == Role.ADMIN
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect("/login")
 
     @action("approve", "Approve", "Are you sure you want to approve selection?")
     def approve_action(self, usernames):
@@ -93,11 +100,11 @@ class ConnectionAdmin(sqla.ModelView):
 class AuthAdmin(sqla.ModelView):
     can_view_details = True
 
-    column_list = ["id", "url", "host", "username", "github", "approval"]
+    column_list = ["id", "role", "url", "host", "username", "github", "approval"]
 
     column_searchable_list = ["username", "github", "host", "id"]
 
-    column_editable_list = ["approval"]
+    column_editable_list = ["approval", "role"]
 
     column_default_sort = [("username", True)]
 
@@ -111,6 +118,12 @@ class AuthAdmin(sqla.ModelView):
     ]
 
     form_edit_rules = ["username", "github", "host"]
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role == Role.ADMIN
+
+    def inaccessible_callback(self, name, **kwargs):
+        return super().inaccessible_callback(name, **kwargs)
 
     @action("approve", "Approve", "Are you sure you want to approve selection?")
     def approve_action(self, ids):

@@ -27,6 +27,11 @@ class Approval(enum.Enum):
     PENDING = "PENDING"
 
 
+class Role(enum.Enum):
+    ADMIN = "ADMIN"
+    USER = "USER"
+
+
 @dataclass
 class Paginator:
     # property names chose to match SQLA's API
@@ -63,7 +68,7 @@ def get_object_type(ID) -> str:
 
 
 def is_admin_endpoint(path):
-    pattern = "/admin/.*"
+    pattern = "/admin.*"
     return True if re.match(pattern, path) else False
 
 

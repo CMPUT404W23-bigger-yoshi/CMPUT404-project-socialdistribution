@@ -15,4 +15,5 @@ class Config:
         "postgres://", "postgresql://"
     )
     BCRYPT_LOG_ROUNDS = 13
-    BASIC_AUTH_FORCE = True  # Default value that app starts with
+    BASIC_AUTH_FORCE = False  # Default value that app starts with
+    FLASK_ADMIN_SWATCH = "cyborg"
