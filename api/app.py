@@ -4,7 +4,6 @@ from flasgger import Swagger
 from flask import Flask, jsonify, redirect, url_for
 from flask.helpers import send_from_directory
 from flask_admin import Admin
-from flask_swagger import swagger
 from sqlalchemy import URL
 
 import api.user.followers.model
