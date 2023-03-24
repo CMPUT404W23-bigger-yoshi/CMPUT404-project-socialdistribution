@@ -11,6 +11,10 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
+    path: '/inbox',
+    element: <Home />
+  },
+  {
     path: '/author/:id/posts/:postId',
     element: <Home />
   },

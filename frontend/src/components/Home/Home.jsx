@@ -34,7 +34,14 @@ function Home() {
       return (
         <>
           <CreatePost />
-          <Feed userId={userId} isPrivate={false} />
+          <Feed userId={userId} isInbox={false} />
+        </>
+      );
+    } else if (location.pathname === '/inbox') {
+      return (
+        <>
+          <CreatePost />
+          <Feed userId={userId} isInbox={true} />
         </>
       );
     } else if (location.pathname === '/profile') {

@@ -3,11 +3,12 @@ import './Post.css';
 import { deletePost, getPost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
+import { ChatLeftTextFill, HeartFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
 import { useLocation } from 'react-router-dom';
+import CommentsModal from '../Comments/Comments';
 
 const Post = (props) => {
   const [post, setPost] = useState(props.post);
@@ -18,6 +19,7 @@ const Post = (props) => {
   const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
 
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
@@ -87,6 +89,11 @@ const Post = (props) => {
         handleClose={() => setShowShareModal(false)}
         link={post.id}
       />
+      <CommentsModal
+        show={showCommentsModal}
+        handleClose={() => setShowCommentsModal(false)}
+        comments={post.comments}
+      />
       <div className="post">
         <div className="post-container">
           <Row className="post-header">
@@ -155,22 +162,30 @@ const Post = (props) => {
             {/* 1. The number of comments */}
             {/* 2. A share button */}
             {/* 3. A three dot button that will show a dropdown menu */}
-            <Col xs={4} className="post-buttons">
-              <div className="post-comments-count">
+            <Col xs={3} className="post-buttons">
+              <div className="post-likes-count">
                 <Button variant="dark">
+                  <HeartFill /> {post.count}{' '}
+                  <span className="icon-hint">Likes</span>
+                </Button>
+              </div>
+            </Col>
+            <Col xs={3} className="post-buttons">
+              <div className="post-comments-count">
+                <Button variant="dark" onClick={() => setShowCommentsModal(true)}>
                   <ChatLeftTextFill /> {post.count}{' '}
                   <span className="icon-hint">Comments</span>
                 </Button>
               </div>
             </Col>
-            <Col xs={4} className="post-buttons">
+            <Col xs={3} className="post-buttons">
               <div className="post-share">
                 <Button variant="dark" onClick={() => setShowShareModal(true)}>
                   <ShareFill /> <span className="icon-hint">Share</span>
                 </Button>
               </div>
             </Col>
-            <Col xs={4} className="post-buttons">
+            <Col xs={3} className="post-buttons">
               <div className="post-more">
                 <Dropdown>
                   <Dropdown.Toggle variant="dark" id="dropdown-basic">

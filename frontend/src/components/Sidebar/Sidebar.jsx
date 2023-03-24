@@ -1,7 +1,7 @@
 import './Sidebar.css';
 import { Button, Container, Form, Nav, Navbar } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Gear, Inbox, Lock, Person } from 'react-bootstrap-icons';
+import { Bell, Gear, House, Inbox, Lock, Person } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import YoshiPhone from '../../static/Yoshi-phone.png';
 import { searchMultipleUsers } from '../../services/author';
@@ -58,6 +58,9 @@ function Sidebar() {
       </Form>
       <Nav activeKey={location.pathname} className="nav-links">
         <Nav.Link onClick={() => navigate('/')} className="nav-link">
+          <House /> Home
+        </Nav.Link>
+        <Nav.Link onClick={() => navigate('/inbox')} className="nav-link">
           <Inbox /> Inbox
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
