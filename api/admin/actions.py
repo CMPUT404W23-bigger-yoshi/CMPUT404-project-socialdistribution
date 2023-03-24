@@ -1,7 +1,8 @@
-from flask import Blueprint, redirect, request
+from flask import Blueprint, current_app, redirect, request
 from flask_login import current_user, login_required, login_user
 
-from api import bcrypt
+from api import bcrypt, db
+from api.admin.APIAuth import Connection
 from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
 from api.utils import Approval, Role
@@ -65,5 +66,4 @@ def modify_config():
         if val >= 0:
             APIConfig.set_node_limit(val)
 
-    APIConfig.reload()
     return {"message": "Success"}, 200

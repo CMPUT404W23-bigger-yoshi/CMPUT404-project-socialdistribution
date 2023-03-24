@@ -6,7 +6,6 @@ import React, { useEffect, useState } from 'react';
 import { getCurrentUserId, login, register } from '../../services/author';
 import LoginModal from '../LoginModal/LoginModal';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 const textContent = {
   Login: {
@@ -41,10 +40,7 @@ function Login(props) {
   useEffect(() => {
     const getUserId = async () => {
       try {
-        const response = await getCurrentUserId();
-        axios.defaults.headers.common = {
-          Authorization: 'Basic ' + response.data.auth_key
-        };
+        await getCurrentUserId();
         // Navigate to /
         navigate('/');
       } catch (error) {
@@ -65,9 +61,6 @@ function Login(props) {
     if (props.type === 'Login') {
       login(formData)
         .then((response) => {
-          axios.defaults.headers.common = {
-            Authorization: 'Basic ' + response.data.auth_key
-          };
           navigate('/');
         })
         .catch((error) => {

@@ -1,5 +1,6 @@
 from flask import request
 from flask_basicauth import BasicAuth
+from flask_login import current_user
 
 from api.admin.model import Connection
 from api.utils import Approval, is_admin_endpoint
@@ -28,12 +29,16 @@ class APIAuth(BasicAuth):
         auth = request.authorization
         path = request.full_path
 
+        if current_user.is_authenticated:
+            return True
+
         if is_admin_endpoint(path):
             # Basic authorization is not required for admin endpoints. Instead
             # the flask login will handle User permissions and only let the admin people in.
             return True
 
         return (auth and auth.type == "basic" and self.check_credentials(auth.username, auth.password)) or path in {
+            "/?",
             "/nodes/register?",
             "/authors/register?",
             "/authors/login?",

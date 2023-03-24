@@ -5,8 +5,6 @@ from flask_swagger import swagger
 from sqlalchemy import URL
 
 import api.user.followers.model
-
-# db must be initialized before importing models, that is what this import does
 from api import basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
@@ -15,10 +13,10 @@ from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import Logout, SettingsView
 from api.swagger.swagger_bp import swaggerui_blueprint
-from api.user import user_bp
 from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
+from api.user.user import user_bp
 
 # Will need to use this later
 url = URL.create("", username="", password="", host="", database="")  # dialect+driver
