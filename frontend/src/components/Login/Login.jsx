@@ -40,11 +40,9 @@ function Login(props) {
   useEffect(() => {
     const getUserId = async () => {
       try {
-        const response = await getCurrentUserId();
-        if (response.status === 200) {
-          // Navigate to /
-          navigate('/');
-        }
+        await getCurrentUserId();
+        // Navigate to /
+        navigate('/');
       } catch (error) {
         console.error(error);
       }

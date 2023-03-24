@@ -1,17 +1,19 @@
-from dataclasses import asdict
+import base64
 
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from api import bcrypt, db
+from api import basic_auth, bcrypt, db
+from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
-from api.utils import get_pagination_params
+from api.utils import Approval, get_pagination_params
 
 # note: this blueprint is usually mounted under /authors URL prefix
 authors_bp = Blueprint("authors", __name__)
 
 
 @authors_bp.route("/", methods=["GET"])
+@basic_auth.required
 def get_authors():
     """
     Get all the authors
@@ -29,30 +31,15 @@ def get_authors():
     return authors_json
 
 
-@authors_bp.route("/admin", methods=["POST"])
-def create_author():
-    """
-    Endpoint for Only Testing purposes
-    """
-    data = request.json
-    displayName = data.get("displayName", None)
-    github = data.get("github", None)
-    host = data.get("host", None)
-    profileImage = data.get("profileImage", None)
-
-    author_to_add = Author(username=displayName, github=github, host=host, profile_image=profileImage, password="hello")
-    db.session.add(author_to_add)
-    db.session.commit()
-    return {"Success": 1}
-
-
 @authors_bp.route("/<string:author_id>", methods=["GET"])
+@basic_auth.required
 def get_single_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
 
 
 @authors_bp.route("/<string:author_id>", methods=["POST"])
+@login_required
 def update_author(author_id: str):
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     data = request.json
@@ -78,7 +65,9 @@ def update_author(author_id: str):
 @login_required
 def authenticated_user_id():
     if current_user.is_authenticated:
-        return {"id": current_user.id}
+        return {
+            "id": current_user.id,
+        }, 200
 
 
 @authors_bp.route("/logout", methods=["POST"])
@@ -106,10 +95,15 @@ def login():
     if not user or not bcrypt.check_password_hash(user.password, password):
         return {"message": "Invalid credentials"}, 401
 
+    if user.approval == Approval.PENDING:
+        return {"message": "Author approval pending"}, 401
+
     login_user(user)
 
     # todo redirect hello
-    return {"message": "Success"}, 200
+    return {
+        "message": "Success",
+    }, 200
 
 
 @authors_bp.route("/register", methods=["POST"])
@@ -124,7 +118,8 @@ def register_user():
     # todo we can handle the error client side to make
     user_exists = Author.query.filter_by(username=username).first()
     if user_exists:
-        return {"message": "User Already exists"}, 409  # username already exists
+        # username already exists
+        return {"message": "User Already exists"}, 409
 
     user = Author(username=username, password=bcrypt.generate_password_hash(password).decode("utf-8"), host="bigger")
     db.session.add(user)
