@@ -1,10 +1,12 @@
 import base64
 
+from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import basic_auth, bcrypt, db
 from api.admin.APIConfig import APIConfig
+from api.user.author.docs import author_schema, authors_schema
 from api.user.author.model import Author
 from api.utils import Approval, get_pagination_params
 
@@ -13,15 +15,9 @@ authors_bp = Blueprint("authors", __name__)
 
 
 @authors_bp.route("/", methods=["GET"])
+@swag_from({"responses": {200: {"description": "A List of authors", "schema": authors_schema}}})
 @basic_auth.required
 def get_authors():
-    """
-    Get all the authors
-    ---
-    responses:
-      200:
-        description: User created
-    """
     authors = Author.query.paginate(**get_pagination_params().dict).items
     items = [author.getJSON() for author in authors]
     authors_json = {}
