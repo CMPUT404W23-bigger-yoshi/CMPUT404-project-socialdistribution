@@ -44,10 +44,6 @@ export const updateCurrentUserDetails = async (authorId, data) => {
   return axios(config);
 };
 
-export const getFollowersCount = async (authorId) => {
-  return await axios.get(`/authors/${authorId}/followers`);
-};
-
 export const searchSingleUser = async (username) => {
   return await axios.get(`/authors/${username}/search`);
 };
@@ -58,12 +54,22 @@ export const searchMultipleUsers = async (username) => {
 
 export const followUser = async (authorId, foreignAuthorId) => {
   return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
-}
+};
 
 export const unfollowUser = async (authorId, foreignAuthorId) => {
-  return await axios.delete(`/authors/${authorId}/followers/${foreignAuthorId}/`);
-}
+  return await axios.delete(
+    `/authors/${authorId}/followers/${foreignAuthorId}/`
+  );
+};
 
 export const checkIfFollowing = async (authorId, foreignAuthorId) => {
   return await axios.get(`/authors/${authorId}/followers/${foreignAuthorId}/`);
-}
+};
+
+export const getFollowersCount = async (authorId) => {
+  return await axios.get(`/authors/${authorId}/followers/count/`);
+};
+
+export const getFollowingCount = async (authorId) => {
+  return await axios.get(`/authors/${authorId}/following/count/`);
+};

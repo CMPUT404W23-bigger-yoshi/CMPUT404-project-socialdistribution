@@ -10,6 +10,8 @@ import {
   followUser,
   getCurrentUserDetails,
   getCurrentUserId,
+  getFollowersCount,
+  getFollowingCount,
   unfollowUser
 } from '../../services/author';
 import { getAllPosts } from '../../services/post';
@@ -32,9 +34,8 @@ const Profile = (props) => {
       'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
-    following: 56,
-    followers: 45,
-    friends: 2
+    following: 0,
+    followers: 0
   });
   // Fetch user data from backend
   useEffect(() => {
@@ -50,12 +51,21 @@ const Profile = (props) => {
         const posts = await getAllPosts(userId.data.id);
         if (props?.authorId) {
           try {
-            const check = await checkIfFollowing(props.currentUser, userId.data.id);
+            const check = await checkIfFollowing(
+              props.currentUser,
+              userId.data.id
+            );
             setFollowing(check.data.found);
           } catch (err) {
             setFollowing(false);
           }
         }
+        const followersCount = await getFollowersCount(userId.data.id);
+        const followingCount = await getFollowingCount(userId.data.id);
+        setUserFollowStats({
+          followers: followersCount.data.count,
+          following: followingCount.data.count
+        });
         setUser(user.data);
 
         // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
@@ -65,7 +75,6 @@ const Profile = (props) => {
           }
         });
         setPosts(posts.data);
-        setUserFollowStats({ ...userFollowStats });
       } catch (err) {
         console.log(err);
       }
@@ -78,48 +87,44 @@ const Profile = (props) => {
   };
 
   return (
-    <div className='profile'>
+    <div className="profile">
       <ShareModal
         show={showShareModal}
         handleClose={() => setShowShareModal(false)}
         link={user.id}
       />
-      <div className='profile-border'>
-        <div className='profile-container'>
-          <div className='profile-info'>
-            <div className='profile-image'>
+      <div className="profile-border">
+        <div className="profile-container">
+          <div className="profile-info">
+            <div className="profile-image">
               {user.profileImage ? (
-                <img src={user.profileImage} alt='profile' />
+                <img src={user.profileImage} alt="profile" />
               ) : (
                 <img
-                  src='https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
-                  alt='profile'
+                  src="https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg"
+                  alt="profile"
                 />
               )}
             </div>
-            <div className='profile-name'>
+            <div className="profile-name">
               <h1>{user.displayName}</h1>
             </div>
-            <div className='profile-follow-stats'>
-              <Row className='profile-follow-stats-row' xs={3}>
-                <Col className='px-4'>
-                  <h3>{userFollowStats.following}</h3>
+            <div className="profile-follow-stats">
+              <Row className="profile-follow-stats-row" xs={2}>
+                <Col className="px-4">
+                  <h3>{userFollowStats.followers}</h3>
                   <p>Following</p>
                 </Col>
-                <Col className='px-4'>
-                  <h3>{userFollowStats.friends}</h3>
-                  <p>Friends</p>
-                </Col>
-                <Col className='px-4'>
-                  <h3>{userFollowStats.followers}</h3>
+                <Col className="px-4">
+                  <h3>{userFollowStats.following}</h3>
                   <p>Followers</p>
                 </Col>
               </Row>
             </div>
-            <div className='profile-links'>
+            <div className="profile-links">
               {user.github && (
                 <div
-                  className='profile-link github'
+                  className="profile-link github"
                   onClick={() => window.open(user.github, '_blank')}
                 >
                   <Github />
@@ -127,7 +132,7 @@ const Profile = (props) => {
               )}
               {user.twitter && (
                 <div
-                  className='profile-link twitter'
+                  className="profile-link twitter"
                   onClick={() => window.open(user.twitter, '_blank')}
                 >
                   <Twitter />
@@ -135,9 +140,9 @@ const Profile = (props) => {
               )}
             </div>
           </div>
-          <div className='profile-buttons'>
+          <div className="profile-buttons">
             <Button
-              className='profile-button follow'
+              className="profile-button follow"
               onClick={() => {
                 if (props.currentUser === getAuthorIdFromUrl(user.id)) {
                   navigate('/settings');
@@ -160,10 +165,12 @@ const Profile = (props) => {
             >
               {props.currentUser === getAuthorIdFromUrl(user.id)
                 ? 'Edit'
-                : (following ? 'Unfollow' : 'Follow')}
+                : following
+                ? 'Unfollow'
+                : 'Follow'}
             </Button>
             <Button
-              className='profile-button share'
+              className="profile-button share"
               onClick={() => setShowShareModal(true)}
             >
               Share
@@ -171,9 +178,9 @@ const Profile = (props) => {
           </div>
         </div>
       </div>
-      <div className='profile-post-border'>
-        <div className='profile-post-container'>
-          <div className='profile-posts'>
+      <div className="profile-post-border">
+        <div className="profile-post-container">
+          <div className="profile-posts">
             {posts?.items?.length > 0 ? (
               posts.items.map((post) => (
                 <Post
@@ -184,7 +191,7 @@ const Profile = (props) => {
                 />
               ))
             ) : (
-              <div className='no-posts'>
+              <div className="no-posts">
                 <h1>No posts to show</h1>
               </div>
             )}
