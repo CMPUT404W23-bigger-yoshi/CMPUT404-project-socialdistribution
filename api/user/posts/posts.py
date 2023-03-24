@@ -1,7 +1,7 @@
 import base64
 from dataclasses import asdict
 
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
@@ -97,7 +97,7 @@ def get_recent_posts(author_id: str):
 
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(author=author.url, inbox=author_id)
+        Post.query.filter_by(inbox=author_id, author=author.url)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -128,7 +128,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
 @basic_auth.required
 def send_like(author_id: str):
     """
@@ -244,7 +244,7 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
-@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @basic_auth.required
 def post_inbox(author_id: str):
     """
