@@ -42,7 +42,7 @@ def create_app(testing_env=False):
 
     app.register_blueprint(user_bp, url_prefix=f"{API_ROOT}/authors")
     app.register_blueprint(nodes_bp, url_prefix=f"{API_ROOT}/nodes")
-    app.register_blueprint(admin_bp, url_prefix=f"{API_ROOT}/admin/action")
+    app.register_blueprint(actions_bp, url_prefix=f"{API_ROOT}/admin/action")
     app.register_blueprint(swaggerui_bp, url_prefix="/docs")
 
     app.config.from_object("api.config.Config")
