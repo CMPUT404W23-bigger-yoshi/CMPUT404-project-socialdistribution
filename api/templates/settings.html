@@ -1,0 +1,90 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+
+{% block body %}
+   <div class="input-group">
+
+<h5>
+    API Basic Auth protection
+    <input type="checkbox" id="api-auth" name="API" value="API-protection" style="display: inline;">
+</h5>
+
+<h5>
+    Auto approve authors
+    <input type="checkbox" id="auto-auth" name="Approve-authors" value="Approve-authors" style="display: inline;">
+</h5>
+<h5>
+    Auto approve connection requests
+    <input type="checkbox" id="auto-connect" name="Approve-nodes" value="Approve-nodes" style="display: inline;">
+</h5>
+<h5>
+    Maximum node connection limit
+    <input type="number" id="node-limit" name="Node-limit" min="0" style="display: inline; color:black;">
+</h5>
+
+<input class="btn-md" type="button" name="button" onClick="sendConfig();" value="Save Changes" style="left: 50%;position:absolute;">
+   </div>
+
+   <script type="text/javascript">
+
+    const limitField = document.querySelector("#node-limit");
+    const protectAPI = document.querySelector("#api-auth");
+    const auto_auth = document.querySelector("#auto-auth");
+    const auto_node = document.querySelector("#auto-connect");
+
+    limitField.value = {{ APIConfig.NODE_LIMIT }}
+    if ("{{ APIConfig.AUTHOR_AUTO_APPROVE }}" == "True") {
+        auto_auth.checked = true;
+
+    }
+    if ("{{ APIConfig.NODE_AUTO_APPROVE }}" == "True") {
+        auto_node.checked = true;
+
+    }
+    if ("{{ APIConfig.IS_API_PROTECTED }}" == "True") {
+        protectAPI.checked = true;
+
+    }
+
+function sendConfig() {
+    let url = "/admin/action/config";
+
+    const data = {};
+    if (limitField.value !== null) {
+        data['Node-limit'] = limitField.value;
+    }
+
+    if (protectAPI.checked) {
+        data['API'] = true;
+    }
+
+    if (auto_auth.checked) {
+        data['Approve-authors'] = true;
+    }
+
+    if (auto_node.checked) {
+        data['Approve-nodes'] = true;
+    }
+    console.log(data);
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        dataType: "json",
+        data: data,
+        success: (response) => {
+            window.alert(response.message);
+        }
+    });
+}
+</script>
+
+{{ super() }}
+
+
+
+{% endblock %}

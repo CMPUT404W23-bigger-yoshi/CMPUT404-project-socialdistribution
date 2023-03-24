@@ -8,6 +8,7 @@ import Profile from '../Profile/Profile';
 import Notifications from '../Notifications/Notifications';
 import CreatePost from '../Post/CreatePost';
 import Settings from '../Settings/Settings';
+import axios from 'axios';
 
 function Home() {
   const location = useLocation();
@@ -18,6 +19,9 @@ function Home() {
       try {
         const response = await getCurrentUserId();
         if (response.status === 200) {
+          axios.defaults.headers.common = {
+            Authorization: 'Basic ' + response.data.auth_key
+          };
           console.log('Logged in: ', response.data);
         }
       } catch (error) {

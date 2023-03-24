@@ -1,0 +1,65 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+{% endblock %}
+
+
+{% block body %}
+
+<h2>Login as admin to perform following</h2>
+<ul>
+<li>
+    <h5>Authors</h5>
+    <p>
+    Use this to Add/Modify/Delete authors. You can also perform batch actions to approve authors or batch delete.
+    </p>
+</li>
+<li>
+    <h5>Connections</h5>
+    <p>
+    Use this to Add/Modify/Delete registered connections to bigger yoshi. Can perform batch actions similar to above.
+    </p>
+</li>
+<li>
+    <h5>Settings</h5>
+    <p>
+    Additional admin tasks for global configuration.
+    </p>
+</li>
+<form action="javascript:login();" method="POST">
+<div class="form-group">
+<label for="username">Enter Admin username</label>
+<input type="text" name="username" id="username">
+    </div>
+<div class="form-group">
+<label for="password">Enter Admin password</label>
+<input type="password" name="password" id="password">
+    </div>
+<input class="btn-primary" type="submit" value="Login">
+</form>
+</ul>
+<script type="text/javascript">
+    function login() {
+        const username = document.querySelector("#username").value;
+        const password = document.querySelector("#password").value;
+        const url = "/admin/action/login";
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded",
+            data: `username=${username}&password=${password}`,
+            success: (response) => {
+                $(location).prop('href', "/admin/author");
+            },
+            error: (request, status, error) => {
+                console.log(request);
+                console.log(status);
+                window.alert("Invalid credentials");
+            }
+        });
+    }
+
+</script>
+
+{% endblock %}

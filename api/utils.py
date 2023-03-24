@@ -22,6 +22,16 @@ class Visibility(enum.Enum):
     FRIENDS = 1
 
 
+class Approval(enum.Enum):
+    APPROVED = "APPROVED"
+    PENDING = "PENDING"
+
+
+class Role(enum.Enum):
+    ADMIN = "ADMIN"
+    USER = "USER"
+
+
 @dataclass
 class Paginator:
     # property names chose to match SQLA's API
@@ -55,6 +65,11 @@ def get_object_type(ID) -> str:
         return "author"
     else:
         return None
+
+
+def is_admin_endpoint(path):
+    pattern = "/admin.*"
+    return True if re.match(pattern, path) else False
 
 
 def get_author_info(url):

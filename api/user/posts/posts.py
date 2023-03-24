@@ -1,11 +1,12 @@
 import base64
 from dataclasses import asdict
 
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
+from flask_login import login_required
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 
-from api import db
+from api import basic_auth, db
 from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
@@ -17,6 +18,7 @@ posts_bp = Blueprint("posts", __name__)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
+@basic_auth.required
 def get_post(author_id: str, post_id: str):
     """get the public post whose id is POST_ID"""
     # author_id in database is complete url
@@ -27,6 +29,7 @@ def get_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
+@login_required
 def edit_post(author_id: str, post_id: str):
     """
     Update the post whose id is POST_ID (must be authenticated) ie the person
@@ -50,6 +53,7 @@ def edit_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
+@login_required
 def delete_post(author_id: str, post_id: str):
     """remove the post whose id is post_id"""
     author = Author.query.filter_by(id=author_id).first_or_404()
@@ -61,6 +65,7 @@ def delete_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
+@login_required
 def create_post(author_id: str, post_id: str):
     """
     Create a new post where its id is post_id.
@@ -70,6 +75,7 @@ def create_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["POST"])
+@login_required
 def create_post_auto_gen_id(author_id: str):
     """
     Create a new post but generate a new id.
@@ -81,25 +87,27 @@ def create_post_auto_gen_id(author_id: str):
     return make_post(request.json, author_id)
 
 
-@posts_bp.route("/<string:author_id>/posts", methods=["GET"])
+@posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
+@basic_auth.required
 def get_recent_posts(author_id: str):
     """
-    Get the recent posts from author author_id (paginated).
+    Get the recent (PUBLIC) posts from author author_id (paginated).
     Public posts made by author has the inbox and author_id as same.
     """
 
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(author=author.url, inbox=author_id)
+        Post.query.filter_by(inbox=author_id, author=author.url)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
     )
 
-    return {"types": "posts", "items": [post.getJSON() for post in posts]}, 200
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
+@basic_auth.required
 def post_as_base64_img(author_id: str, post_id: str):
     """
     get the public post converted to binary as an image
@@ -109,7 +117,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     """
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
-    valid = ["applicaiton/base64", "image/png;base64", "image/jpeg;base64"]
+    valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
     if post.contentType not in valid:
         return "Not found", 404
 
@@ -120,7 +128,8 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
+@basic_auth.required
 def send_like(author_id: str):
     """
     Send a like object to author_id.
@@ -152,6 +161,7 @@ def send_like(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
+@basic_auth.required
 def get_likes(author_id: str, post_id: str):
     """a list of likes from other authors on AUTHOR_ID’s post POST_ID"""
     # Author, post must exist on our server otherwise invalid request
@@ -184,12 +194,14 @@ def get_likes(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
+@basic_auth.required
 def get_author_likes(author_id: str):
     """
-    list what public things AUTHOR_ID liked.
+    list what PUBLIC things AUTHOR_ID liked.
 
     It’s a list of of likes originating from this author
     Note: be careful here private information could be disclosed.
+    Will need to check if a post is private
     """
     # Again author must exist on our server
     author = Author.query.filter_by(id=author_id).first_or_404()
@@ -216,6 +228,7 @@ def get_author_likes(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
+@login_required
 def get_inbox(author_id: str):
     """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
 
@@ -231,7 +244,8 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
-@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@basic_auth.required
 def post_inbox(author_id: str):
     """
     if the type is “post” then add that post to AUTHOR_ID’s inbox
@@ -256,6 +270,7 @@ def post_inbox(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
+@login_required
 def clear_inbox(author_id: str):
     """clear the inbox"""
     post = Post.query.filter_by(inbox=author_id).first_or_404()
