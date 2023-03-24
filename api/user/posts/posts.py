@@ -87,7 +87,7 @@ def create_post_auto_gen_id(author_id: str):
     return make_post(request.json, author_id)
 
 
-@posts_bp.route("/<string:author_id>/posts", methods=["GET"])
+@posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
 @basic_auth.required
 def get_recent_posts(author_id: str):
     """
