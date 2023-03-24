@@ -1,7 +1,11 @@
 {% extends 'admin/master.html' %}
 
+{% block head %}
+{% endblock %}
+
+
 {% block body %}
-{{ super() }}
+
 <h2>Login as admin to perform following</h2>
 <ul>
 <li>
@@ -22,7 +26,7 @@
     Additional admin tasks for global configuration.
     </p>
 </li>
-<form action="/admin/action/login" method="POST">
+<form action="javascript:login();" method="POST">
 <div class="form-group">
 <label for="username">Enter Admin username</label>
 <input type="text" name="username" id="username">
@@ -34,4 +38,28 @@
 <input class="btn-primary" type="submit" value="Login">
 </form>
 </ul>
+<script type="text/javascript">
+    function login() {
+        const username = document.querySelector("#username").value;
+        const password = document.querySelector("#password").value;
+        const url = "/admin/action/login";
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded",
+            data: `username=${username}&password=${password}`,
+            success: (response) => {
+                $(location).prop('href', "/admin/author");
+            },
+            error: (request, status, error) => {
+                console.log(request);
+                console.log(status);
+                window.alert("Invalid credentials");
+            }
+        });
+    }
+
+</script>
+
 {% endblock %}

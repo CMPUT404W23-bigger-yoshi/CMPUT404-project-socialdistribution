@@ -17,6 +17,7 @@ def login_admin():
     username = form_data.get("username")
     password = form_data.get("password")
 
+    print(username, password)
     if not username or not password:
         return {"message": "Invalid Credentials"}, 400
 
@@ -30,7 +31,7 @@ def login_admin():
 
     login_user(user)
 
-    return redirect("/admin/author"), 302
+    return {"message": "login success"}, 200
 
 
 @actions_bp.route("/config", methods=["POST"])
