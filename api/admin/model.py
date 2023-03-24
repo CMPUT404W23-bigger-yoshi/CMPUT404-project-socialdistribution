@@ -14,10 +14,7 @@ from api.utils import Approval, Role
 
 
 def _default_approval_from_config(context):
-    if APIConfig.NODE_AUTO_APPROVAL:
-        return Approval.APPROVED
-    else:
-        return Approval.PENDING
+    return Approval.PENDING
 
 
 @dataclass
