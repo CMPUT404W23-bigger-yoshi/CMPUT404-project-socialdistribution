@@ -17,6 +17,7 @@ from api.utils import Visibility, generate_object_ID, get_author_info, get_objec
 posts_bp = Blueprint("posts", __name__)
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
 @basic_auth.required
 def get_post(author_id: str, post_id: str):
@@ -28,6 +29,7 @@ def get_post(author_id: str, post_id: str):
     return post_search.getJSON(), 200
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
 @login_required
 def edit_post(author_id: str, post_id: str):
@@ -52,6 +54,7 @@ def edit_post(author_id: str, post_id: str):
     return {"success": 1, "message": "Post edited successfully."}, 201
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
 @login_required
 def delete_post(author_id: str, post_id: str):
@@ -84,9 +87,10 @@ def create_post_auto_gen_id(author_id: str):
 
     The author id/url in the json body is author
     """
-    return make_post(request.json, author_id)
+    return make_post(request.json, author_id, True)
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
 @basic_auth.required
 def get_recent_posts(author_id: str):
@@ -97,7 +101,7 @@ def get_recent_posts(author_id: str):
 
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(inbox=author_id, author=author.url)
+        Post.query.filter_by(inbox=author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -106,6 +110,7 @@ def get_recent_posts(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
 @basic_auth.required
 def post_as_base64_img(author_id: str, post_id: str):
@@ -128,6 +133,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
 @basic_auth.required
 def send_like(author_id: str):
@@ -160,6 +166,7 @@ def send_like(author_id: str):
     return response
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
 @basic_auth.required
 def get_likes(author_id: str, post_id: str):
@@ -193,6 +200,7 @@ def get_likes(author_id: str, post_id: str):
     return {"type": "likes", "items": likes}
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
 @basic_auth.required
 def get_author_likes(author_id: str):
@@ -227,6 +235,7 @@ def get_author_likes(author_id: str):
     return {"type": "likes", "items": likes}
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 @login_required
 def get_inbox(author_id: str):
@@ -244,6 +253,7 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @basic_auth.required
 def post_inbox(author_id: str):
@@ -269,6 +279,7 @@ def post_inbox(author_id: str):
     return response
 
 
+# todo check
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
 @login_required
 def clear_inbox(author_id: str):
@@ -296,7 +307,7 @@ def make_post(data, author_id, is_local, post_id=None):
         visibility = Visibility.FRIENDS
 
     if not post_id:
-        post_id = generate_object_ID
+        post_id = generate_object_ID()
 
     if not is_local:
         foreign_auth = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()

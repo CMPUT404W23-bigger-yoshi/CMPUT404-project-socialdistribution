@@ -1,9 +1,10 @@
 from dataclasses import asdict, dataclass
 
+from flask import jsonify
 from sqlalchemy import Enum, event
 
 from api import db
-from api.user.author.model import Author
+from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
 
@@ -55,7 +56,17 @@ class Post(db.Model):
 
         # Setting author
         author = Author.query.filter_by(url=post["author"]).first()
-        post["author"] = author.getJSON()
+        if author:
+            post["author"] = author.getJSON()
+
+        author = NonLocalAuthor.query.filter_by(id=post["author"]).first()
+        if author:
+            # todo @matt is there a better way?
+            # todo future: fetch latest data, if not available return stale data
+            author = {**author.__dict__}
+            if author.get("_sa_instance_state", None) is not None:
+                del author["_sa_instance_state"]
+            post["author"] = author
 
         # Categories
         if post["categories"]:
