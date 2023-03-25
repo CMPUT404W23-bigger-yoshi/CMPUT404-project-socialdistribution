@@ -38,7 +38,16 @@ function Settings() {
       console.log(error);
     }
   };
-
+  // added function to handle file selection and convert to base64 encoded string
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setUserDetails({ ...userDetails, profileImage: dataUrl }); // updated userDetails state variable
+    };
+    reader.readAsDataURL(file);
+  };
   return (
     <div className="settings">
       <div className="settings-border">
@@ -86,6 +95,7 @@ function Settings() {
                   type="file"
                   accept="image/*"
                   placeholder="Enter profile picture"
+                  onChange={handleImageSelect} // added onChange handler to handle file selection
                 />
               </Form.Group>
               <Button
