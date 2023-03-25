@@ -101,21 +101,17 @@ export default function CreatePost(props) {
                 <Button
                   variant="outline-light"
                   onClick={() => {
-                    if (post.contentType === 'image/*') {
-                      setPost({
-                        ...post,
-                        content: null,
-                        contentType: 'text/plain'
-                      });
-                    } else {
-                      setPost({
-                        ...post,
-                        contentType:
-                          post.contentType === 'text/plain'
-                            ? 'text/markdown'
-                            : 'text/plain'
-                      });
-                    }
+                    setImage(); // Clear previous image when switching back to text
+                    setPost({
+                      ...post,
+                      content: post.contentType.startsWith('image')
+                        ? null
+                        : post.content,
+                      contentType:
+                        post.contentType === 'text/plain'
+                          ? 'text/markdown'
+                          : 'text/plain'
+                    });
                   }}
                 >
                   Switch to{' '}
@@ -237,7 +233,7 @@ export default function CreatePost(props) {
               variant="danger"
               onClick={() => {
                 setToggleCreatePost(props.post ? false : !toggleCreatePost);
-                setImage();
+                setImage(); // Clear image when cancelling
                 setPost({
                   type: 'post',
                   title: '',
