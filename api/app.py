@@ -7,7 +7,7 @@ from flask_swagger import swagger
 from sqlalchemy import URL
 
 import api.user.followers.model
-from api import basic_auth, bcrypt, db, login_manager
+from api import API_ROOT, basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
 from api.admin.APIConfig import APIConfig
@@ -25,7 +25,6 @@ url = URL.create("", username="", password="", host="", database="")  # dialect+
 
 
 def create_app(testing_env=False):
-    API_ROOT = "/api"
     REACT_BUILD_DIR = Path(__file__).parents[1] / "frontend" / "build"
 
     app = Flask(__name__, static_folder=REACT_BUILD_DIR)
