@@ -83,14 +83,13 @@ def create_post_auto_gen_id(author_id: str):
     """
     Create a new post but generate a new id.
     Arguments:
-        author_id: object id of the local/remote author who made or reshared the post.
+        author_id: object id of the local/remote author who made or re-shared the post.
 
     The author id/url in the json body is author
     """
     return make_post(request.json, author_id, True)
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
 @basic_auth.required
 def get_recent_posts(author_id: str):
@@ -235,7 +234,6 @@ def get_author_likes(author_id: str):
     return {"type": "likes", "items": likes}
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 @login_required
 def get_inbox(author_id: str):
@@ -244,7 +242,7 @@ def get_inbox(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     posts = (
-        Post.query.filter_by(Post.author != author.url, inbox=author_id)
+        Post.query.filter_by(inbox=author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -263,6 +261,9 @@ def post_inbox(author_id: str):
     if the type is “like” then add that like to AUTHOR_ID’s inbox
     if the type is “comment” then add that comment to AUTHOR_ID’s inbox
     """
+    # todo verified so far:
+    #   post
+    #   like
 
     data = request.json
     type = data["type"].lower()
@@ -359,12 +360,21 @@ def make_like(json, author_id):
     Author.query.filter_by(id=author_id).first_or_404()
 
     data = request.json
-    object_id = data.get("object")
-    type = get_object_type(object_id)
+    object_id = data.get("object", None)
+    if object_id is None:
+        return {"success": 0, "message": "Missing Object"}, 400
+
+    like_type = get_object_type(object_id)
+    if like_type not in ["comment", "post"]:
+        return {"success": 0, "message": "Invalid Object type"}, 400
+
+    if data.get("author", None) is None or data.get("author").get("id", None) is None:
+        return {"success": 0, "message": "Missing Author"}, 400
+
     made_by = data.get("author").get("id")
     response = {}
     try:
-        match type:
+        match like_type:
             case "comment":
                 stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
                 db.session.execute(stmt)
@@ -375,10 +385,9 @@ def make_like(json, author_id):
                 db.session.execute(stmt)
                 db.session.commit()
                 response = {"success": 1, "message": "Like created"}, 201
-            case None:
-                response = {"success": 0, "message": "Like not created"}, 404
     except IntegrityError:
         response = {"success": 0, "message": "Already liked"}
+
     return response
 
 
@@ -386,6 +395,7 @@ def make_follow(json, author_id):
     pass
 
 
+# todo fix later too tired right now
 def make_comment(json, author_id):
     """
     Submit a comment made on author's post with id as author_id.
@@ -406,4 +416,4 @@ def make_comment(json, author_id):
     db.session.add(comment)
     db.session.commit()
 
-    return {"message": "Comment made succesfully."}, 201
+    return {"message": "Comment made successfully."}, 201

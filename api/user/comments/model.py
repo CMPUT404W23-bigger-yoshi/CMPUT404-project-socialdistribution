@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass
 
 from api import db
-from api.utils import generate_object_ID
+from api.utils import generate_object_ID, get_author_info
 
 
 @dataclass
