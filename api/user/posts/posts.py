@@ -7,11 +7,11 @@ from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 
 from api import basic_auth, db
-from api.user.author.model import Author
+from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import Visibility, get_author_info, get_object_type, get_pagination_params
+from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -71,10 +71,10 @@ def create_post(author_id: str, post_id: str):
     Create a new post where its id is post_id.
     Post does not have comments yet.
     """
-    return make_post(request.json, author_id, post_id=post_id)
+    return make_post(request.json, author_id, True, post_id=post_id)
 
 
-@posts_bp.route("/<string:author_id>/posts", methods=["POST"])
+@posts_bp.route("/<string:author_id>/posts/", methods=["POST"])
 @login_required
 def create_post_auto_gen_id(author_id: str):
     """
@@ -259,7 +259,7 @@ def post_inbox(author_id: str):
     response = {}
     match type:
         case "post":
-            response = make_post(data, author_id)
+            response = make_post(data, author_id, False)
         case "like":
             response = make_like(data, author_id)
         case "follow":
@@ -281,48 +281,62 @@ def clear_inbox(author_id: str):
     return {"success": 1, "message": "Inbox cleared succesfully"}, 200
 
 
-def make_post(data, author_id, post_id=None):
+def make_post(data, author_id, is_local, post_id=None):
     """
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
     """
+    if not data.get("author", None) or not data.get("author").get("id", None):
+        return {"message": "Missing Author"}, 400
+
     visibility = data.get("visibility")
     if visibility == "PUBLIC":
         visibility = Visibility.PUBLIC
     elif visibility == "FRIENDS":
         visibility = Visibility.FRIENDS
 
-    if post_id:
-        post = Post(
-            id=post_id,
-            published=data.get("published"),
-            title=data.get("title"),
-            origin=data.get("origin"),
-            source=data.get("source"),
-            description=data.get("description"),
-            content=data.get("content"),
-            contentType=data.get("contentType"),
-            categories=",".join(data.get("categories")),
-            visibility=visibility,
-            unlisted=data.get("unlisted"),
-            author=data.get("author").get("id"),
-            inbox=author_id,
-        )
-    else:
-        post = Post(
-            published=data.get("published"),
-            title=data.get("title"),
-            origin=data.get("origin"),
-            source=data.get("source"),
-            description=data.get("description"),
-            content=data.get("content"),
-            contentType=data.get("contentType"),
-            categories=",".join(data.get("categories")),
-            visibility=data.get("visibility"),
-            unlisted=data.get("unlisted"),
-            author=data.get("author").get("id"),
-            inbox=author_id,
-        )
+    if not post_id:
+        post_id = generate_object_ID
+
+    if not is_local:
+        foreign_auth = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
+
+        if not foreign_auth:
+            # verification of all the fields needed
+            author_to_add = data.get("author")
+            required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
+            for field in required_fields:
+                if author_to_add.get(field, None) is None:
+                    return {"message": "Author with incomplete fields"}, 400
+
+            # create foreign author
+            foreign_auth = NonLocalAuthor(
+                id=author_to_add["id"],
+                host=author_to_add["host"],
+                url=author_to_add["url"],
+                displayName=author_to_add["displayName"],
+                github=author_to_add["github"],
+                profileImage=author_to_add["profileImage"],
+            )
+
+            db.session.add(foreign_auth)
+            db.session.commit()
+
+    post = Post(
+        id=post_id,
+        published=data.get("published"),
+        title=data.get("title"),
+        origin=data.get("origin"),
+        source=data.get("source"),
+        description=data.get("description"),
+        content=data.get("content"),
+        contentType=data.get("contentType"),
+        categories=",".join(data.get("categories")),
+        visibility=visibility,
+        unlisted=data.get("unlisted"),
+        author=data.get("author").get("id"),
+        inbox=author_id,
+    )
     db.session.add(post)
     db.session.commit()
 

@@ -32,7 +32,8 @@ class Post(db.Model):
     # 0 -> "PUBLIC", 1-> "FRIENDS"
     visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
-    # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in timelines
+    # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in
+    # timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
     # Foreign Key - Recipient must be a local author
