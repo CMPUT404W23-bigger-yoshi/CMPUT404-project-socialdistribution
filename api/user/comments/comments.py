@@ -43,7 +43,7 @@ comments_bp = Blueprint("comments", __name__)
 )
 @basic_auth.required
 def get_comments(author_id: str, post_id: str):
-    """Get the list of comments of the post whose id is POST_ID (paginated)"""
+    """Get the list of comments of the post whose id is post_id (paginated)"""
 
     post = Post.query.filter_by(id=post_id).first_or_404()
 

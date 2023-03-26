@@ -65,10 +65,7 @@ def edit_post(author_id: str, post_id: str):
     if data.get("id", None) is not None and data.get("id").split("/")[-1] != post.id:
         return {"success": 0, "message": "Cannot update post id after post has been created"}, 400
 
-    if (
-        data.get("author", {}).get("id", None) is not None
-        and data["author"]["id"] != post.author
-    ):
+    if data.get("author", {}).get("id", None) is not None and data["author"]["id"] != post.author:
         return {"success": 0, "message": "Cannot update author after post has been created"}, 400
 
     for k, v in data.items():
@@ -214,63 +211,62 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-
 # todo check @matt this route used to interfere with something
-@posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
-@swag_from(
-    {
-        "tags": ["Likes", "Inbox"],
-        "description": "Send a like object to author with author_id (receiver)",
-        "consumes": ["application/json"],
-        "parameters": [
-            {
-                "in": "path",
-                "name": "author_id",
-                "required": "true",
-                "description": "Id of the author of the object. Object can be a post or comment.",
-                "example": "69abdhgtT420wjsw",
-            },
-            {"in": "body", "schema": inbox_schema},
-        ],
-        "responses": {
-            201: {
-                "description": "Post or comment liked successfully",
-                "schema": {"properties": {"message": {"type": "string"}}},
-            },
-            404: {"description": "Author not found"},
-            400: {"description": "Invalid object id"},
-        },
-    }
-)
-@basic_auth.required
-def send_like(author_id: str):
-    """
-    Send a like object to author_id.
-    Like could be made on either post or comments of the author.
-    """
-    # Author's inbox must exist on server
-    Author.query.filter_by(id=author_id).first_or_404()
+# @posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
+# @swag_from(
+#     {
+#         "tags": ["Likes", "Inbox"],
+#         "description": "Send a like object to author with author_id (receiver)",
+#         "consumes": ["application/json"],
+#         "parameters": [
+#             {
+#                 "in": "path",
+#                 "name": "author_id",
+#                 "required": "true",
+#                 "description": "Id of the author of the object. Object can be a post or comment.",
+#                 "example": "69abdhgtT420wjsw",
+#             },
+#             {"in": "body", "schema": inbox_schema},
+#         ],
+#         "responses": {
+#             201: {
+#                 "description": "Post or comment liked successfully",
+#                 "schema": {"properties": {"message": {"type": "string"}}},
+#             },
+#             404: {"description": "Author not found"},
+#             400: {"description": "Invalid object id"},
+#         },
+#     }
+# )
+# @basic_auth.required
+# def send_like(author_id: str):
+#     """
+#     Send a like object to author_id.
+#     Like could be made on either post or comments of the author.
+#     """
+#     # Author's inbox must exist on server
+#     Author.query.filter_by(id=author_id).first_or_404()
 
-    data = request.json
-    object_id = data.get("object")
-    type = get_object_type(object_id)
-    made_by = data.get("author").get("id")
-    response = {}
-    match type:
-        case "comment":
-            stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
-            db.session.execute(stmt)
-            db.session.commit()
-            response = {"message": "Like created"}, 201
-        case "post":
-            stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
-            db.session.execute(stmt)
-            db.session.commit()
-            response = {"message": "Like created"}, 201
-        case None:
-            response = {"message": "Invalid object id"}, 400
+#     data = request.json
+#     object_id = data.get("object")
+#     type = get_object_type(object_id)
+#     made_by = data.get("author").get("id")
+#     response = {}
+#     match type:
+#         case "comment":
+#             stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
+#             db.session.execute(stmt)
+#             db.session.commit()
+#             response = {"message": "Like created"}, 201
+#         case "post":
+#             stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
+#             db.session.execute(stmt)
+#             db.session.commit()
+#             response = {"message": "Like created"}, 201
+#         case None:
+#             response = {"message": "Invalid object id"}, 400
 
-    return response
+#     return response
 
 
 # todo check @matt
@@ -354,7 +350,7 @@ def get_likes(author_id: str, post_id: str):
 @basic_auth.required
 def get_author_likes(author_id: str):
     """
-    List what PUBLIC things AUTHOR_ID liked.
+    List what PUBLIC things author_id liked.
 
     It’s a list of of likes originating from this author
     """
@@ -385,7 +381,7 @@ def get_author_likes(author_id: str):
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 @login_required
 def get_inbox(author_id: str):
-    """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
+    """if authenticated get a list of posts sent to author_id (paginated)"""
 
     author = Author.query.filter_by(id=author_id).first_or_404()
 
@@ -406,12 +402,13 @@ def get_inbox(author_id: str):
     {
         "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
         "description": "Send a like, comment, follow or post to the author's inbox having id as author_id",
-        "paramters": [
+        "parameters": [
             {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
             {
                 "in": "body",
                 "required": "true",
-                "schema": {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "Object to be sent to inbox",
             },
         ],
         "responses": {

@@ -33,7 +33,7 @@ followers_bp = Blueprint("followers", __name__)
 )
 @basic_auth.required
 def followers(author_id: str):
-    """Get a list of authors who are AUTHOR_ID’s followers"""
+    """Get a list of authors who are author_id’s followers"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     # todo : do we need to ask for more information? unless required will cause response
     #  failure if other teams node throws an error
@@ -108,7 +108,7 @@ def following_count(author_id: str):
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
 @login_required
 def remove_follower(author_id: str, foreign_author_id: str):
-    """remove FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID"""
+    """remove foreign_author_id as a follower of author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     auth_to_remove = found_author.follows.filter_by(id=foreign_author_id).first()
 
@@ -129,7 +129,7 @@ def remove_follower(author_id: str, foreign_author_id: str):
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["PUT"])
 @login_required
 def add_follower(author_id: str, foreign_author_id: str):
-    """Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (must be authenticated)"""
+    """Add foreign_author_id as a follower of author_id (must be authenticated)"""
     # todo need clarification: does this authentication need an admin? or author_id should be the one authenticated
     followed = Author.query.filter_by(id=author_id).first()
     follower_to_add = Author.query.filter_by(id=foreign_author_id).first()
@@ -181,7 +181,7 @@ def add_follower(author_id: str, foreign_author_id: str):
 )
 @basic_auth.required
 def check_is_follower(author_id: str, foreign_author_id: str):
-    """Check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID"""
+    """Check if foreign_author_id is a follower of author_id"""
     followed = Author.query.filter_by(id=author_id).first_or_404()
     follower_to_check = Author.query.filter_by(id=foreign_author_id).first()
 

@@ -38,14 +38,6 @@ posts_schema = {
     }
 }
 
-inbox_schema = {
-    "type": "object",
-    "properties": {
-        "type": {"type": "string", "example": "inbox"},
-        "author": {"type": "string", "example": "https://bigger-yoshi.herokuapp.com/authors/92seGh3Kskw22-ee789"},
-        "items": {"type": "array", "items": {"oneOf": [post_schema, comment_schema]}},
-    },
-}
 
 like_schema = {
     "type": "object",
@@ -82,4 +74,13 @@ follow_schema = {
         },
         "object": author_schema,
     }
+}
+
+inbox_schema = {
+    "type": "object",
+    "properties": {
+        "type": {"type": "string", "example": "inbox"},
+        "author": {"type": "string", "example": "https://bigger-yoshi.herokuapp.com/authors/92seGh3Kskw22-ee789"},
+        "items": {"type": "array", "items": {"oneOf": [post_schema, comment_schema, like_schema, follow_schema]}},
+    },
 }
