@@ -48,10 +48,7 @@ def edit_post(author_id: str, post_id: str):
     if data.get("id", None) is not None and data.get("id").split("/")[-1] != post.id:
         return {"success": 0, "message": "Cannot update post id after post has been created"}, 400
 
-    if (
-        data.get("author", {}).get("id", None) is not None
-        and data["author"]["id"] != post.author
-    ):
+    if data.get("author", {}).get("id", None) is not None and data["author"]["id"] != post.author:
         return {"success": 0, "message": "Cannot update author after post has been created"}, 400
 
     for k, v in data.items():
