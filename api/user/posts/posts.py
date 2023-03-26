@@ -38,14 +38,33 @@ def edit_post(author_id: str, post_id: str):
     json received must have all columns to be updated as key value pairs
     """
     # TODO handle authentication
-    json = request.json
+    data = request.json
 
     # Modify json to be compatible with model here (if required)
-    # todo author can edit posts only it's own inbox and written by themselves?
+    # todo author can edit posts written by themselves?
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id, author=author.id, inbox=author.id).first_or_404()
+    post = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
-    for k, v in json.items():
+    if data.get("id", None) is not None and data.get("id").split("/")[-1] != post.id:
+        return {"success": 0, "message": "Cannot update post id after post has been created"}, 400
+
+    if (
+        data.get("author", None) is not None
+        and data.get("author").get("id", None) is not None
+        and data["author"]["id"] != post.author
+    ):
+        return {"success": 0, "message": "Cannot update author after post has been created"}, 400
+
+    for k, v in data.items():
+        if k == "author":
+            continue
+        if k == "categories":
+            v = ",".join(v)
+        if k == "visibility":
+            if v == "PUBLIC":
+                v = Visibility.PUBLIC
+            if v == "FRIENDS":
+                v = Visibility.FRIENDS
         setattr(post, k, v)
 
     db.session.commit()
@@ -60,7 +79,7 @@ def delete_post(author_id: str, post_id: str):
     # todo author can remove post from it's own inbox this will be achieved
     #  by authenticating that logged in user is author itself
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id, inbox=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
     db.session.delete(post)
     db.session.commit()
@@ -74,7 +93,17 @@ def create_post(author_id: str, post_id: str):
     Create a new post where its id is post_id.
     Post does not have comments yet.
     """
-    return make_post(request.json, author_id, True, post_id=post_id)
+    post = make_post_local(request.json, author_id, post_id)
+    if post is None:
+        return {"message": "Failed to create post"}, 400
+
+    # todo send to inbox
+    if post.visibility == Visibility.PUBLIC:
+        pass
+    if post.visibility == Visibility.FRIENDS:
+        pass
+
+    return {"message": "Successfully created new post"}, 201
 
 
 @posts_bp.route("/<string:author_id>/posts/", methods=["POST"])
@@ -87,7 +116,19 @@ def create_post_auto_gen_id(author_id: str):
 
     The author id/url in the json body is author
     """
-    return make_post(request.json, author_id, True)
+    # todo put this in a function repeated code
+    post = make_post_local(request.json, author_id)
+    if post is None:
+        return {"message": "Failed to create post"}, 400
+
+    # todo if post is public it goes into no inbox locally but goes to inbox of all non-local followers
+    if post.visibility == Visibility.PUBLIC:
+        pass
+    # if post is meant for friends store in local inbox and to inbox of all non-local friends
+    if post.visibility == Visibility.FRIENDS:
+        pass
+
+    return {"message": "Successfully created new post"}, 201
 
 
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
@@ -95,12 +136,10 @@ def create_post_auto_gen_id(author_id: str):
 def get_recent_posts(author_id: str):
     """
     Get the recent (PUBLIC) posts from author author_id (paginated).
-    Public posts made by author has the inbox and author_id as same.
     """
-
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(author=author_id)
+        Post.query.filter_by(author=author_id, visibility=Visibility.PUBLIC)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -109,7 +148,7 @@ def get_recent_posts(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
-# todo check
+# todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
 @basic_auth.required
 def post_as_base64_img(author_id: str, post_id: str):
@@ -132,7 +171,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-# todo check
+# todo check @matt
 @posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
 @basic_auth.required
 def send_like(author_id: str):
@@ -165,7 +204,7 @@ def send_like(author_id: str):
     return response
 
 
-# todo check
+# todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
 @basic_auth.required
 def get_likes(author_id: str, post_id: str):
@@ -199,7 +238,7 @@ def get_likes(author_id: str, post_id: str):
     return {"type": "likes", "items": likes}
 
 
-# todo check
+# todo check @matt
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
 @basic_auth.required
 def get_author_likes(author_id: str):
@@ -241,12 +280,6 @@ def get_inbox(author_id: str):
 
     author = Author.query.filter_by(id=author_id).first_or_404()
 
-    # posts = (
-    #     Post.query.filter_by(inbox=author_id)
-    #     .order_by(desc(Post.published))
-    #     .paginate(**get_pagination_params().dict)
-    #     .items
-    # )
     posts = (
         Post.query.join(inbox_table)
         .filter(inbox_table.c.meant_for == author_id)
@@ -268,16 +301,18 @@ def post_inbox(author_id: str):
     if the type is “like” then add that like to AUTHOR_ID’s inbox
     if the type is “comment” then add that comment to AUTHOR_ID’s inbox
     """
-    # todo verified so far:
+    # todo remaining @matt:
     #   post
     #   like
+    #   comment
+    #   follow
 
     data = request.json
     type = data["type"].lower()
     response = {}
     match type:
         case "post":
-            response = make_post(data, author_id, False)
+            response = make_post_non_local(data, author_id)
         case "like":
             response = make_like(data, author_id)
         case "follow":
@@ -292,15 +327,81 @@ def post_inbox(author_id: str):
 @login_required
 def clear_inbox(author_id: str):
     """clear the inbox"""
-    post = Post.query.filter_by(inbox=author_id).first_or_404()
-
-    db.session.delete(post)
+    #  todo authenticate self
+    statement = inbox_table.delete().where(inbox_table.c.meant_for == author_id)
+    db.session.execute(statement)
     db.session.commit()
 
     return {"success": 1, "message": "Inbox cleared succesfully"}, 200
 
 
-def make_post(data, inbox_author_id, is_local, post_id=None):
+# Note: Some code repetition but imo easier to reason about maybe can refactor later
+def make_post_local(data, author_id, post_id=None):
+    # verify required fields
+    required_fields = [
+        "published",
+        "title",
+        "origin",
+        "source",
+        "description",
+        "content",
+        "contentType",
+        "categories",
+        "visibility",
+        "unlisted",
+        "author",
+    ]
+    for field in required_fields:
+        if data.get(field, None) is None:
+            print(f"Data missing Field: {field}")
+            return None
+
+    if data.get("author").get("id", None) is None:
+        print("Author missing id")
+        return None
+
+    author = Author.query.filter_by(id=data["author"]["id"].split("/")[-1]).first()
+    if author is None:
+        print("Author who wrote this post doesn't exist bad request")
+        return None
+
+    meant_for = Author.query.filter_by(id=author_id).first()
+    if meant_for is None:
+        return None
+
+    post_id = post_id if post_id is not None else generate_object_ID()
+
+    # todo write a to_str
+    visibility = data.get("visibility")
+    if visibility == "PUBLIC":
+        visibility = Visibility.PUBLIC
+    elif visibility == "FRIENDS":
+        visibility = Visibility.FRIENDS
+    try:
+        post = Post(
+            id=post_id,
+            published=data.get("published"),
+            title=data.get("title"),
+            origin=data.get("origin"),
+            source=data.get("source"),
+            description=data.get("description"),
+            content=data.get("content"),
+            contentType=data.get("contentType"),
+            categories=",".join(data.get("categories")),
+            visibility=visibility,
+            unlisted=data.get("unlisted"),
+            author=author.id,
+        )
+        db.session.add(post)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        return None
+
+    return post
+
+
+def make_post_non_local(data, author_id):
     """
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
@@ -308,18 +409,20 @@ def make_post(data, inbox_author_id, is_local, post_id=None):
     if not data.get("author", None) or not data.get("author").get("id", None):
         return {"message": "Missing Author"}, 400
 
+    if data.get("id") is None:
+        return {"message": "Missing Post ID"}, 400
+
+    post_id = data.get("id")
+
+    meant_for = Author.query.filter_by(id=author_id).first()
+    if meant_for is None:
+        return {"message": "Author doesn't exist"}, 404
+
     visibility = data.get("visibility")
     if visibility == "PUBLIC":
         visibility = Visibility.PUBLIC
     elif visibility == "FRIENDS":
         visibility = Visibility.FRIENDS
-
-    if not post_id:
-        post_id = generate_object_ID()
-
-    meant_for = Author.query.filter_by(id=inbox_author_id).first()
-    if is_local and meant_for is None:
-        return {"message": "Author doesn't exist"}, 400
 
     # verification of all the fields needed
     author = data.get("author")
@@ -328,29 +431,23 @@ def make_post(data, inbox_author_id, is_local, post_id=None):
         if author.get(field, None) is None:
             return {"message": "Author with incomplete fields"}, 400
 
-    # eh? frontend will send id with complete url can't do much about it.
-    # probably can be refactored better but w/e
-    if is_local:
-        author = Author.query.filter_by(url=author["url"]).first()
-        if author is None:
-            return {"message": "Local author who wrote the post doesn't exist"}, 400
+    if Author.query.filter_by(id=data.get("author").get("id")).first() is not None:
+        return {"message": "Local authors shouldn't send to inbox directly"}, 400
 
-    if not is_local:
-        author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
+    author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
 
-        if not author:
-            # create foreign author
-            author = NonLocalAuthor(
-                id=author["id"],
-                host=author["host"],
-                url=author["url"],
-                displayName=author["displayName"],
-                github=author["github"],
-                profileImage=author["profileImage"],
-            )
-
-            db.session.add(author)
-            db.session.commit()
+    if not author:
+        # create foreign author
+        author = NonLocalAuthor(
+            id=author["id"],
+            host=author["host"],
+            url=author["url"],
+            displayName=author["displayName"],
+            github=author["github"],
+            profileImage=author["profileImage"],
+        )
+        db.session.add(author)
+        db.session.commit()
 
     post = Post(
         id=post_id,
@@ -367,7 +464,7 @@ def make_post(data, inbox_author_id, is_local, post_id=None):
         author=author.id,
     )
     db.session.add(post)
-    statement = inbox_table.insert().values(post_id=post_id, meant_for=inbox_author_id)
+    statement = inbox_table.insert().values(post_id=post_id, meant_for=author_id)
     db.session.execute(statement)
     db.session.commit()
 

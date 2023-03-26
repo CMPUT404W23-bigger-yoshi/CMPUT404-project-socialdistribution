@@ -17,8 +17,8 @@ def _constructURL(context):
 
 inbox_table = db.Table(
     "inbox",
-    db.Column("post_id", db.String(200), db.ForeignKey("post.id"), primary_key=True),
-    db.Column("meant_for", db.String(200), db.ForeignKey("author.id"), primary_key=True),
+    db.Column("post_id", db.String(200), db.ForeignKey("post.id", ondelete="CASCADE"), primary_key=True),
+    db.Column("meant_for", db.String(200), db.ForeignKey("author.id", ondelete="CASCADE"), primary_key=True),
 )
 
 
