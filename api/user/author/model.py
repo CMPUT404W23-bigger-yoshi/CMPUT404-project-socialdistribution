@@ -65,3 +65,13 @@ class Author(UserMixin, db.Model):
         del json["approval"]
         del json["role"]
         return json
+
+# we use this table to cache non-local authors
+@dataclass
+class NonLocalAuthor(db.Model):
+    id: str = db.Column(db.String(50), primary_key=True, unique=True)
+    url: str = db.Column("url", db.Text, nullable=True, unique=True)
+    host: str = db.Column("host", db.Text, nullable=False)
+    displayName: str = db.Column("displayName", db.Text, nullable=False, unique=True)
+    github: str = db.Column("github", db.Text, nullable=False)
+    profileImage: str = db.Column("profileImage", db.Text, nullable=False)
