@@ -11,5 +11,18 @@
         "version": "0.0.1"
     },
     "basePath": "/",  
-    "schemes": ["http", "https"]
+    "schemes": ["http", "https"],
+    "securityDefinitions": {
+        "Basic": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Basic authorization header. Example: \"Authorization: Basic {token}\""
+        }
+    },
+    "security": [
+        {
+            "Basic": []
+        }
+    ]
 }
