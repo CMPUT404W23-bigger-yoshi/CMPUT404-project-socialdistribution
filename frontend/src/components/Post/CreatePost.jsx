@@ -10,6 +10,7 @@ import { getCurrentUserId } from '../../services/author';
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
   const [showPreview, setShowPreview] = useState(false);
+  const [image, setImage] = useState(null);
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -28,6 +29,7 @@ export default function CreatePost(props) {
   async function createPost() {
     try {
       const userId = await getCurrentUserId();
+      console.log(post.contentType);
       const postId = await generatePostId(userId.data.id, post);
       console.log(postId);
     } catch (err) {
@@ -41,6 +43,24 @@ export default function CreatePost(props) {
       console.log(res);
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      console.log(file.type);
+      reader.onload = () => {
+        const base64Image = reader.result;
+        setImage(base64Image);
+        setPost({
+          ...post,
+          contentType: file.type,
+          content: base64Image
+        });
+      };
     }
   }
 
@@ -71,23 +91,43 @@ export default function CreatePost(props) {
           <div className="post-content-type-bar">
             <Row className="post-content-type">
               <Col className="post-content-type-text" md={6} xs={12}>
-                {post.contentType === 'text/plain' ? 'Plain Text' : 'Markdown'}
+                {post.contentType === 'text/plain'
+                  ? 'Plain Text'
+                  : post.contentType === 'text/markdown'
+                  ? 'Markdown text'
+                  : 'Image'}
               </Col>
               <Col className="post-content-type-toggle" md={6} xs={12}>
+                <Button
+                  variant="outline-light"
+                  onClick={() => {
+                    setImage(); // Clear previous image when switching back to text
+                    setPost({
+                      ...post,
+                      content: post.contentType.startsWith('image')
+                        ? null
+                        : post.content,
+                      contentType:
+                        post.contentType === 'text/plain'
+                          ? 'text/markdown'
+                          : 'text/plain'
+                    });
+                  }}
+                >
+                  Switch to{' '}
+                  {post.contentType === 'text/plain' ? 'Markdown' : 'Text'}
+                </Button>
                 <Button
                   variant="outline-light"
                   onClick={() =>
                     setPost({
                       ...post,
-                      contentType:
-                        post.contentType === 'text/plain'
-                          ? 'text/markdown'
-                          : 'text/plain'
+                      content: null,
+                      contentType: 'image/*'
                     })
                   }
                 >
-                  Switch to{' '}
-                  {post.contentType === 'text/plain' ? 'Markdown' : 'Text'}
+                  Switch to Image
                 </Button>
               </Col>
             </Row>
@@ -101,7 +141,7 @@ export default function CreatePost(props) {
                 onChange={(e) => setPost({ ...post, content: e.target.value })}
                 value={post.content}
               />
-            ) : (
+            ) : post.contentType === 'text/markdown' ? (
               <div className="post-content-markdown">
                 {showPreview ? (
                   <div className="post-content-markdown-preview">
@@ -129,6 +169,22 @@ export default function CreatePost(props) {
                 >
                   {showPreview ? 'Hide' : 'Show'} Preview
                 </Button>
+              </div>
+            ) : (
+              <div className="post-content-image">
+                {image ? (
+                  <img
+                    src={post.content}
+                    alt="uploaded image"
+                    className="post-content-image-preview"
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -177,6 +233,7 @@ export default function CreatePost(props) {
               variant="danger"
               onClick={() => {
                 setToggleCreatePost(props.post ? false : !toggleCreatePost);
+                setImage(); // Clear image when cancelling
                 setPost({
                   type: 'post',
                   title: '',
