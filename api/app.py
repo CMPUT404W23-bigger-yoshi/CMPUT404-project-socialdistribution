@@ -7,14 +7,14 @@ from flask_swagger import swagger
 from sqlalchemy import URL
 
 import api.user.followers.model
-from api import basic_auth, bcrypt, db, login_manager
+from api import API_ROOT, basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
 from api.admin.APIConfig import APIConfig
 from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import Logout, SettingsView
-from api.swagger.swagger_bp import swaggerui_blueprint
+from api.swagger.swagger_bp import swaggerui_bp
 from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
@@ -25,23 +25,24 @@ url = URL.create("", username="", password="", host="", database="")  # dialect+
 
 
 def create_app(testing_env=False):
-    react_build_dir = Path(__file__).parents[1] / "frontend" / "build"
-    app = Flask(__name__, static_folder=react_build_dir)
+    REACT_BUILD_DIR = Path(__file__).parents[1] / "frontend" / "build"
+
+    app = Flask(__name__, static_folder=REACT_BUILD_DIR)
 
     @app.route("/", defaults={"path": "index.html"})
     @app.route("/<path:path>")
     def serve(path):
-        if not (react_build_dir / path).exists():
+        if not (REACT_BUILD_DIR / path).exists():
             # for anything that we don't recognize, it's likely a frontend path, so we can serve index.html
             # react will route according the path accordingly
             path = "index.html"
         # otherwise, we should be serving a frontend resource here
         return send_from_directory(app.static_folder, path)
 
-    app.register_blueprint(user_bp, url_prefix="/authors")
-    app.register_blueprint(nodes_bp, url_prefix="/nodes")
-    app.register_blueprint(actions_bp, url_prefix="/admin/action")
-    app.register_blueprint(swaggerui_blueprint, url_prefix="/docs")
+    app.register_blueprint(user_bp, url_prefix=f"{API_ROOT}/authors")
+    app.register_blueprint(nodes_bp, url_prefix=f"{API_ROOT}/nodes")
+    app.register_blueprint(actions_bp, url_prefix=f"{API_ROOT}/admin/action")
+    app.register_blueprint(swaggerui_bp, url_prefix="/docs")
 
     app.config.from_object("api.config.Config")
 

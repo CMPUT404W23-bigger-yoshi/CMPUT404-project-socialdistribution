@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getCurrentUserDetails } from './author';
+axios.defaults.baseURL = '/api';
 
 export function getPost(authorId, postId) {
   return axios.get(`/authors/${authorId}/posts/${postId}`);
