@@ -14,7 +14,6 @@ from api.admin.APIConfig import APIConfig
 from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import Logout, SettingsView
-from api.swagger.swagger_bp import swaggerui_bp
 from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
@@ -39,11 +38,9 @@ def create_app(testing_env=False):
         # otherwise, we should be serving a frontend resource here
         return send_from_directory(app.static_folder, path)
 
-
     app.register_blueprint(user_bp, url_prefix=f"{API_ROOT}/authors")
     app.register_blueprint(nodes_bp, url_prefix=f"{API_ROOT}/nodes")
     app.register_blueprint(actions_bp, url_prefix=f"{API_ROOT}/admin/action")
-    app.register_blueprint(swaggerui_bp, url_prefix="/docs")
 
     app.config.from_object("api.config.Config")
 
