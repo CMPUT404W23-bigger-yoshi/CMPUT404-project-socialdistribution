@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
+API_ROOT = "/api"
 
 from api.admin.APIAuth import APIAuth
 

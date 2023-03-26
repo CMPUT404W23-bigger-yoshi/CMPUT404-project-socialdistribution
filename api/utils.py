@@ -64,7 +64,7 @@ def get_object_type(ID) -> str:
     elif re.match(auth_pattern, ID):
         return "author"
     else:
-        return None
+        return ""
 
 
 def is_admin_endpoint(path):
