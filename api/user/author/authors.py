@@ -17,12 +17,14 @@ authors_bp = Blueprint("authors", __name__)
 @authors_bp.route("/", methods=["GET"])
 @swag_from(
     {
+        "tags": ["Authors"],
         "description": "Returns list of authors",
         "responses": {200: {"description": "A List of authors", "schema": authors_schema}},
     }
 )
 @basic_auth.required
 def get_authors():
+    """Get a list of all authors registered with Bigger Yoshi"""
     authors = Author.query.paginate(**get_pagination_params().dict).items
     items = [author.getJSON() for author in authors]
     authors_json = {}
@@ -35,15 +37,26 @@ def get_authors():
 @authors_bp.route("/<string:author_id>", methods=["GET"])
 @swag_from(
     {
+        "tags": ["Authors"],
         "description": "Returns an Author with id",
         "parameters": [
-            {"name": "author_id", "type": "string", "required": "true", "description": "The id of author to retrieve"}
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "The id of author to retrieve",
+            }
         ],
-        "responses": {200: {"description": "Returns a single author", "schema": author_schema}},
+        "responses": {
+            200: {"description": "Returns a single author", "schema": author_schema},
+            404: {"desciption": "Author not found"},
+        },
     }
 )
 @basic_auth.required
 def get_single_author(author_id: str):
+    """Get the author with id author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     return found_author.getJSON()
 
@@ -142,5 +155,4 @@ def register_user():
     db.session.commit()
     login_user(user)
 
-    # todo redirect
     return {"message": "Success"}, 200

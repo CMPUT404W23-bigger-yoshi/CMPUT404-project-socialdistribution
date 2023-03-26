@@ -2,24 +2,12 @@ author_schema = {
     "type": "object",
     "properties": {
         "type": {"type": "string", "example": "author"},
-        "id": {
-            "type": "string",
-        },
-        "host": {
-            "type": "string",
-        },
-        "displayName": {
-            "type": "string",
-        },
-        "url": {
-            "type": "string",
-        },
-        "github": {
-            "type": "string",
-        },
-        "profileImage": {
-            "type": "string",
-        },
+        "id": {"type": "string", "example": "https://bigger-yoshi.herokuapp.com/authors/69abdhgtT420wjsw"},
+        "host": {"type": "string", "example": "https://bigger-yoshi.herokuapp.com"},
+        "displayName": {"type": "string", "example": "John Wick"},
+        "url": {"type": "string", "example": "https://bigger-yoshi.herokuapp.com/authors/69abdhgtT420wjsw"},
+        "github": {"type": "string", "example": "http://github.com/babayaga"},
+        "profileImage": {"type": "string", "example": "https://i.imgur.com/k7XVwpB.jpeg"},
     },
 }
 

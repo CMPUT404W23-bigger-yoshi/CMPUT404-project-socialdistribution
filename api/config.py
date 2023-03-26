@@ -18,3 +18,4 @@ class Config:
     BCRYPT_LOG_ROUNDS = 13
     BASIC_AUTH_FORCE = False  # Default value that app starts with
     FLASK_ADMIN_SWATCH = "darkly"
+    SWAGGER = {"title": "Bigger Yoshi API Specification", "uiversion": 3}

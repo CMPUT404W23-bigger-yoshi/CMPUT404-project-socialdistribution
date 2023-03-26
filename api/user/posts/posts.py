@@ -13,15 +13,31 @@ from api.user.posts.model import Post
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Visibility, get_author_info, get_object_type, get_pagination_params
 
+from flasgger import swag_from
+from api.user.posts.docs import *
+
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a single post with id post_id authored by author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the post to fetch"},
+        ],
+        "responses": {
+            200: {"description": "Single post", "schema": post_schema},
+            404: {"description": "Author not found or Post not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_post(author_id: str, post_id: str):
-    """get the public post whose id is POST_ID"""
-    # author_id in database is complete url
+    """Get the public post whose id is post_id from author with id author_id"""
     author = Author.query.filter_by(id=author_id).first_or_404()
     post_search = Post.query.filter_by(id=post_id, author=author.url).first_or_404()
 
@@ -36,10 +52,7 @@ def edit_post(author_id: str, post_id: str):
     editing the post must be the author of the post.
     json received must have all columns to be updated as key value pairs
     """
-    # TODO handle authentication
     json = request.json
-
-    # Modify json to be compatible with model here (if required)
 
     author = Author.query.filter_by(id=author_id).first_or_404()
     post = Post.query.filter_by(id=post_id, author=author.url, inbox=author.id).first_or_404()
@@ -88,6 +101,19 @@ def create_post_auto_gen_id(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a recent public posts authored by author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the posts"},
+        ],
+        "responses": {
+            200: {"description": "A list of recent posts", "schema": posts_schema},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_recent_posts(author_id: str):
     """
@@ -107,19 +133,31 @@ def get_recent_posts(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a public post containing image authored by author_id with base64 encoded image content.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the image post"},
+        ],
+        "responses": {
+            200: {"description": "Post with image content encoded as base64.", "schema": posts_schema},
+            400: {"description": "Not an image"},
+            404: {"description": "Author not found or Post not found."},
+        },
+    }
+)
 @basic_auth.required
 def post_as_base64_img(author_id: str, post_id: str):
     """
-    get the public post converted to binary as an image
-     -> return 404 if not an image
-    The end point decodes image posts as images. This allows the use of image tags in markdown.
-    You can use this to proxy or cache images.
+    Get the public post converted to binary as an image
     """
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
     valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
     if post.contentType not in valid:
-        return "Not found", 404
+        return "Not an image post", 400
 
     decoded_img = base64.b64decode(post.content)
     json = post.getJSON()
@@ -128,7 +166,32 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-@posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Likes", "Inbox"],
+        "description": "Send a like object to author with author_id (receiver)",
+        "consumes": ["application/json"],
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "required": "true",
+                "description": "Id of the author of the object. Object can be a post or comment.",
+                "example": "69abdhgtT420wjsw",
+            },
+            {"in": "body", "schema": inbox_schema},
+        ],
+        "responses": {
+            201: {
+                "description": "Post or comment liked successfully",
+                "schema": {"properties": {"message": {"type": "string"}}},
+            },
+            404: {"description": "Author not found"},
+            400: {"description": "Invalid object id"},
+        },
+    }
+)
 @basic_auth.required
 def send_like(author_id: str):
     """
@@ -148,22 +211,46 @@ def send_like(author_id: str):
             stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
             db.session.execute(stmt)
             db.session.commit()
-            response = {"success": 1, "message": "Like created"}, 201
+            response = {"message": "Like created"}, 201
         case "post":
             stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
             db.session.execute(stmt)
             db.session.commit()
-            response = {"success": 1, "message": "Like created"}, 201
+            response = {"message": "Like created"}, 201
         case None:
-            response = {"success": 0, "message": "Like not created"}, 404
+            response = {"message": "Invalid object id"}, 400
 
     return response
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Likes"],
+        "description": "Returns a list of likes from other authors on post post_id authored by author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "description": "Id of the author who posted post post_id",
+                "required": "true",
+            },
+            {
+                "in": "path",
+                "name": "post_id",
+                "description": "Id of the post to get the list of likes from",
+                "required": "true",
+            },
+        ],
+        "responses": {
+            200: {"description": "A list of likes", "schema": likes_schema},
+            404: {"description": "Author or post not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_likes(author_id: str, post_id: str):
-    """a list of likes from other authors on AUTHOR_ID’s post POST_ID"""
+    """Get a list of likes from other authors on author_id’s post post_id"""
     # Author, post must exist on our server otherwise invalid request
     author = Author.query.filter_by(id=author_id).first_or_404()
     post = Post.query.filter_by(author=author.url, id=post_id).first_or_404()
@@ -190,18 +277,34 @@ def get_likes(author_id: str, post_id: str):
 
         likes.append(like)
 
-    return {"type": "likes", "items": likes}
+    return {"type": "likes", "items": likes}, 200
 
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Likes"],
+        "description": "Returns a list of objects liked by author with author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "description": "Id of the author who posted post post_id",
+                "required": "true",
+            },
+        ],
+        "responses": {
+            200: {"description": "A list of likes", "schema": likes_schema},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_author_likes(author_id: str):
     """
-    list what PUBLIC things AUTHOR_ID liked.
+    List what PUBLIC things AUTHOR_ID liked.
 
     It’s a list of of likes originating from this author
-    Note: be careful here private information could be disclosed.
-    Will need to check if a post is private
     """
     # Again author must exist on our server
     author = Author.query.filter_by(id=author_id).first_or_404()
@@ -224,7 +327,7 @@ def get_author_likes(author_id: str):
 
         likes.append(like)
 
-    return {"type": "likes", "items": likes}
+    return {"type": "likes", "items": likes}, 200
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
@@ -245,14 +348,36 @@ def get_inbox(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
+        "description": "Send a like, comment, follow or post to the author's inbox having id as author_id",
+        "paramters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
+            {
+                "in": "body",
+                "required": "true",
+                "schema": {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+            },
+        ],
+        "responses": {
+            201: {
+                "description": "Post/follow/like/comment sent to inbox successfully",
+                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            },
+            400: {
+                "description": "Request body contains invalid data.",
+                "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
+            },
+        },
+    }
+)
 @basic_auth.required
 def post_inbox(author_id: str):
     """
-    if the type is “post” then add that post to AUTHOR_ID’s inbox
-    if the type is “follow” then add that follow is added to AUTHOR_ID’s inbox to approve later
-    if the type is “like” then add that like to AUTHOR_ID’s inbox
-    if the type is “comment” then add that comment to AUTHOR_ID’s inbox
+    Sends the post/like/follow/comment to the inbox of the author with author_id
     """
+    # TODO check if 400 is thrown after data validation
 
     data = request.json
     type = data["type"].lower()

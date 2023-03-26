@@ -60,7 +60,22 @@ def create_app(testing_env=False):
     app.jinja_env.globals.update(APIConfig=APIConfig)
 
     # docs
-    Swagger(app)
+    template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "Bigger Yoshi API",
+            "description": "API for distributed Social Networking",
+            "contact": {
+                "responsibleOrganization": "yoshibigger",
+                "email": "yoshibigger@gmail.com",
+            },
+            "termsOfService": "http://bigger-yoshi.herokuapp.com/terms",
+            "version": "0.0.1",
+        },
+        "basePath": "/",  # base bash for blueprint registration
+        "schemes": ["http", "https"],
+    }
+    Swagger(app, template=template)
 
     @login_manager.user_loader
     def load_user(author_id):
