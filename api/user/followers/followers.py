@@ -10,11 +10,7 @@ from api.user.followers.docs import *
 
 followers_bp = Blueprint("followers", __name__)
 
-# resource that i want to read later as to how
-# https://stackoverflow.com/questions/19598578/how-do-primaryjoin-and-secondaryjoin-work-for-many-to-many-relationship-in-s
 
-
-# todo (matt): we need to come up with a format for communicating follow requests in between teams
 @followers_bp.route("/<string:author_id>/followers/", methods=["GET"])
 @swag_from(
     {

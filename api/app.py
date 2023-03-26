@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import json
 from flasgger import Swagger
 from flask import Flask, jsonify, redirect, url_for
 from flask.helpers import send_from_directory
@@ -60,21 +60,9 @@ def create_app(testing_env=False):
     app.jinja_env.globals.update(APIConfig=APIConfig)
 
     # docs
-    template = {
-        "swagger": "2.0",
-        "info": {
-            "title": "Bigger Yoshi API",
-            "description": "API for distributed Social Networking",
-            "contact": {
-                "responsibleOrganization": "yoshibigger",
-                "email": "yoshibigger@gmail.com",
-            },
-            "termsOfService": "http://bigger-yoshi.herokuapp.com/terms",
-            "version": "0.0.1",
-        },
-        "basePath": "/",  # base bash for blueprint registration
-        "schemes": ["http", "https"],
-    }
+    swag = open("swagger.json", "r")
+    template = json.load(swag)
+    swag.close()
     Swagger(app, template=template)
 
     @login_manager.user_loader

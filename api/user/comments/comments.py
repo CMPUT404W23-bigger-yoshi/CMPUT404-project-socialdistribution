@@ -30,6 +30,13 @@ comments_bp = Blueprint("comments", __name__)
                 "required": "true",
                 "description": "Post id of the post commented on",
             },
+            {
+                "in": "query",
+                "name": "page",
+                "description": "Page number for the resulting list of comments",
+                "type": "integer",
+            },
+            {"in": "query", "name": "size", "description": "Number of comments per page", "type": "integer"},
         ],
         "responses": {200: {"description": "A List of comments", "schema": comments_schema}},
     }

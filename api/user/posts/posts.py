@@ -107,6 +107,13 @@ def create_post_auto_gen_id(author_id: str):
         "description": "Returns a recent public posts authored by author_id.",
         "parameters": [
             {"in": "path", "name": "author_id", "description": "Id of the author of the posts"},
+            {
+                "in": "query",
+                "name": "page",
+                "description": "Page number for the resulting list of public posts",
+                "type": "integer",
+            },
+            {"in": "query", "name": "size", "description": "Number of items per page", "type": "integer"},
         ],
         "responses": {
             200: {"description": "A list of recent posts", "schema": posts_schema},

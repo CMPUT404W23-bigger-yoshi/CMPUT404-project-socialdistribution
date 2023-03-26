@@ -19,6 +19,15 @@ authors_bp = Blueprint("authors", __name__)
     {
         "tags": ["Authors"],
         "description": "Returns list of authors",
+        "parameters": [
+            {
+                "in": "query",
+                "name": "page",
+                "description": "Page number of the resulting authors list",
+                "type": "integer",
+            },
+            {"in": "query", "name": "size", "description": "Number of items per page", "type": "integer"},
+        ],
         "responses": {200: {"description": "A List of authors", "schema": authors_schema}},
     }
 )

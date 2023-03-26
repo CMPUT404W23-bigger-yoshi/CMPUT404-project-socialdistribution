@@ -95,3 +95,7 @@ Contributors:
     Abram Hindle
     Braedy Kuzma
     Nhan Nguyen
+
+## References
+
+Swagger theme: https://github.com/ostranme/swagger-ui-themes

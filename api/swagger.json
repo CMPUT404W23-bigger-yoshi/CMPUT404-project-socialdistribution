@@ -1,0 +1,15 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Bigger Yoshi API",
+        "description": "API for distributed Social Networking",
+        "contact": {
+            "responsibleOrganization": "yoshibigger",
+            "email": "yoshibigger@gmail.com"
+        },
+        "termsOfService": "http://bigger-yoshi.herokuapp.com/terms",
+        "version": "0.0.1"
+    },
+    "basePath": "/",  
+    "schemes": ["http", "https"]
+}
