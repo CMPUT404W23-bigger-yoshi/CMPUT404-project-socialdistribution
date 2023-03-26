@@ -66,7 +66,7 @@ class Author(UserMixin, db.Model):
         del json["role"]
         return json
 
-
+# we use this table to cache non-local authors
 @dataclass
 class NonLocalAuthor(db.Model):
     id: str = db.Column(db.String(50), primary_key=True, unique=True)
