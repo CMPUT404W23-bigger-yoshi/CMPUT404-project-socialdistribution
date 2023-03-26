@@ -486,7 +486,7 @@ def make_like(json, author_id):
     Author.query.filter_by(id=author_id).first_or_404()
 
     data = request.json
-    object_id = data.get("object", None)
+    object_id = data.get("object")
     if object_id is None:
         return {"success": 0, "message": "Missing Object"}, 400
 
