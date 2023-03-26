@@ -1,5 +1,6 @@
 import pytest
 
+from api import API_ROOT
 from api.user.author import model
 
 
@@ -10,7 +11,7 @@ class TestAuth:
     """
 
     def test_register(self, client, app):
-        response = client.post("/authors/register", json={"username": "test", "password": "test"})
+        response = client.post(f"{API_ROOT}/authors/register", json={"username": "test", "password": "test"})
 
         # TODO Should be a redirect ????
         print(response.data)
@@ -33,7 +34,7 @@ class TestAuth:
         ),
     )
     def test_register_invalid_input(self, client, username, password, response_code):
-        response = client.post("/authors/register", json={"username": username, "password": password})
+        response = client.post(f"{API_ROOT}/authors/register", json={"username": username, "password": password})
 
         assert response.status_code == response_code
 
@@ -56,7 +57,7 @@ class TestAuth:
         auth.register()
         auth.login()
 
-        response = client.post("/authors/logout")
+        response = client.post(f"{API_ROOT}/authors/logout")
         assert response.status_code == 200
 
         """

@@ -38,10 +38,7 @@ comments_bp = Blueprint("comments", __name__)
 def get_comments(author_id: str, post_id: str):
     """Get the list of comments of the post whose id is POST_ID (paginated)"""
 
-    post = Post.query.filter_by(id=post_id).first()
-
-    if not post:
-        return {"message": "Post not found."}, 404
+    post = Post.query.filter_by(id=post_id).first_or_404()
 
     comments = post.comments.paginate(**get_pagination_params().dict).items
     comment_list = []
@@ -68,8 +65,6 @@ def get_comments(author_id: str, post_id: str):
 @comments_bp.route("/<string:author_id>/posts/<string:post_id>/comments", methods=["POST"])
 @login_required
 def post_comment(author_id: str, post_id: str):
-    """if you post an object of “type”:”comment”, it will add your comment to the post whose id is POST_ID"""
-
     data = request.json
 
     try:
