@@ -68,7 +68,7 @@ class Author(UserMixin, db.Model):
 
 
 @dataclass
-class NonLocalAuthor(UserMixin, db.Model):
+class NonLocalAuthor(db.Model):
     id: str = db.Column(db.String(50), primary_key=True, unique=True)
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)

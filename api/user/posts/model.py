@@ -15,6 +15,13 @@ def _constructURL(context):
     return url
 
 
+inbox_table = db.Table(
+    "inbox",
+    db.Column("post_id", db.String(200), db.ForeignKey("post.id"), primary_key=True),
+    db.Column("meant_for", db.String(200), db.ForeignKey("author.id"), primary_key=True),
+)
+
+
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
@@ -37,9 +44,6 @@ class Post(db.Model):
     # timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
-    # Foreign Key - Recipient must be a local author
-    inbox: str = db.Column("inbox", db.String(50), db.ForeignKey("author.id"), primary_key=True, nullable=False)
-
     # Complete URL of the author remote/local -> cant be a foreign key
     author: str = db.Column("author", db.String(50), nullable=False)
 
@@ -55,18 +59,19 @@ class Post(db.Model):
         post["type"] = "post"
 
         # Setting author
-        author = Author.query.filter_by(url=post["author"]).first()
+        author = Author.query.filter_by(id=post["author"]).first()
         if author:
             post["author"] = author.getJSON()
 
-        author = NonLocalAuthor.query.filter_by(id=post["author"]).first()
-        if author:
-            # todo @matt is there a better way?
-            # todo future: fetch latest data, if not available return stale data
-            author = {**author.__dict__}
-            if author.get("_sa_instance_state", None) is not None:
-                del author["_sa_instance_state"]
-            post["author"] = author
+        if author is None:
+            author = NonLocalAuthor.query.filter_by(id=post["author"]).first()
+            if author:
+                # todo @matt is there a better way?
+                # todo future: fetch latest data, if not available return stale data
+                author = {**author.__dict__}
+                if author.get("_sa_instance_state", None) is not None:
+                    del author["_sa_instance_state"]
+                post["author"] = author
 
         # Categories
         if post["categories"]:
@@ -98,7 +103,6 @@ class Post(db.Model):
         # commentSrc["comments"] = self.comments.paginate(**get_pagination_params().dict).items
         #
         # post["commentSrc"] = commentSrc
-        del post["inbox"]
         del post["url"]
         return post
 

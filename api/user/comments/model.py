@@ -7,9 +7,9 @@ from api.utils import generate_object_ID, get_author_info
 @dataclass
 class Comment(db.Model):
     id: str = db.Column(db.String(50), primary_key=True, default="")
-    created: str = db.Column("created", db.String(20), nullable=False)
+    published: str = db.Column("published", db.String(20), nullable=False)
     contentType: str = db.Column("contentType", db.String(50), nullable=False)
-    content: str = db.Column("content", db.String(50), nullable=False)
+    comment: str = db.Column("comment", db.String(50), nullable=False)
     # we can't enforce an FK constraint here - we may be commenting on a remote post
     author_id: str = db.Column("author_id", db.String(200), nullable=False)
     post_id: str = db.Column("post_id", db.String(200), db.ForeignKey("post.id"), nullable=False)
@@ -18,6 +18,7 @@ class Comment(db.Model):
         json = asdict(self)
         json["type"] = "comment"
 
+        # todo write a better way
         author = get_author_info(json["author_id"])
         if not author:
             return {}

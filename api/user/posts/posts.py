@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from api import basic_auth, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
-from api.user.posts.model import Post
+from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
@@ -17,14 +17,13 @@ from api.utils import Visibility, generate_object_ID, get_author_info, get_objec
 posts_bp = Blueprint("posts", __name__)
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
 @basic_auth.required
 def get_post(author_id: str, post_id: str):
     """get the public post whose id is POST_ID"""
     # author_id in database is complete url
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post_search = Post.query.filter_by(id=post_id, author=author.url).first_or_404()
+    post_search = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
     return post_search.getJSON(), 200
 
@@ -42,9 +41,9 @@ def edit_post(author_id: str, post_id: str):
     json = request.json
 
     # Modify json to be compatible with model here (if required)
-
+    # todo author can edit posts only it's own inbox and written by themselves?
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id, author=author.url, inbox=author.id).first_or_404()
+    post = Post.query.filter_by(id=post_id, author=author.id, inbox=author.id).first_or_404()
 
     for k, v in json.items():
         setattr(post, k, v)
@@ -54,13 +53,14 @@ def edit_post(author_id: str, post_id: str):
     return {"success": 1, "message": "Post edited successfully."}, 201
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
 @login_required
 def delete_post(author_id: str, post_id: str):
     """remove the post whose id is post_id"""
+    # todo author can remove post from it's own inbox this will be achieved
+    #  by authenticating that logged in user is author itself
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id, author=author.url, inbox=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id, inbox=author_id).first_or_404()
 
     db.session.delete(post)
     db.session.commit()
@@ -100,7 +100,7 @@ def get_recent_posts(author_id: str):
 
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(inbox=author_id)
+        Post.query.filter_by(author=author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -241,8 +241,15 @@ def get_inbox(author_id: str):
 
     author = Author.query.filter_by(id=author_id).first_or_404()
 
+    # posts = (
+    #     Post.query.filter_by(inbox=author_id)
+    #     .order_by(desc(Post.published))
+    #     .paginate(**get_pagination_params().dict)
+    #     .items
+    # )
     posts = (
-        Post.query.filter_by(inbox=author_id)
+        Post.query.join(inbox_table)
+        .filter(inbox_table.c.meant_for == author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
@@ -293,7 +300,7 @@ def clear_inbox(author_id: str):
     return {"success": 1, "message": "Inbox cleared succesfully"}, 200
 
 
-def make_post(data, author_id, is_local, post_id=None):
+def make_post(data, inbox_author_id, is_local, post_id=None):
     """
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
@@ -310,28 +317,39 @@ def make_post(data, author_id, is_local, post_id=None):
     if not post_id:
         post_id = generate_object_ID()
 
+    meant_for = Author.query.filter_by(id=inbox_author_id).first()
+    if is_local and meant_for is None:
+        return {"message": "Author doesn't exist"}, 400
+
+    # verification of all the fields needed
+    author = data.get("author")
+    required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
+    for field in required_fields:
+        if author.get(field, None) is None:
+            return {"message": "Author with incomplete fields"}, 400
+
+    # eh? frontend will send id with complete url can't do much about it.
+    # probably can be refactored better but w/e
+    if is_local:
+        author = Author.query.filter_by(url=author["url"]).first()
+        if author is None:
+            return {"message": "Local author who wrote the post doesn't exist"}, 400
+
     if not is_local:
-        foreign_auth = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
+        author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
 
-        if not foreign_auth:
-            # verification of all the fields needed
-            author_to_add = data.get("author")
-            required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
-            for field in required_fields:
-                if author_to_add.get(field, None) is None:
-                    return {"message": "Author with incomplete fields"}, 400
-
+        if not author:
             # create foreign author
-            foreign_auth = NonLocalAuthor(
-                id=author_to_add["id"],
-                host=author_to_add["host"],
-                url=author_to_add["url"],
-                displayName=author_to_add["displayName"],
-                github=author_to_add["github"],
-                profileImage=author_to_add["profileImage"],
+            author = NonLocalAuthor(
+                id=author["id"],
+                host=author["host"],
+                url=author["url"],
+                displayName=author["displayName"],
+                github=author["github"],
+                profileImage=author["profileImage"],
             )
 
-            db.session.add(foreign_auth)
+            db.session.add(author)
             db.session.commit()
 
     post = Post(
@@ -346,10 +364,11 @@ def make_post(data, author_id, is_local, post_id=None):
         categories=",".join(data.get("categories")),
         visibility=visibility,
         unlisted=data.get("unlisted"),
-        author=data.get("author").get("id"),
-        inbox=author_id,
+        author=author.id,
     )
     db.session.add(post)
+    statement = inbox_table.insert().values(post_id=post_id, meant_for=inbox_author_id)
+    db.session.execute(statement)
     db.session.commit()
 
     return {"message": "Post created successfully."}, 201
