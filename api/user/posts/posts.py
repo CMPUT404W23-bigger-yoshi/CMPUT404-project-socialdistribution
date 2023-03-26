@@ -165,7 +165,7 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-# todo check @matt
+# todo check @matt this route used to interfere with something
 @posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
 @basic_auth.required
 def send_like(author_id: str):
