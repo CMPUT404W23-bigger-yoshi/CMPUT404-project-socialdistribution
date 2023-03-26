@@ -296,7 +296,6 @@ def post_inbox(author_id: str):
     if the type is “comment” then add that comment to AUTHOR_ID’s inbox
     """
     # todo remaining @matt:
-    #   post
     #   like
     #   comment
     #   follow
