@@ -97,11 +97,10 @@ def create_post(author_id: str, post_id: str):
     if post is None:
         return {"message": "Failed to create post"}, 400
 
-    # todo send to inbox
-    if post.visibility == Visibility.PUBLIC:
-        pass
-    if post.visibility == Visibility.FRIENDS:
-        pass
+    # todo :
+    #  * error handling
+    #  * foreign authors inbox
+    fanout_to_local_inbox(post, author_id)
 
     return {"message": "Successfully created new post"}, 201
 
@@ -121,12 +120,8 @@ def create_post_auto_gen_id(author_id: str):
     if post is None:
         return {"message": "Failed to create post"}, 400
 
-    # todo if post is public it goes into no inbox locally but goes to inbox of all non-local followers
-    if post.visibility == Visibility.PUBLIC:
-        pass
-    # if post is meant for friends store in local inbox and to inbox of all non-local friends
-    if post.visibility == Visibility.FRIENDS:
-        pass
+    # todo: eh error handling remains
+    fanout_to_local_inbox(post, author_id)
 
     return {"message": "Successfully created new post"}, 201
 
@@ -469,6 +464,21 @@ def make_post_non_local(data, author_id):
     db.session.commit()
 
     return {"message": "Post created successfully."}, 201
+
+
+def fanout_to_local_inbox(post: Post, author: str = None):
+    # todo send to foreign inbox ;-;
+    if post.visibility == Visibility.PUBLIC:
+        authors = Author.query.all()
+        to_insert = []
+        for author in authors:
+            to_insert.append({"post_id": post.id, "meant_for": author.id})
+        statement = inbox_table.insert().values(to_insert)
+        db.session.execute(statement)
+        db.session.commit()
+    if post.visibility == Visibility.FRIENDS:
+        # todo: eh need a method to determine friends
+        pass
 
 
 def make_like(json, author_id):
