@@ -66,6 +66,7 @@ class Author(UserMixin, db.Model):
         del json["role"]
         return json
 
+
 # we use this table to cache non-local authors
 @dataclass
 class NonLocalAuthor(db.Model):
@@ -75,3 +76,8 @@ class NonLocalAuthor(db.Model):
     displayName: str = db.Column("displayName", db.Text, nullable=False, unique=True)
     github: str = db.Column("github", db.Text, nullable=False)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
+
+    def getJSON(self):
+        json = asdict(self)
+        json["type"] = "author"
+        return json
