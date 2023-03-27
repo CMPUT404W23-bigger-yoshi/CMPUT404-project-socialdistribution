@@ -28,7 +28,6 @@ def get_post(author_id: str, post_id: str):
     return post_search.getJSON(), 200
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
 @login_required
 def edit_post(author_id: str, post_id: str):
@@ -162,7 +161,6 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-# todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
 @basic_auth.required
 def get_likes(author_id: str, post_id: str):
@@ -427,18 +425,10 @@ def make_post_non_local(data, author_id):
     author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
 
     if not author:
-        # create foreign author
-        author = data.get("author")
-        author = NonLocalAuthor(
-            id=author["id"],
-            host=author["host"],
-            url=author["url"],
-            displayName=author["displayName"],
-            github=author["github"],
-            profileImage=author["profileImage"],
-        )
-        db.session.add(author)
-        db.session.commit()
+        author = create_non_local_author(data.get("author"))
+
+    if not author:
+        return {"message": "Missing fields in author"}, 400
 
     post = Post(
         id=post_id,
@@ -499,21 +489,14 @@ def make_like(json, author_id):
     if author is None:
         made_by = data.get("author").get("id")
         author = NonLocalAuthor.query.filter_by(id=made_by).first()
-        try:
-            if author is None:
-                author_to_add = data.get("author")
-                author = NonLocalAuthor(
-                    id=author_to_add["id"],
-                    host=author_to_add["host"],
-                    url=author_to_add["url"],
-                    displayName=author_to_add["displayName"],
-                    github=author_to_add["github"],
-                    profileImage=author_to_add["profileImage"],
-                )
-            db.session.add(author)
-            db.session.commit()
-        except Exception:
-            return {"success": 0, "message": "Failed to create author"}, 400
+
+    # if author doesn't exist both locally and non-locally
+    if author is None:
+        author = create_non_local_author(json.get("author"))
+
+    # if failed to create the author
+    if author is None:
+        return {"message": "Missing fields in author"}, 400
 
     response = {"success": 1, "message": "Like created"}, 201
     try:
@@ -552,21 +535,14 @@ def make_comment(json, author_id):
     author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
     if author is None:
         author = NonLocalAuthor.query.filter_by(id=author_id).first()
-        try:
-            if author is None:
-                author_to_add = json.get("author")
-                author = NonLocalAuthor(
-                    id=author_to_add["id"],
-                    host=author_to_add["host"],
-                    url=author_to_add["url"],
-                    displayName=author_to_add["displayName"],
-                    github=author_to_add["github"],
-                    profileImage=author_to_add["profileImage"],
-                )
-            db.session.add(author)
-            db.session.commit()
-        except Exception:
-            return {"success": 0, "message": "Failed to create author"}, 400
+
+    # if author doesn't exist both locally and non-locally
+    if author is None:
+        author = create_non_local_author(json.get("author"))
+
+    # if failed to create the author
+    if author is None:
+        return {"message": "Missing fields in author"}, 400
 
     # TODO might need a better way
     post_id = comment_id.split("posts")[1].split("/")[1]
@@ -582,3 +558,21 @@ def make_comment(json, author_id):
     db.session.commit()
 
     return {"message": "Comment made successfully."}, 201
+
+
+def create_non_local_author(data):
+    try:
+        author_to_add = data
+        author = NonLocalAuthor(
+            id=author_to_add["id"],
+            host=author_to_add["host"],
+            url=author_to_add["url"],
+            displayName=author_to_add["displayName"],
+            github=author_to_add["github"],
+            profileImage=author_to_add["profileImage"],
+        )
+        db.session.add(author)
+        db.session.commit()
+        return author
+    except Exception:
+        return None
