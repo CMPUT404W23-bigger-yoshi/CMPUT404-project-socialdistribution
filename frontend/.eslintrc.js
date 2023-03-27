@@ -20,6 +20,7 @@ module.exports = {
     'react/prop-types': 'off',
     semi: 'off',
     'multiline-ternary': 'off',
-    'react/no-children-prop': 'off'
+    'react/no-children-prop': 'off',
+    indent: 'off'
   }
 };

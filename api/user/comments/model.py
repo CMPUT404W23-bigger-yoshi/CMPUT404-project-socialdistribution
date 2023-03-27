@@ -7,13 +7,13 @@ from api.utils import generate_object_ID, get_author_info
 
 @dataclass
 class Comment(db.Model):
-    id: str = db.Column(db.String(50), primary_key=True, default="")
-    published: str = db.Column("published", db.String(20), nullable=False)
-    contentType: str = db.Column("contentType", db.String(50), nullable=False)
-    comment: str = db.Column("comment", db.String(50), nullable=False)
+    id: str = db.Column(db.Text, primary_key=True, default="")
+    published: str = db.Column("published", db.Text, nullable=False)
+    contentType: str = db.Column("contentType", db.Text, nullable=False)
+    comment: str = db.Column("comment", db.Text, nullable=False)
     # we can't enforce an FK constraint here - we may be commenting on a remote post
-    author_id: str = db.Column("author_id", db.String(200), nullable=False)
-    post_id: str = db.Column("post_id", db.String(200), db.ForeignKey("post.id"), nullable=False)
+    author_id: str = db.Column("author_id", db.Text, nullable=False)
+    post_id: str = db.Column("post_id", db.Text, db.ForeignKey("post.id"), nullable=False)
 
     def getJSON(self):
         json = asdict(self)

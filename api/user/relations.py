@@ -16,6 +16,6 @@ author_likes_posts = db.Table(
 
 post_images = db.Table(
     "post_images",
-    db.Column("post_id", db.String(200), db.ForeignKey("post.id")),
+    db.Column("post_id", db.Text, db.ForeignKey("post.id")),
     db.Column("image", db.Text, nullable=False),
 )
