@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost, getLikes, getPost, likePost, unlikePost } from '../../services/post';
+import { deletePost, getLikes, getPost, likePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -14,6 +14,7 @@ import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
 import { useLocation } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
+import { getCurrentUserDetails } from '../../services/author';
 
 const Post = (props) => {
   const [post, setPost] = useState(props.post);
@@ -74,22 +75,22 @@ const Post = (props) => {
     fetchLikes().then((r) => console.log(r));
   }, [postDetails]);
 
-  function handleLike() {
-    // Check if user has liked the post
-    const liked = post.likes.find(
-      (like) => getIdFromUrl(like.author.id) === props.currentUser
-    );
-    console.log(liked);
-    if (liked) {
-      // Unlike the post
-      unlikePost(props.currentUser, postDetails.postId).then((response) => {
-        setPost({ ...post, liked: false });
-      });
-    } else {
-      // Like the post
-      likePost(props.currentUser, postDetails.postId).then((response) => {
-        setPost({ ...post, liked: true });
-      });
+  async function handleLike() {
+    try {
+      const userDetails = await getCurrentUserDetails(props.currentUser);
+      const likeObject = {
+        type: 'Like',
+        summary: `${userDetails.data.displayName} liked your post`,
+        author: {
+          ...userDetails.data
+        },
+        object: window.location.origin + `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
+      }
+      const res = await likePost(postDetails.authorId, postDetails.postId, likeObject);
+      console.log(res);
+      setPost({ ...post, liked: !post.liked });
+    } catch (err) {
+      console.log(err);
     }
   }
 

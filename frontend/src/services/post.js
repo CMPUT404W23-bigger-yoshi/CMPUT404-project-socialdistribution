@@ -2,14 +2,12 @@ import axios from 'axios';
 import { getCurrentUserDetails } from './author';
 axios.defaults.baseURL = '/api';
 
-axios.defaults.baseURL = '/api';
-
 export function getPost(authorId, postId) {
   return axios.get(`/authors/${authorId}/posts/${postId}`);
 }
 
 export function getPosts(authorId) {
-  return axios.get(`/authors/${authorId}/posts`);
+  return axios.get(`/authors/${authorId}/posts/`);
 }
 
 export async function generatePostId(authorId, postContent) {
@@ -25,7 +23,7 @@ export async function generatePostId(authorId, postContent) {
     };
     const config = {
       method: 'post',
-      url: `/authors/${authorId}/posts`,
+      url: `/authors/${authorId}/posts/`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -35,15 +33,6 @@ export async function generatePostId(authorId, postContent) {
   } catch (error) {
     console.log(error);
   }
-}
-
-export async function getAllPosts(authorId) {
-  const config = {
-    method: 'get',
-    url: `/authors/${authorId}/posts`,
-    headers: {}
-  };
-  return axios(config);
 }
 
 export async function deletePost(authorId, postId) {
@@ -101,17 +90,16 @@ export async function getLikes(authorId, postId) {
   return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
 }
 
-export async function likePost(authorId, postId) {
-  return await axios.put(`/authors/${authorId}/posts/${postId}/likes`);
-}
-
-export async function unlikePost(authorId, postId) {
+export async function likePost(authorId, postId, likeObj) {
   const config = {
-    method: 'delete',
-    url: `/authors/${authorId}/posts/${postId}/likes`,
-    headers: {}
+    method: 'post',
+    url: `/authors/${authorId}/inbox/`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(likeObj)
   };
-  return axios(config);
+  return await axios(config);
 }
 
 export async function makeComment(comment, authorId) {

@@ -14,7 +14,7 @@ import {
   getFollowingCount,
   unfollowUser
 } from '../../services/author';
-import { getAllPosts } from '../../services/post';
+import { getPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
@@ -48,7 +48,7 @@ const Profile = (props) => {
           userId = { data: { id: props.authorId } };
         }
         const user = await getCurrentUserDetails(userId.data.id);
-        const posts = await getAllPosts(userId.data.id);
+        const posts = await getPosts(userId.data.id);
         if (props?.authorId) {
           try {
             const check = await checkIfFollowing(

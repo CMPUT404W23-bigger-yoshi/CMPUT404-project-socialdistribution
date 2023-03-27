@@ -66,11 +66,6 @@ function Comments(props) {
   });
   const [showPreview, setShowPreview] = React.useState(false);
 
-  const makeComment = () => {
-    // pass
-  }
-
-
   return (
     <div className='container mt-5 border-left border-right'>
       <div className='d-flex justify-content-center pt-3 pb-2'>
