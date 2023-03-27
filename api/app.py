@@ -6,6 +6,7 @@ from flasgger import Swagger
 from flask import Flask, jsonify, redirect, url_for
 from flask.helpers import send_from_directory
 from flask_admin import Admin
+from flask_cors import CORS
 from sqlalchemy import URL
 
 import api.user.followers.model
@@ -29,6 +30,7 @@ def create_app(testing_env=False):
     REACT_BUILD_DIR = Path(__file__).parents[1] / "frontend" / "build"
 
     app = Flask(__name__, static_folder=REACT_BUILD_DIR)
+    CORS(app)
 
     @app.route("/", defaults={"path": "index.html"})
     @app.route("/<path:path>")
