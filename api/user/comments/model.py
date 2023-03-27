@@ -1,6 +1,7 @@
 from dataclasses import asdict, dataclass
 
 from api import db
+from api.user.author.model import Author, NonLocalAuthor
 from api.utils import generate_object_ID, get_author_info
 
 
@@ -19,9 +20,13 @@ class Comment(db.Model):
         json["type"] = "comment"
 
         # todo write a better way
-        author = get_author_info(json["author_id"])
-        if not author:
-            return {}
+        author_id = get_author_info(json["author_id"])
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:
+            author = NonLocalAuthor.query.filter_by(id=author_id).first()
+
+        author = author.getJSON() if author is not None else {}
+
         json["author"] = author
         json["id"] = self.post.url + "/comments/" + self.id
 

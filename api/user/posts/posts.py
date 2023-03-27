@@ -162,40 +162,6 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-# todo check @matt this route used to interfere with something
-# @posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
-# @basic_auth.required
-# def send_like(author_id: str):
-#     """
-#     Send a like object to author_id.
-#     Like could be made on either post or comments of the author.
-#     """
-#     # Author's inbox must exist on server
-#     Author.query.filter_by(id=author_id).first_or_404()
-#
-#     data = request.json
-#     object_id = data.get("object")
-#     type = get_object_type(object_id)
-#     made_by = data.get("author").get("id")
-#     response = {}
-#     match type:
-#         case "comment":
-#             stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
-#             db.session.execute(stmt)
-#             db.session.commit()
-#             response = {"success": 1, "message": "Like created"}, 201
-#         case "post":
-#             stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
-#             db.session.execute(stmt)
-#             db.session.commit()
-#             response = {"success": 1, "message": "Like created"}, 201
-#         case None:
-#             response = {"success": 0, "message": "Like not created"}, 404
-#
-#     return response
-#
-
-
 # todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
 @basic_auth.required
@@ -206,7 +172,7 @@ def get_likes(author_id: str, post_id: str):
     post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
 
     # fetch all author urls who like this post from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.url)
+    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
     result = db.session.execute(stmt)
     authors = result.all()
     authors = [getattr(row, "author") for row in authors]
@@ -223,7 +189,7 @@ def get_likes(author_id: str, post_id: str):
         if not author:
             continue
 
-        name = author.get("displayName")
+        name = author.username
         summary = name + "likes your post." if name else ""
         like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
 
@@ -234,13 +200,13 @@ def get_likes(author_id: str, post_id: str):
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/comments/<string:comment_id>/likes", methods=["GET"])
 @basic_auth.required
-def get_likes(author_id: str, post_id: str, comment_id: str):
+def get_comment_likes(author_id: str, post_id: str, comment_id: str):
     # Author, post must exist on our server otherwise invalid request
     author = Author.query.filter_by(id=author_id).first_or_404()
     post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
 
     # fetch all author urls who like this post from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.url)
+    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
     result = db.session.execute(stmt)
     authors = result.all()
     authors = [getattr(row, "author") for row in authors]
@@ -332,9 +298,9 @@ def post_inbox(author_id: str):
     #   follow
 
     data = request.json
-    type = data["type"].lower()
+    post_type = data["type"].lower()
     response = {}
-    match type:
+    match post_type:
         case "post":
             response = make_post_non_local(data, author_id)
         case "like":
@@ -552,11 +518,11 @@ def make_like(json, author_id):
     try:
         match like_type:
             case "comment":
-                stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
+                stmt = author_likes_comments.insert().values(author=made_by, comment=object_id.split("/")[-1])
                 db.session.execute(stmt)
                 db.session.commit()
             case "post":
-                stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
+                stmt = author_likes_posts.insert().values(author=made_by, post=object_id.split("/")[-1])
                 db.session.execute(stmt)
                 db.session.commit()
     except IntegrityError:
@@ -576,16 +542,40 @@ def make_comment(json, author_id):
     Arguments:
         author_id: ID of the author who made the
     """
+
     comment_id = json.get("id")
+    author_id = json.get("author", {}).get("id")
+    if comment_id is None or author_id is None:
+        return {"message": "Missing fields"}, 400
+
+    author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
+    if author is None:
+        author = NonLocalAuthor.query.filter_by(id=author_id).first()
+        try:
+            if author is None:
+                author_to_add = json.get("author")
+                author = NonLocalAuthor(
+                    id=author_to_add["id"],
+                    host=author_to_add["host"],
+                    url=author_to_add["url"],
+                    displayName=author_to_add["displayName"],
+                    github=author_to_add["github"],
+                    profileImage=author_to_add["profileImage"],
+                )
+            db.session.add(author)
+            db.session.commit()
+        except Exception:
+            return {"success": 0, "message": "Failed to create author"}, 400
+
     # TODO might need a better way
-    post_url = comment_id[: comment_id.index("comments") - 1]
+    post_id = comment_id.split("posts")[1].split("/")[1]
     comment = Comment(
-        created=json.get("published"),
-        content=json.get("comment"),
+        published=json.get("published"),
+        comment=json.get("comment"),
         contentType=json.get("contentType"),
+        author_id=author.id,
         id=comment_id,
-        author_id=json.get("author").get("id"),
-        post_url=post_url,
+        post_id=post_id,
     )
     db.session.add(comment)
     db.session.commit()
