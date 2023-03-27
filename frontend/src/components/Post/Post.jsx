@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost, getComments, getLikes, getPost, likePost } from '../../services/post';
+import {
+  deletePost,
+  getComments,
+  getLikes,
+  getPost,
+  likePost
+} from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -83,7 +89,7 @@ const Post = (props) => {
       } catch (err) {
         console.log(err);
       }
-    }
+    };
     fetchComments().then((r) => console.log(r));
   }, [postDetails]);
 
@@ -96,8 +102,10 @@ const Post = (props) => {
         author: {
           ...userDetails.data
         },
-        object: window.location.origin + `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
-      }
+        object:
+          window.location.origin +
+          `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
+      };
       const res = await likePost(postDetails.authorId, likeObject);
       console.log(res);
       setPost({ ...post, liked: !post.liked });

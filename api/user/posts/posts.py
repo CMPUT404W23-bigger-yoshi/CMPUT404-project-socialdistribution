@@ -303,6 +303,7 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
 
     return {"type": "likes", "items": likes}
 
+
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
 @swag_from(
     {

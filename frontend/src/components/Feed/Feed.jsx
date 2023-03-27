@@ -26,8 +26,9 @@ function Feed(props) {
   return (
     <div className="feed">
       {posts.length > 0 ? (
-        posts.map((post) => <Post post={post} key={post.id}
-                                  currentUser={userId} />)
+        posts.map((post) => (
+          <Post post={post} key={post.id} currentUser={userId} />
+        ))
       ) : (
         <>
           <br />
