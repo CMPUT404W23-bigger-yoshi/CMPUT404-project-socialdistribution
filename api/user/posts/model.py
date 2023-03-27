@@ -91,7 +91,7 @@ class Post(db.Model):
 
         # Renaming url to id
         post["id"] = post["url"]
-
+        post["comments"] = comments
         del post["url"]
         return post
 

@@ -20,7 +20,7 @@ class Comment(db.Model):
         json["type"] = "comment"
 
         # todo write a better way
-        author_id = get_author_info(json["author_id"])
+        author_id = json["author_id"]
         author = Author.query.filter_by(id=author_id).first()
         if author is None:
             author = NonLocalAuthor.query.filter_by(id=author_id).first()

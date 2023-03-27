@@ -77,6 +77,7 @@ class NonLocalAuthor(db.Model):
     github: str = db.Column("github", db.Text, nullable=False)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
 
-    def getJson(self):
+    def getJSON(self):
         json = asdict(self)
         json["type"] = "author"
+        return json

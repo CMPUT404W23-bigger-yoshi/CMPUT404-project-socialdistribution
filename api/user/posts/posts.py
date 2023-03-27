@@ -428,6 +428,7 @@ def make_post_non_local(data, author_id):
 
     if not author:
         # create foreign author
+        author = data.get("author")
         author = NonLocalAuthor(
             id=author["id"],
             host=author["host"],
