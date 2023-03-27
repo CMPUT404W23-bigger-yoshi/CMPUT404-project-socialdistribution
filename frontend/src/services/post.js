@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getCurrentUserDetails } from './author';
+
 axios.defaults.baseURL = '/api';
 
 export function getPost(authorId, postId) {
@@ -110,4 +111,8 @@ export async function unlikePost(authorId, postId) {
     headers: {}
   };
   return axios(config);
+}
+
+export async function makeComment(comment, authorId) {
+  return await axios.post(`/authors/${authorId}/comments`, comment);
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { getLikes, getPost, likePost, unlikePost } from '../../services/post';
+import { deletePost, getLikes, getPost, likePost, unlikePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import {

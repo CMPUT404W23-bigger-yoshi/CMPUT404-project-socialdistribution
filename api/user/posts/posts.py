@@ -388,6 +388,7 @@ def make_follow(json, author_id):
     pass
 
 
+@posts_bp.route("/<string:author_id>/posts/<string:post_id>/comments", methods=["POST"])
 def make_comment(json, author_id):
     """
     Submit a comment made on author's post with id as author_id.
@@ -402,8 +403,7 @@ def make_comment(json, author_id):
         content=json.get("comment"),
         contentType=json.get("contentType"),
         id=comment_id,
-        author_id=json.get("author").get("id"),
-        post_url=post_url,
+        author_id=author_id,
     )
     db.session.add(comment)
     db.session.commit()

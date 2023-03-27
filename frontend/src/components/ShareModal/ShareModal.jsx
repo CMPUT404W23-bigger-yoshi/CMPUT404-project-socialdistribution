@@ -18,7 +18,7 @@ export default function ShareModal(props) {
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Share</Modal.Title>
         </Modal.Header>
         <Modal.Body>

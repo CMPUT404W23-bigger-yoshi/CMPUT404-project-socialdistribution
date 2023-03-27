@@ -10,8 +10,20 @@ body {
 }
 
 .modal-title,
+.modal-header,
 .modal-body,
+.model-content,
+.modal-footer,
 .share-modal-body,
 .share-modal-body input {
-  color: #000 !important;
+  color: #fff !important;
+  background-color: #261e1e;
+}
+
+.modal-header button {
+  color: #fff !important;
+}
+
+.modal-body .container {
+  background-color: #261e1e;
 }
