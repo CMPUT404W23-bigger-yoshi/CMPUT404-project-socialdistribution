@@ -47,9 +47,9 @@ class Post(db.Model):
     author: str = db.Column("author", db.String(50), nullable=False)
 
     # Relationships -> lazy = "dynamic" returns a query object to further refine.
-    comments = db.relationship(
-        "Comment", backref="post", lazy="dynamic", cascade="all, delete"
-    )  # what will be the type of this?
+    # comments = db.relationship(
+    #     "Comment", backref="post", lazy="dynamic", cascade="all, delete"
+    # )  # what will be the type of this?
 
     # TODO Images
 
@@ -85,7 +85,7 @@ class Post(db.Model):
         # Comments
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()
-        comments = list(curr_post.comments.all())
+        comments = curr_post.comments.all()
 
         comments = [comment.getJSON() for comment in comments]
 

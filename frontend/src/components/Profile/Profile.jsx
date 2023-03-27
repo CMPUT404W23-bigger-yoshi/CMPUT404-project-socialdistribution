@@ -5,15 +5,23 @@ import { Github, Twitter } from 'react-bootstrap-icons';
 import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCurrentUserDetails, getCurrentUserId } from '../../services/author';
-import { getAllPosts } from '../../services/post';
+import {
+  checkIfFollowing,
+  followUser,
+  getCurrentUserDetails,
+  getCurrentUserId,
+  getFollowersCount,
+  getFollowingCount,
+  unfollowUser
+} from '../../services/author';
+import { getPosts } from '../../services/post';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
-  const location = useLocation();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [following, setFollowing] = useState(false);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({
     id: 'https://www.facebook.com/100009000000000',
@@ -26,9 +34,8 @@ const Profile = (props) => {
       'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
   });
   const [userFollowStats, setUserFollowStats] = useState({
-    following: 56,
-    followers: 45,
-    friends: 2
+    following: 0,
+    followers: 0
   });
   // Fetch user data from backend
   useEffect(() => {
@@ -41,7 +48,24 @@ const Profile = (props) => {
           userId = { data: { id: props.authorId } };
         }
         const user = await getCurrentUserDetails(userId.data.id);
-        const posts = await getAllPosts(userId.data.id);
+        const posts = await getPosts(userId.data.id);
+        if (props?.authorId) {
+          try {
+            const check = await checkIfFollowing(
+              props.currentUser,
+              userId.data.id
+            );
+            setFollowing(check.data.found);
+          } catch (err) {
+            setFollowing(false);
+          }
+        }
+        const followersCount = await getFollowersCount(userId.data.id);
+        const followingCount = await getFollowingCount(userId.data.id);
+        setUserFollowStats({
+          followers: followersCount.data.count,
+          following: followingCount.data.count
+        });
         setUser(user.data);
 
         // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
@@ -51,13 +75,16 @@ const Profile = (props) => {
           }
         });
         setPosts(posts.data);
-        setUserFollowStats({ ...userFollowStats });
       } catch (err) {
         console.log(err);
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, []);
+  }, [location.pathname, props]);
+  const getAuthorIdFromUrl = (url) => {
+    const urlParts = url.split('/');
+    return urlParts[urlParts.length - 1];
+  };
 
   return (
     <div className="profile">
@@ -83,17 +110,13 @@ const Profile = (props) => {
               <h1>{user.displayName}</h1>
             </div>
             <div className="profile-follow-stats">
-              <Row className="profile-follow-stats-row" xs={3}>
+              <Row className="profile-follow-stats-row" xs={2}>
                 <Col className="px-4">
-                  <h3>{userFollowStats.following}</h3>
+                  <h3>{userFollowStats.followers}</h3>
                   <p>Following</p>
                 </Col>
                 <Col className="px-4">
-                  <h3>{userFollowStats.friends}</h3>
-                  <p>Friends</p>
-                </Col>
-                <Col className="px-4">
-                  <h3>{userFollowStats.followers}</h3>
+                  <h3>{userFollowStats.following}</h3>
                   <p>Followers</p>
                 </Col>
               </Row>
@@ -121,10 +144,30 @@ const Profile = (props) => {
             <Button
               className="profile-button follow"
               onClick={() => {
-                navigate('/settings');
+                if (props.currentUser === getAuthorIdFromUrl(user.id)) {
+                  navigate('/settings');
+                } else if (following) {
+                  try {
+                    const res = unfollowUser(props.currentUser, user.data.id);
+                    console.log(res);
+                  } catch (err) {
+                    console.log(err);
+                  }
+                } else {
+                  try {
+                    const res = followUser(props.currentUser, props.authorId);
+                    console.log(res);
+                  } catch (err) {
+                    console.log(err);
+                  }
+                }
               }}
             >
-              {location.pathname === '/profile' ? 'Edit' : 'Follow'}
+              {props.currentUser === getAuthorIdFromUrl(user.id)
+                ? 'Edit'
+                : following
+                ? 'Unfollow'
+                : 'Follow'}
             </Button>
             <Button
               className="profile-button share"
@@ -145,6 +188,7 @@ const Profile = (props) => {
                   post={post}
                   setPosts={setPosts}
                   posts={posts}
+                  currentUser={props.currentUser}
                 />
               ))
             ) : (

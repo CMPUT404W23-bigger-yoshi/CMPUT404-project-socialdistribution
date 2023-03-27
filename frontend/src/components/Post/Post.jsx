@@ -1,21 +1,125 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost } from '../../services/post';
+import {
+  deletePost,
+  getComments,
+  getLikes,
+  getPost,
+  likePost
+} from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import { ChatLeftTextFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
+import {
+  ChatLeftTextFill,
+  HeartFill,
+  ShareFill,
+  ThreeDots
+} from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
+import { useLocation } from 'react-router-dom';
+import CommentsModal from '../Comments/Comments';
+import { getCurrentUserDetails } from '../../services/author';
 
 const Post = (props) => {
-  const { post } = props;
+  const [post, setPost] = useState(props.post);
+  const [postDetails, setPostDetails] = useState({
+    authorId: '',
+    postId: ''
+  });
+  const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
 
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];
+  }
+
+  useEffect(() => {
+    if (post) {
+      setPostDetails({
+        authorId: getIdFromUrl(post.author.id),
+        postId: getIdFromUrl(post.id)
+      });
+    } else if (
+      location.pathname.split('/')[1] === 'authors' &&
+      location.pathname.split('/')[3] === 'posts'
+    ) {
+      const authorId = location.pathname.split('/')[2];
+      const postId = location.pathname.split('/')[4];
+      console.log('Testing');
+      try {
+        getPost(authorId, postId).then((response) => {
+          setPost(response.data);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      console.log('Post not found');
+    }
+  }, [location, post.liked]);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const response = await getLikes(
+          postDetails.authorId,
+          postDetails.postId
+        );
+        const liked = response.data.items.find(
+          (like) => getIdFromUrl(like.author.id) === props.currentUser
+        );
+        setPost({ ...post, liked: !!liked, likes: response.data.items });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchLikes().then((r) => console.log(r));
+    const fetchComments = async () => {
+      try {
+        const response = await getComments(
+          postDetails.authorId,
+          postDetails.postId
+        );
+        setPost({ ...post, commentsSrc: { comments: response.data.comments } });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchComments().then((r) => console.log(r));
+  }, [postDetails]);
+
+  async function handleLike() {
+    try {
+      const userDetails = await getCurrentUserDetails(props.currentUser);
+      const likeObject = {
+        type: 'Like',
+        summary: `${userDetails.data.displayName} liked your post`,
+        author: {
+          ...userDetails.data
+        },
+        object:
+          window.location.origin +
+          `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
+      };
+      const res = await likePost(postDetails.authorId, likeObject);
+      console.log(res);
+      setPost({ ...post, liked: !post.liked });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (!post) {
+    return (
+      <div>
+        <h1>Post not found</h1>
+      </div>
+    );
   }
 
   function formatDate(date) {
@@ -48,6 +152,13 @@ const Post = (props) => {
         handleClose={() => setShowShareModal(false)}
         link={post.id}
       />
+      <CommentsModal
+        show={showCommentsModal}
+        handleClose={() => setShowCommentsModal(false)}
+        comments={post.commentsSrc}
+        authorId={postDetails.authorId}
+        postId={postDetails.postId}
+      />
       <div className="post">
         <div className="post-container">
           <Row className="post-header">
@@ -58,6 +169,27 @@ const Post = (props) => {
             {/* 4. The post's published date on the rightmost side of the header */}
             <Col md={6} xs={12}>
               <div className="post-info">
+                {props.isRepost && (
+                  <div className="post-repost">
+                    <span>
+                      <img
+                        src={post.author.profileImage}
+                        className="post-profile-image"
+                        alt={post.author.displayName}
+                        style={{
+                          width: '25px',
+                          height: '25px',
+                          marginRight: '5px'
+                        }}
+                      />
+                    </span>
+                    <span className="post-repost-text">
+                      Reposted from {post.author.displayName}
+                    </span>
+                    {/* Draw a line */}
+                    <hr className="post-repost-line" />
+                  </div>
+                )}
                 <img
                   src={post.author.profileImage}
                   className="post-profile-image"
@@ -113,22 +245,37 @@ const Post = (props) => {
             {/* 1. The number of comments */}
             {/* 2. A share button */}
             {/* 3. A three dot button that will show a dropdown menu */}
-            <Col xs={4} className="post-buttons">
+            <Col xs={3} className="post-buttons">
+              <div className="post-likes-count">
+                <Button variant="dark" onClick={handleLike}>
+                  <HeartFill
+                    style={{
+                      color: post.liked ? 'red' : 'white'
+                    }}
+                  />{' '}
+                  {post.likes?.length} <span className="icon-hint">Likes</span>
+                </Button>
+              </div>
+            </Col>
+            <Col xs={3} className="post-buttons">
               <div className="post-comments-count">
-                <Button variant="dark">
+                <Button
+                  variant="dark"
+                  onClick={() => setShowCommentsModal(true)}
+                >
                   <ChatLeftTextFill /> {post.count}{' '}
                   <span className="icon-hint">Comments</span>
                 </Button>
               </div>
             </Col>
-            <Col xs={4} className="post-buttons">
+            <Col xs={3} className="post-buttons">
               <div className="post-share">
                 <Button variant="dark" onClick={() => setShowShareModal(true)}>
                   <ShareFill /> <span className="icon-hint">Share</span>
                 </Button>
               </div>
             </Col>
-            <Col xs={4} className="post-buttons">
+            <Col xs={3} className="post-buttons">
               <div className="post-more">
                 <Dropdown>
                   <Dropdown.Toggle variant="dark" id="dropdown-basic">
@@ -136,30 +283,34 @@ const Post = (props) => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setShowEditModal(true)}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={async () => {
-                        const confirmDelete = window.confirm(
-                          'Are you sure you want to delete this post?'
-                        );
-                        if (confirmDelete) {
-                          try {
-                            const res = await deletePost(
-                              getIdFromUrl(post.author.id),
-                              getIdFromUrl(post.id)
+                    {props.currentUser === postDetails.authorId && (
+                      <>
+                        <Dropdown.Item onClick={() => setShowEditModal(true)}>
+                          Edit
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={async () => {
+                            const confirmDelete = window.confirm(
+                              'Are you sure you want to delete this post?'
                             );
-                            console.log(res);
-                            window.location.reload();
-                          } catch (error) {
-                            console.log(error);
-                          }
-                        }
-                      }}
-                    >
-                      Delete
-                    </Dropdown.Item>
+                            if (confirmDelete) {
+                              try {
+                                const res = await deletePost(
+                                  getIdFromUrl(post.author.id),
+                                  getIdFromUrl(post.id)
+                                );
+                                console.log(res);
+                                window.location.reload();
+                              } catch (error) {
+                                console.log(error);
+                              }
+                            }
+                          }}
+                        >
+                          Delete
+                        </Dropdown.Item>
+                      </>
+                    )}
                     <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
                     <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
                   </Dropdown.Menu>

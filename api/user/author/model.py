@@ -14,10 +14,9 @@ from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
 
 def _constructURL(context):
-    host = context.get_current_parameters()["host"]
-    id = context.get_current_parameters()["id"]
-    host = host + "/" if not host.endswith("/") else host
-    return host + "authors/" + id
+    host = "https://bigger-yoshi.herokuapp.com/"
+    authorId = context.get_current_parameters()["id"]
+    return host + "authors/" + authorId
 
 
 def _default_approval_from_config(context):

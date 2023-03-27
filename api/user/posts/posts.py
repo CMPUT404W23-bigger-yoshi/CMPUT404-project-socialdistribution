@@ -230,7 +230,7 @@ def post_as_base64_img(author_id: str, post_id: str):
         ],
         "responses": {
             200: {"description": "A list of likes", "schema": likes_schema},
-            404: {"description": "Author or post not found"},
+            404: {"description": "Author or post not foundauthor=author.id, "},
         },
     }
 )
@@ -239,7 +239,7 @@ def get_likes(author_id: str, post_id: str):
     """Get a list of likes from other authors on author_id’s post post_id"""
     # Author, post must exist on our server otherwise invalid request
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
+    post = Post.query.filter_by(id=post_id).first_or_404()
 
     # fetch all author urls who like this post from database
     stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
@@ -287,6 +287,8 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
         author = Author.query.filter_by(id=author_id).first()
         if author is None:
             author = NonLocalAuthor.query.filter_by(id=author_id).first()
+
+        # author = get_author_info(author_url)
 
         # If the author (remote) has been deleted from there server
         # or does not exist then we skip that like (TODO should we delete such a like)
@@ -637,7 +639,7 @@ def make_comment(json, author_id):
         author_id: ID of the author who made the
     """
 
-    comment_id = json.get("id")
+    comment_id = json.get("id") + generate_object_ID()
     author_id = json.get("author", {}).get("id")
     if comment_id is None or author_id is None:
         return {"message": "Missing fields"}, 400
