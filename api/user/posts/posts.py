@@ -638,7 +638,7 @@ def make_comment(json, author_id):
         author_id: ID of the author who made the
     """
 
-    comment_id = json.get("id")
+    comment_id = json.get("id") + generate_object_ID()
     author_id = json.get("author", {}).get("id")
     if comment_id is None or author_id is None:
         return {"message": "Missing fields"}, 400

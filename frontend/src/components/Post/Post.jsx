@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost, getLikes, getPost, likePost } from '../../services/post';
+import { deletePost, getComments, getLikes, getPost, likePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -73,6 +73,18 @@ const Post = (props) => {
       }
     };
     fetchLikes().then((r) => console.log(r));
+    const fetchComments = async () => {
+      try {
+        const response = await getComments(
+          postDetails.authorId,
+          postDetails.postId
+        );
+        setPost({ ...post, commentsSrc: { comments: response.data.comments } });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchComments().then((r) => console.log(r));
   }, [postDetails]);
 
   async function handleLike() {
@@ -86,7 +98,7 @@ const Post = (props) => {
         },
         object: window.location.origin + `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
       }
-      const res = await likePost(postDetails.authorId, postDetails.postId, likeObject);
+      const res = await likePost(postDetails.authorId, likeObject);
       console.log(res);
       setPost({ ...post, liked: !post.liked });
     } catch (err) {
@@ -135,7 +147,9 @@ const Post = (props) => {
       <CommentsModal
         show={showCommentsModal}
         handleClose={() => setShowCommentsModal(false)}
-        comments={post.comments}
+        comments={post.commentsSrc}
+        authorId={postDetails.authorId}
+        postId={postDetails.postId}
       />
       <div className="post">
         <div className="post-container">

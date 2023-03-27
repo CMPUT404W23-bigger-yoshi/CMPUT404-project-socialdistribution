@@ -4,6 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getCurrentUserDetails } from '../../services/author';
+import { makeComment } from '../../services/post';
 
 const timeSince = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
@@ -60,6 +62,7 @@ function Comment(props) {
 }
 
 function Comments(props) {
+  const { comments, authorId, postId } = props;
   const [comment, setComment] = React.useState({
     comment: '',
     contentType: 'text/plain'
@@ -148,33 +151,45 @@ function Comments(props) {
       </div>
       <div className='post-actions justify-content-center'>
         <Button variant='success' className='actions-button'
-                onClick={() => {
-                  console.log(comment);
+                onClick={async () => {
+                  try {
+                    const author = await getCurrentUserDetails(authorId);
+                    const newComment = {
+                      ...comment,
+                      type: 'comment',
+                      published: new Date().toISOString(),
+                      author: {
+                        ...author.data
+                      },
+                      id: window.location.origin + `/authors/${authorId}/posts/${postId}/comments/`
+                    };
+                    const res = await makeComment(authorId, newComment);
+                    console.log(res);
+                  } catch (e) {
+                    console.log(e);
+                  }
                   setComment({ comment: '', contentType: 'text/plain' });
                 }}>
           Comment
         </Button>
       </div>
-      <Comment comment='Hi' author='John Doe' likes='0' published='2015-03-09T13:07:04+00:00'
-               contentType='text/plain' />
-      <Comment comment='Hi there' author='Jane Doe' likes='0' published='2015-03-09T13:07:04+00:00'
-               contentType='text/markdown' />
-      <Comment comment='# Hello' author='Anonymous' likes='69' published='2015-03-09T13:07:04+00:00'
-               contentType='text/plain' />
-      <Comment comment='# Hellothere' author='Anonymous' likes='420' published='2015-03-09T13:07:04+00:00'
-               contentType='text/markdown' />
-      <Comment comment='Hi' author='John Doe' likes='0' />
-      <Comment comment='Hi there' author='Jane Doe' likes='0' />
-      <Comment comment='Hello' author='Anonymous' likes='69' />
-      <Comment comment='Hello there' author='Anonymous' likes='420' />
-      <Comment comment='Hi' author='John Doe' likes='0' />
-      <Comment comment='Hi there' author='Jane Doe' likes='0' />
+      <div className='comments'>
+        {comments?.map((comment) => (
+          <Comment
+            key={comment.id}
+            author={comment.author.displayName}
+            comment={comment.comment}
+            published={comment.published}
+            contentType={comment.contentType}
+          />
+        ))}
+      </div>
     </div>
   );
 }
 
 function CommentsModal(props) {
-  const { comments, show, handleClose } = props;
+  const { comments, authorId, postId, show, handleClose } = props;
   return (
     <div className='comments-modal'>
       <Modal
@@ -185,7 +200,7 @@ function CommentsModal(props) {
         centered
       >
         <Modal.Body>
-          <Comments comments={comments} />
+          <Comments comments={comments?.comments} authorId={authorId} postId={postId} />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleClose}>Close</Button>

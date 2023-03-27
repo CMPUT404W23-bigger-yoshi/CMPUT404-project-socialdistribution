@@ -90,7 +90,7 @@ export async function getLikes(authorId, postId) {
   return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
 }
 
-export async function likePost(authorId, postId, likeObj) {
+export async function likePost(authorId, likeObj) {
   const config = {
     method: 'post',
     url: `/authors/${authorId}/inbox/`,
@@ -102,6 +102,18 @@ export async function likePost(authorId, postId, likeObj) {
   return await axios(config);
 }
 
-export async function makeComment(comment, authorId) {
-  return await axios.post(`/authors/${authorId}/comments`, comment);
+export async function makeComment(authorId, commentObj) {
+  const config = {
+    method: 'post',
+    url: `/authors/${authorId}/inbox/`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(commentObj)
+  };
+  return await axios(config);
+}
+
+export async function getComments(authorId, postId) {
+  return await axios.get(`/authors/${authorId}/posts/${postId}/comments`);
 }

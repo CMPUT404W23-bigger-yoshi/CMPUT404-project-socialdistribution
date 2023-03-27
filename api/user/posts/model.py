@@ -85,7 +85,7 @@ class Post(db.Model):
         # Comments
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()
-        # comments = list(curr_post.comments.all())
+        # comments = curr_post.comments.all()
 
         # comments = [comment.getJSON() for comment in comments]
 
