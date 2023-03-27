@@ -1,7 +1,7 @@
 from api import db
 
 # todo sqlalchemy docs use meta with tables? idk why. will also need a table name i think
-
+# todo enforce the constraints
 author_likes_comments = db.Table(
     "comment_like",
     db.Column("author", db.Text, primary_key=True),

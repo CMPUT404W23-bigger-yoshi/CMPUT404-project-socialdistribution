@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getCurrentUserDetails } from './author';
+axios.defaults.baseURL = '/api';
 
 axios.defaults.baseURL = '/api';
 

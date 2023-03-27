@@ -31,5 +31,6 @@ urllib3==1.26.14
 virtualenv==20.20.0
 Werkzeug==2.2.3
 pytest
-flask-swagger
-flask-swagger-ui
+flasgger
+flask_admin
+Flask-BasicAuth

@@ -10,6 +10,7 @@ import { getCurrentUserId } from '../../services/author';
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
   const [showPreview, setShowPreview] = useState(false);
+  const [image, setImage] = useState(null);
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -28,6 +29,7 @@ export default function CreatePost(props) {
   async function createPost() {
     try {
       const userId = await getCurrentUserId();
+      console.log(post.contentType);
       const postId = await generatePostId(userId.data.id, post);
       console.log(postId);
     } catch (err) {
@@ -41,6 +43,24 @@ export default function CreatePost(props) {
       console.log(res);
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      console.log(file.type);
+      reader.onload = () => {
+        const base64Image = reader.result;
+        setImage(base64Image);
+        setPost({
+          ...post,
+          contentType: file.type,
+          content: base64Image
+        });
+      };
     }
   }
 

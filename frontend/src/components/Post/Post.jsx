@@ -210,15 +210,12 @@ const Post = (props) => {
                   children={post.content}
                   remarkPlugins={[remarkGfm]}
                 />
+              ) : post.contentType.startsWith('image/') ? (
+                <img src={`${post.content}`} className="post-image" />
               ) : (
                 post.content
               )}
             </div>
-            {post.image && (
-              <div className="post-image">
-                <img src={post.image} />
-              </div>
-            )}
           </Row>
           <Row className="post-footer">
             {/* The post footer will contain the following: */}

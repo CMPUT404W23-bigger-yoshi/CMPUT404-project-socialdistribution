@@ -72,6 +72,11 @@ DATABASE_URL:            postgres://afcocqutbilyft:<some id here>@ec2-54-157-79-
 ```
 Create a run configuration that sets the aforementioned environment variable to this value and the app should use the production database.
 
+#### Dropping the database
+```
+heroku pg:reset DATABASE_URL --confirm bigger-yoshi
+```
+
 ## Contributors / Licensing
 
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
@@ -90,3 +95,5 @@ Contributors:
     Abram Hindle
     Braedy Kuzma
     Nhan Nguyen
+
+## References
