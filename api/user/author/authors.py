@@ -36,9 +36,7 @@ def get_authors():
     """Get a list of all authors registered with Bigger Yoshi"""
     authors = Author.query.paginate(**get_pagination_params().dict).items
     items = [author.getJSON() for author in authors]
-    authors_json = {}
-    authors_json["type"] = "authors"
-    authors_json["items"] = items
+    authors_json = {"type": "authors", "items": items}
 
     return authors_json
 
