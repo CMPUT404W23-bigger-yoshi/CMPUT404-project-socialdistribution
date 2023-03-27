@@ -480,6 +480,7 @@ def make_post_local(data, author_id, post_id=None):
     try:
         post = Post(
             id=post_id,
+            url=f"http://{request.headers['Host']}/{meant_for.id}/posts/{post_id}",
             published=data.get("published"),
             title=data.get("title"),
             origin=data.get("origin"),
