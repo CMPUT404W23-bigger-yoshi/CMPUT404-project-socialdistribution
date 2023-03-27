@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
 # note: this blueprint is usually mounted under /authors URL prefix
@@ -5,22 +6,36 @@ from flask_login import current_user, login_required
 
 from api import basic_auth, db
 from api.user.author.model import Author
+from api.user.followers.docs import *
 from api.user.followers.model import NonLocalFollower, follows_table
 
 followers_bp = Blueprint("followers", __name__)
 
-# resource that i want to read later as to how
-# https://stackoverflow.com/questions/19598578/how-do-primaryjoin-and-secondaryjoin-work-for-many-to-many-relationship-in-s
 
-
-# todo (matt): we need to come up with a format for communicating follow requests in between teams
 @followers_bp.route("/<string:author_id>/followers/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Return a list of followers of the author with id author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "Author id whose followers are to be returned",
+            }
+        ],
+        "responses": {
+            200: {"description": "A list of followers", "schema": followers_schema},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def followers(author_id: str):
-    """get a list of authors who are AUTHOR_ID’s followers"""
-    found_author = Author.query.filter_by(id=author_id).first()
-    if not found_author:
-        return {"message": "No Author found"}, 404
+    """Get a list of authors who are author_id’s followers"""
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
     # todo : do we need to ask for more information? unless required will cause response
     #  failure if other teams node throws an error
     non_local_followers = list(found_author.non_local_follows.all())
@@ -30,30 +45,71 @@ def followers(author_id: str):
 
 
 @followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Return the follower count of the author with author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "Author id whose follower count is to be returned",
+            }
+        ],
+        "responses": {
+            200: {"description": "Number of followers", "schema": {"properties": {"count": {"type": "integer"}}}},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def followers_count(author_id: str):
-    """get a list of authors who are AUTHOR_ID’s followers"""
+    """Get the count for the number of poeple following the author"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
 
     # todo : do we need to ask for more information? unless required will cause response
     #  failure if other teams node throws an error
     non_local_followers = list(found_author.non_local_follows.all())
     local_followers = list(found_author.follows.all())
-    return {"count": len(local_followers) + len(non_local_followers)}
+    return {"count": len(local_followers) + len(non_local_followers)}, 200
 
 
 @followers_bp.route("/<string:author_id>/following/count/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Return the number of people author with author_id follows",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "Author id whose following count is to be returned",
+            }
+        ],
+        "responses": {
+            200: {
+                "description": "Number of people author is following",
+                "schema": {"properties": {"count": {"type": "integer"}}},
+            }
+        },
+    }
+)
 @basic_auth.required
 def following_count(author_id: str):
+    """Get the count for the number of people author is following"""
     following = Author.query.filter_by(id=author_id).join(follows_table, follows_table.c.follower_id == Author.id).all()
     non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).all()
-    return {"count": len(following) + len(non_local_following)}
+    return {"count": len(following) + len(non_local_following)}, 200
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
 @login_required
 def remove_follower(author_id: str, foreign_author_id: str):
-    """remove FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID"""
+    """remove foreign_author_id as a follower of author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     auth_to_remove = found_author.follows.filter_by(id=foreign_author_id).first()
 
@@ -74,7 +130,7 @@ def remove_follower(author_id: str, foreign_author_id: str):
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["PUT"])
 @login_required
 def add_follower(author_id: str, foreign_author_id: str):
-    """Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (must be authenticated)"""
+    """Add foreign_author_id as a follower of author_id (must be authenticated)"""
     # todo need clarification: does this authentication need an admin? or author_id should be the one authenticated
     followed = Author.query.filter_by(id=author_id).first()
     follower_to_add = Author.query.filter_by(id=foreign_author_id).first()
@@ -95,9 +151,38 @@ def add_follower(author_id: str, foreign_author_id: str):
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Return if foreign author with foreign_author_id is a follower of author with author_id.",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "Author id whose followers are searched for Foreign author.",
+            },
+            {
+                "in": "path",
+                "name": "foreign_author_id",
+                "type": "string",
+                "description": "Id of the foreign author to be checked in author's follower list.",
+                "required": "true",
+            },
+        ],
+        "responses": {
+            200: {
+                "description": "Foreign author is found",
+                "schema": {"properties": {"found": {"type": "boolean"}}},
+            },
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def check_is_follower(author_id: str, foreign_author_id: str):
-    """check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID"""
+    """Check if foreign_author_id is a follower of author_id"""
     followed = Author.query.filter_by(id=author_id).first_or_404()
     follower_to_check = Author.query.filter_by(id=foreign_author_id).first()
 
@@ -105,8 +190,8 @@ def check_is_follower(author_id: str, foreign_author_id: str):
         non_local_follower = NonLocalFollower.query.filter_by(
             followed_id=author_id, follower_id=foreign_author_id
         ).first_or_404()
-        return {"message": "Success"}, 200
+        return {"found": True}, 200
 
     follower = followed.follows.filter_by(id=foreign_author_id).first_or_404()
 
-    return {"message": "Success", "found": True}, 200
+    return {"found": True}, 200

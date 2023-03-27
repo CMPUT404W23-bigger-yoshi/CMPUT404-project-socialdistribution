@@ -7,7 +7,7 @@ export function getPost(authorId, postId) {
 }
 
 export function getPosts(authorId) {
-  return axios.get(`/authors/${authorId}/posts`);
+  return axios.get(`/authors/${authorId}/posts/`);
 }
 
 export async function generatePostId(authorId, postContent) {
@@ -23,7 +23,7 @@ export async function generatePostId(authorId, postContent) {
     };
     const config = {
       method: 'post',
-      url: `/authors/${authorId}/posts`,
+      url: `/authors/${authorId}/posts/`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -33,15 +33,6 @@ export async function generatePostId(authorId, postContent) {
   } catch (error) {
     console.log(error);
   }
-}
-
-export async function getAllPosts(authorId) {
-  const config = {
-    method: 'get',
-    url: `/authors/${authorId}/posts`,
-    headers: {}
-  };
-  return axios(config);
 }
 
 export async function deletePost(authorId, postId) {
@@ -85,4 +76,44 @@ export async function updatePost(
   } catch (error) {
     console.log(error);
   }
+}
+
+export async function getInbox(authorId) {
+  const config = {
+    method: 'get',
+    url: `/authors/${authorId}/inbox`
+  };
+  return axios(config);
+}
+
+export async function getLikes(authorId, postId) {
+  return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
+}
+
+export async function likePost(authorId, likeObj) {
+  const config = {
+    method: 'post',
+    url: `/authors/${authorId}/inbox/`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(likeObj)
+  };
+  return await axios(config);
+}
+
+export async function makeComment(authorId, commentObj) {
+  const config = {
+    method: 'post',
+    url: `/authors/${authorId}/inbox/`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(commentObj)
+  };
+  return await axios(config);
+}
+
+export async function getComments(authorId, postId) {
+  return await axios.get(`/authors/${authorId}/posts/${postId}/comments`);
 }

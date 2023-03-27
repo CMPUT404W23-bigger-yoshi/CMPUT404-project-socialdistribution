@@ -1,14 +1,17 @@
 import './Sidebar.css';
-import { Nav, Navbar, Container, Button } from 'react-bootstrap';
+import { Button, Container, Form, Nav, Navbar } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Gear, Bell, Person, Lock, HouseDoor } from 'react-bootstrap-icons';
+import { Bell, Gear, House, Inbox, Lock, Person } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import YoshiPhone from '../../static/Yoshi-phone.png';
+import { searchMultipleUsers } from '../../services/author';
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 function Sidebar() {
   const location = useLocation(); // Need this for highlighting current location
   const navigate = useNavigate(); // Need this for redirecting to login page
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 768);
+  const [usernames, setUsernames] = useState([]);
 
   useEffect(() => {
     function handleResize() {
@@ -26,15 +29,42 @@ function Sidebar() {
       <Navbar.Brand href="/">
         <img src={YoshiPhone} alt="BiggerYoshiLogo" className="sidelogo" />
       </Navbar.Brand>
+      {/* Include search bar here */}
+      <Form className="d-flex search-bar">
+        <Typeahead
+          id="search-bar"
+          labelKey="displayName"
+          onChange={(selected) => {
+            if (selected.length > 0) {
+              // Get the last part of the URL (that is the id)
+              setUsernames([]);
+              const id = selected[0].id.split('/').pop();
+              navigate(`/authors/${id}`);
+            }
+          }}
+          onInputChange={(username) => {
+            if (username.length === 0) {
+              setUsernames([]);
+              return;
+            }
+            searchMultipleUsers(username).then((response) => {
+              setUsernames(response.data.items);
+            });
+          }}
+          options={usernames}
+          placeholder="Search for users..."
+          selected={[]}
+        />
+      </Form>
       <Nav activeKey={location.pathname} className="nav-links">
         <Nav.Link onClick={() => navigate('/')} className="nav-link">
-          <HouseDoor /> Home
+          <House /> Home
+        </Nav.Link>
+        <Nav.Link onClick={() => navigate('/inbox')} className="nav-link">
+          <Inbox /> Inbox
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate('/private')} className="nav-link">
-          <Lock /> Private Posts
         </Nav.Link>
         <Nav.Link
           onClick={() => navigate('/notifications')}
@@ -64,7 +94,7 @@ function Sidebar() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link className="nav-link" onClick={() => navigate('/')}>
-              <HouseDoor className="icon" /> Home
+              <Inbox className="icon" /> Inbox
             </Nav.Link>
             <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
               <Person className="icon" /> Profile

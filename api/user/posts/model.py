@@ -44,7 +44,6 @@ class Post(db.Model):
     # timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
-    # Complete URL of the author remote/local -> cant be a foreign key
     author: str = db.Column("author", db.String(50), nullable=False)
 
     # Relationships -> lazy = "dynamic" returns a query object to further refine.
@@ -84,25 +83,15 @@ class Post(db.Model):
             post["visibility"] = "FRIENDS"
 
         # Comments
-        # post["count"] = len(self.comments.all())
-        # comments_url = post["url"] + "/comments"
-        # post["comments"] = comments_url
-        #
-        # commentSrc = {
-        #     "id": comments_url,
-        #     "type": "comments",
-        #     "page": get_pagination_params().page,
-        #     "size": get_pagination_params().size,
-        #     "post": post["url"],
-        # }
+        post_id = post["id"]
+        curr_post = Post.query.filter_by(id=post_id).first()
+        comments = curr_post.comments.all()
+
+        comments = [comment.getJSON() for comment in comments]
 
         # Renaming url to id
         post["id"] = post["url"]
-
-        # TODO jsonify comments correctly here
-        # commentSrc["comments"] = self.comments.paginate(**get_pagination_params().dict).items
-        #
-        # post["commentSrc"] = commentSrc
+        post["comments"] = comments
         del post["url"]
         return post
 

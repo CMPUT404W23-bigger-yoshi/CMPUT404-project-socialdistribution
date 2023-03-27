@@ -1,6 +1,7 @@
 import base64
 from dataclasses import asdict
 
+from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from sqlalchemy import desc
@@ -9,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from api import basic_auth, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
+from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
@@ -18,17 +20,29 @@ posts_bp = Blueprint("posts", __name__)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a single post with id post_id authored by author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the post to fetch"},
+        ],
+        "responses": {
+            200: {"description": "Single post", "schema": post_schema},
+            404: {"description": "Author not found or Post not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_post(author_id: str, post_id: str):
-    """get the public post whose id is POST_ID"""
-    # author_id in database is complete url
+    """Get the public post whose id is post_id from author with id author_id"""
     author = Author.query.filter_by(id=author_id).first_or_404()
     post_search = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
     return post_search.getJSON(), 200
 
 
-# todo check
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
 @login_required
 def edit_post(author_id: str, post_id: str):
@@ -42,6 +56,7 @@ def edit_post(author_id: str, post_id: str):
 
     # Modify json to be compatible with model here (if required)
     # todo author can edit posts written by themselves?
+
     author = Author.query.filter_by(id=author_id).first_or_404()
     post = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
@@ -123,6 +138,26 @@ def create_post_auto_gen_id(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a recent public posts authored by author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the posts"},
+            {
+                "in": "query",
+                "name": "page",
+                "description": "Page number for the resulting list of public posts",
+                "type": "integer",
+            },
+            {"in": "query", "name": "size", "description": "Number of items per page", "type": "integer"},
+        ],
+        "responses": {
+            200: {"description": "A list of recent posts", "schema": posts_schema},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_recent_posts(author_id: str):
     """
@@ -141,13 +176,25 @@ def get_recent_posts(author_id: str):
 
 # todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/image", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Returns a public post containing image authored by author_id with base64 encoded image content.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the image post"},
+        ],
+        "responses": {
+            200: {"description": "Post with image content encoded as base64.", "schema": posts_schema},
+            400: {"description": "Not an image"},
+            404: {"description": "Author not found or Post not found."},
+        },
+    }
+)
 @basic_auth.required
 def post_as_base64_img(author_id: str, post_id: str):
     """
-    get the public post converted to binary as an image
-     -> return 404 if not an image
-    The end point decodes image posts as images. This allows the use of image tags in markdown.
-    You can use this to proxy or cache images.
+    Get the public post converted to binary as an image
     """
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
@@ -162,58 +209,86 @@ def post_as_base64_img(author_id: str, post_id: str):
     return json
 
 
-# todo check @matt this route used to interfere with something
-@posts_bp.route("/<string:author_id>/inbo1x/", methods=["POST"])
-@basic_auth.required
-def send_like(author_id: str):
-    """
-    Send a like object to author_id.
-    Like could be made on either post or comments of the author.
-    """
-    # Author's inbox must exist on server
-    Author.query.filter_by(id=author_id).first_or_404()
-
-    data = request.json
-    object_id = data.get("object")
-    type = get_object_type(object_id)
-    made_by = data.get("author").get("id")
-    response = {}
-    match type:
-        case "comment":
-            stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
-            db.session.execute(stmt)
-            db.session.commit()
-            response = {"success": 1, "message": "Like created"}, 201
-        case "post":
-            stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
-            db.session.execute(stmt)
-            db.session.commit()
-            response = {"success": 1, "message": "Like created"}, 201
-        case None:
-            response = {"success": 0, "message": "Like not created"}, 404
-
-    return response
-
-
-# todo check @matt
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Likes"],
+        "description": "Returns a list of likes from other authors on post post_id authored by author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "description": "Id of the author who posted post post_id",
+                "required": "true",
+            },
+            {
+                "in": "path",
+                "name": "post_id",
+                "description": "Id of the post to get the list of likes from",
+                "required": "true",
+            },
+        ],
+        "responses": {
+            200: {"description": "A list of likes", "schema": likes_schema},
+            404: {"description": "Author or post not foundauthor=author.id, "},
+        },
+    }
+)
 @basic_auth.required
 def get_likes(author_id: str, post_id: str):
-    """a list of likes from other authors on AUTHOR_ID’s post POST_ID"""
+    """Get a list of likes from other authors on author_id’s post post_id"""
     # Author, post must exist on our server otherwise invalid request
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(author=author.url, id=post_id).first_or_404()
+    post = Post.query.filter_by(id=post_id).first_or_404()
 
     # fetch all author urls who like this post from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.url)
+    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
     result = db.session.execute(stmt)
     authors = result.all()
     authors = [getattr(row, "author") for row in authors]
 
     # Generating likes
     likes = []
-    for author_url in authors:
-        author = get_author_info(author_url)
+    for author_id in authors:
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:
+            author = NonLocalAuthor.query.filter_by(id=author_id).first()
+
+        # If the author (remote) has been deleted from there server
+        # or does not exist then we skip that like (TODO should we delete such a like)
+        if not author:
+            continue
+
+        name = author.username
+        summary = name + "likes your post." if name else ""
+        like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
+
+        likes.append(like)
+
+    return {"type": "likes", "items": likes}
+
+
+@posts_bp.route("/<string:author_id>/posts/<string:post_id>/comments/<string:comment_id>/likes", methods=["GET"])
+@basic_auth.required
+def get_comment_likes(author_id: str, post_id: str, comment_id: str):
+    # Author, post must exist on our server otherwise invalid request
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
+
+    # fetch all author urls who like this post from database
+    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
+    result = db.session.execute(stmt)
+    authors = result.all()
+    authors = [getattr(row, "author") for row in authors]
+
+    # Generating likes
+    likes = []
+    for author_id in authors:
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:
+            author = NonLocalAuthor.query.filter_by(id=author_id).first()
+
+        # author = get_author_info(author_url)
 
         # If the author (remote) has been deleted from there server
         # or does not exist then we skip that like (TODO should we delete such a like)
@@ -221,35 +296,50 @@ def get_likes(author_id: str, post_id: str):
             continue
 
         name = author.get("displayName")
-        summary = name + "likes your post." if name else ""
-        like = {"type": "like", "author": author, "object": post.url, "summary": summary}
+        summary = name + "likes your comment." if name else ""
+        like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
 
         likes.append(like)
 
     return {"type": "likes", "items": likes}
 
 
-# todo check @matt
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Likes"],
+        "description": "Returns a list of objects liked by author with author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "description": "Id of the author who posted post post_id",
+                "required": "true",
+            },
+        ],
+        "responses": {
+            200: {"description": "A list of likes", "schema": likes_schema},
+            404: {"description": "Author not found"},
+        },
+    }
+)
 @basic_auth.required
 def get_author_likes(author_id: str):
     """
-    list what PUBLIC things AUTHOR_ID liked.
+    List what PUBLIC things author_id liked.
 
     It’s a list of of likes originating from this author
-    Note: be careful here private information could be disclosed.
-    Will need to check if a post is private
     """
     # Again author must exist on our server
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     # Fetching object urls from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.author == author.url)
+    stmt = author_likes_posts.select().where(author_likes_posts.c.author == author.id)
     result = db.session.execute(stmt)
     post_urls_rows = result.all()
     post_urls = [getattr(row, "post") for row in post_urls_rows]
 
-    stmt = author_likes_comments.select().where(author_likes_comments.c.author == author.url)
+    stmt = author_likes_comments.select().where(author_likes_comments.c.author == author.id)
     result = db.session.execute(stmt)
     comment_urls_rows = result.all()
     comment_urls = [getattr(row, "comment") for row in comment_urls_rows]
@@ -258,16 +348,15 @@ def get_author_likes(author_id: str):
     likes = []
     for url in post_urls + comment_urls:
         like = {"type": "like", "author": author.getJSON(), "object": url}
-
         likes.append(like)
 
-    return {"type": "likes", "items": likes}
+    return {"type": "liked", "items": likes}
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
 @login_required
 def get_inbox(author_id: str):
-    """if authenticated get a list of posts sent to AUTHOR_ID (paginated)"""
+    """if authenticated get a list of posts sent to author_id (paginated)"""
 
     author = Author.query.filter_by(id=author_id).first_or_404()
 
@@ -284,23 +373,44 @@ def get_inbox(author_id: str):
 
 # todo check
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
+        "description": "Send a like, comment, follow or post to the author's inbox having id as author_id",
+        "parameters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
+            {
+                "in": "body",
+                "required": "true",
+                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "Object to be sent to inbox",
+            },
+        ],
+        "responses": {
+            201: {
+                "description": "Post/follow/like/comment sent to inbox successfully",
+                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            },
+            400: {
+                "description": "Request body contains invalid data.",
+                "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
+            },
+        },
+    }
+)
 @basic_auth.required
 def post_inbox(author_id: str):
     """
-    if the type is “post” then add that post to AUTHOR_ID’s inbox
-    if the type is “follow” then add that follow is added to AUTHOR_ID’s inbox to approve later
-    if the type is “like” then add that like to AUTHOR_ID’s inbox
-    if the type is “comment” then add that comment to AUTHOR_ID’s inbox
+    Sends the post/like/follow/comment to the inbox of the author with author_id
     """
     # todo remaining @matt:
-    #   like
     #   comment
     #   follow
 
     data = request.json
-    type = data["type"].lower()
+    post_type = data["type"].lower()
     response = {}
-    match type:
+    match post_type:
         case "post":
             response = make_post_non_local(data, author_id)
         case "like":
@@ -427,17 +537,10 @@ def make_post_non_local(data, author_id):
     author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
 
     if not author:
-        # create foreign author
-        author = NonLocalAuthor(
-            id=author["id"],
-            host=author["host"],
-            url=author["url"],
-            displayName=author["displayName"],
-            github=author["github"],
-            profileImage=author["profileImage"],
-        )
-        db.session.add(author)
-        db.session.commit()
+        author = create_non_local_author(data.get("author"))
+
+    if not author:
+        return {"message": "Missing fields in author"}, 400
 
     post = Post(
         id=post_id,
@@ -489,23 +592,35 @@ def make_like(json, author_id):
     if like_type not in ["comment", "post"]:
         return {"success": 0, "message": "Invalid Object type"}, 400
 
-    if data.get("author", None) is None or data.get("author").get("id", None) is None:
+    if data.get("author", {}).get("url") is None:
         return {"success": 0, "message": "Missing Author"}, 400
 
-    made_by = data.get("author").get("id")
-    response = {}
+    # todo need a way to distinguish local and foreign authors probably best by host
+    made_by = data.get("author").get("id").split("/")[-1]
+    author = Author.query.filter_by(id=made_by).first()
+    if author is None:
+        made_by = data.get("author").get("id")
+        author = NonLocalAuthor.query.filter_by(id=made_by).first()
+
+    # if author doesn't exist both locally and non-locally
+    if author is None:
+        author = create_non_local_author(json.get("author"))
+
+    # if failed to create the author
+    if author is None:
+        return {"message": "Missing fields in author"}, 400
+
+    response = {"success": 1, "message": "Like created"}, 201
     try:
         match like_type:
             case "comment":
-                stmt = author_likes_comments.insert().values(author=made_by, comment=object_id)
+                stmt = author_likes_comments.insert().values(author=made_by, comment=object_id.split("/")[-1])
                 db.session.execute(stmt)
                 db.session.commit()
-                response = {"success": 1, "message": "Like created"}, 201
             case "post":
-                stmt = author_likes_posts.insert().values(author=made_by, post=object_id)
+                stmt = author_likes_posts.insert().values(author=made_by, post=object_id.split("/")[-1])
                 db.session.execute(stmt)
                 db.session.commit()
-                response = {"success": 1, "message": "Like created"}, 201
     except IntegrityError:
         response = {"success": 0, "message": "Already liked"}
 
@@ -523,18 +638,53 @@ def make_comment(json, author_id):
     Arguments:
         author_id: ID of the author who made the
     """
-    comment_id = json.get("id")
+
+    comment_id = json.get("id") + generate_object_ID()
+    author_id = json.get("author", {}).get("id")
+    if comment_id is None or author_id is None:
+        return {"message": "Missing fields"}, 400
+
+    author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
+    if author is None:
+        author = NonLocalAuthor.query.filter_by(id=author_id).first()
+
+    # if author doesn't exist both locally and non-locally
+    if author is None:
+        author = create_non_local_author(json.get("author"))
+
+    # if failed to create the author
+    if author is None:
+        return {"message": "Missing fields in author"}, 400
+
     # TODO might need a better way
-    post_url = comment_id[: comment_id.index("comments") - 1]
+    post_id = comment_id.split("posts")[1].split("/")[1]
     comment = Comment(
-        created=json.get("published"),
-        content=json.get("comment"),
+        published=json.get("published"),
+        comment=json.get("comment"),
         contentType=json.get("contentType"),
+        author_id=author.id,
         id=comment_id,
-        author_id=json.get("author").get("id"),
-        post_url=post_url,
+        post_id=post_id,
     )
     db.session.add(comment)
     db.session.commit()
 
     return {"message": "Comment made successfully."}, 201
+
+
+def create_non_local_author(data):
+    try:
+        author_to_add = data
+        author = NonLocalAuthor(
+            id=author_to_add["id"],
+            host=author_to_add["host"],
+            url=author_to_add["url"],
+            displayName=author_to_add["displayName"],
+            github=author_to_add["github"],
+            profileImage=author_to_add["profileImage"],
+        )
+        db.session.add(author)
+        db.session.commit()
+        return author
+    except Exception:
+        return None

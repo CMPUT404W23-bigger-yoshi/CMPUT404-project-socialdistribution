@@ -1,18 +1,50 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import login_required
 
 from api import basic_auth, db
+from api.user.comments.docs import *
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
-from api.utils import get_pagination_params
+from api.utils import generate_object_ID, get_pagination_params
 
 comments_bp = Blueprint("comments", __name__)
 
 
 @comments_bp.route("/<string:author_id>/posts/<string:post_id>/comments", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Comments"],
+        "description": "Returns a paginated list of comments made on the post having id post_id authored by author_id.",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "Author id of the author of the post",
+            },
+            {
+                "in": "path",
+                "name": "post_id",
+                "type": "string",
+                "required": "true",
+                "description": "Post id of the post commented on",
+            },
+            {
+                "in": "query",
+                "name": "page",
+                "description": "Page number for the resulting list of comments",
+                "type": "integer",
+            },
+            {"in": "query", "name": "size", "description": "Number of comments per page", "type": "integer"},
+        ],
+        "responses": {200: {"description": "A List of comments", "schema": comments_schema}},
+    }
+)
 @basic_auth.required
 def get_comments(author_id: str, post_id: str):
-    """get the list of comments of the post whose id is POST_ID (paginated)"""
+    """Get the list of comments of the post whose id is post_id (paginated)"""
 
     post = Post.query.filter_by(id=post_id).first_or_404()
 
@@ -50,6 +82,7 @@ def post_comment(author_id: str, post_id: str):
             contentType=data["contentType"],
             post_id=post_id,
             author_id=data["author"]["id"],
+            id=generate_object_ID(),
         )
     except Exception:
         return {"message": "Bad request."}, 400
