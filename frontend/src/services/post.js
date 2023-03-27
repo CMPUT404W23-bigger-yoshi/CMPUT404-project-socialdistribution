@@ -90,16 +90,23 @@ export async function updatePost(
 export async function getInbox(authorId) {
   const config = {
     method: 'get',
-    url: `/authors/${authorId}/inbox`,
-    headers: {}
+    url: `/authors/${authorId}/inbox`
   };
   return axios(config);
 }
 
-export async function getPrivate(authorId) {
+export async function getLikes(authorId, postId) {
+  return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
+}
+
+export async function likePost(authorId, postId) {
+  return await axios.put(`/authors/${authorId}/posts/${postId}/likes`);
+}
+
+export async function unlikePost(authorId, postId) {
   const config = {
-    method: 'get',
-    url: `/authors/${authorId}/private`,
+    method: 'delete',
+    url: `/authors/${authorId}/posts/${postId}/likes`,
     headers: {}
   };
   return axios(config);

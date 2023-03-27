@@ -2,7 +2,7 @@ import base64
 from dataclasses import asdict
 
 from flask import Blueprint, request
-from sqlalchemy import desc
+from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
 from api import db
@@ -167,7 +167,10 @@ def get_likes(author_id: str, post_id: str):
     # Generating likes
     likes = []
     for author_url in authors:
-        author = get_author_info(author_url)
+        author = Author.query.filter_by(url=author_url).first()
+        author = author.getJSON() if author else None
+
+        # author = get_author_info(author_url)
 
         # If the author (remote) has been deleted from there server
         # or does not exist then we skip that like (TODO should we delete such a like)
@@ -181,6 +184,45 @@ def get_likes(author_id: str, post_id: str):
         likes.append(like)
 
     return {"type": "likes", "items": likes}
+
+
+@posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["DELETE"])
+def unlike(author_id: str, post_id: str):
+    """
+    Unlike a post.
+    """
+    # Author, post must exist on our server otherwise invalid request
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id).first_or_404()
+
+    # Delete like from database
+    stmt = author_likes_posts.delete().where(
+        and_(
+            author_likes_posts.c.post == post.url,
+            author_likes_posts.c.author == author.url,
+        )
+    )
+    db.session.execute(stmt)
+    db.session.commit()
+
+    return {"success": 1, "message": "Like deleted"}, 200
+
+
+# Like post
+@posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["PUT"])
+def like(author_id: str, post_id: str):
+    """
+    Like a post.
+    """
+    # Author, post must exist on our server otherwise invalid request
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(id=post_id).first_or_404()
+    # Insert like into database
+    stmt = author_likes_posts.insert().values(author=author.url, post=post.url)
+    db.session.execute(stmt)
+    db.session.commit()
+
+    return {"success": 1, "message": "Like created"}, 201
 
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
@@ -223,20 +265,6 @@ def get_inbox(author_id: str):
 
     posts = (
         Post.query.filter(Post.author != author.url, Post.inbox == author_id)
-        .order_by(desc(Post.published))
-        .paginate(**get_pagination_params().dict)
-        .items
-    )
-
-    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
-
-
-@posts_bp.route("/<string:author_id>/private", methods=["GET"])
-def get_private(author_id: str):
-    # Gets all the posts that are private from the author
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    posts = (
-        Post.query.filter(Post.author == author.url, Post.visibility == "FRIENDS")
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items

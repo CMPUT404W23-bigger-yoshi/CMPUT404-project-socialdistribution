@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Post.css';
-import { deletePost, getPost } from '../../services/post';
+import { getLikes, getPost, likePost, unlikePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -54,7 +54,44 @@ const Post = (props) => {
     } else {
       console.log('Post not found');
     }
+  }, [location, post.liked]);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const response = await getLikes(
+          postDetails.authorId,
+          postDetails.postId
+        );
+        const liked = response.data.items.find(
+          (like) => getIdFromUrl(like.author.id) === props.currentUser
+        );
+        setPost({ ...post, liked: !!liked, likes: response.data.items });
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchLikes().then((r) => console.log(r));
   }, [postDetails]);
+
+  function handleLike() {
+    // Check if user has liked the post
+    const liked = post.likes.find(
+      (like) => getIdFromUrl(like.author.id) === props.currentUser
+    );
+    console.log(liked);
+    if (liked) {
+      // Unlike the post
+      unlikePost(props.currentUser, postDetails.postId).then((response) => {
+        setPost({ ...post, liked: false });
+      });
+    } else {
+      // Like the post
+      likePost(props.currentUser, postDetails.postId).then((response) => {
+        setPost({ ...post, liked: true });
+      });
+    }
+  }
 
   if (!post) {
     return (
@@ -190,9 +227,13 @@ const Post = (props) => {
             {/* 3. A three dot button that will show a dropdown menu */}
             <Col xs={3} className="post-buttons">
               <div className="post-likes-count">
-                <Button variant="dark">
-                  <HeartFill /> {post.count}{' '}
-                  <span className="icon-hint">Likes</span>
+                <Button variant="dark" onClick={handleLike}>
+                  <HeartFill
+                    style={{
+                      color: post.liked ? 'red' : 'white'
+                    }}
+                  />{' '}
+                  {post.likes?.length} <span className="icon-hint">Likes</span>
                 </Button>
               </div>
             </Col>
@@ -222,30 +263,34 @@ const Post = (props) => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setShowEditModal(true)}>
-                      Edit
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={async () => {
-                        const confirmDelete = window.confirm(
-                          'Are you sure you want to delete this post?'
-                        );
-                        if (confirmDelete) {
-                          try {
-                            const res = await deletePost(
-                              getIdFromUrl(post.author.id),
-                              getIdFromUrl(post.id)
+                    {props.currentUser === postDetails.authorId && (
+                      <>
+                        <Dropdown.Item onClick={() => setShowEditModal(true)}>
+                          Edit
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={async () => {
+                            const confirmDelete = window.confirm(
+                              'Are you sure you want to delete this post?'
                             );
-                            console.log(res);
-                            window.location.reload();
-                          } catch (error) {
-                            console.log(error);
-                          }
-                        }
-                      }}
-                    >
-                      Delete
-                    </Dropdown.Item>
+                            if (confirmDelete) {
+                              try {
+                                const res = await deletePost(
+                                  getIdFromUrl(post.author.id),
+                                  getIdFromUrl(post.id)
+                                );
+                                console.log(res);
+                                window.location.reload();
+                              } catch (error) {
+                                console.log(error);
+                              }
+                            }
+                          }}
+                        >
+                          Delete
+                        </Dropdown.Item>
+                      </>
+                    )}
                     <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
                     <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
                   </Dropdown.Menu>

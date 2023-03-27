@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Feed.css';
-import { getInbox, getPrivate } from '../../services/post';
+import { getInbox } from '../../services/post';
 import Post from '../Post/Post';
 
 function Feed(props) {
@@ -14,7 +14,7 @@ function Feed(props) {
         if (!isInbox) {
           response = await getInbox(userId);
         } else {
-          response = await getPrivate(userId);
+          response = await getInbox(userId);
         }
         setPosts(response.data.items);
       } catch (error) {

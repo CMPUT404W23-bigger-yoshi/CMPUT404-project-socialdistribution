@@ -148,7 +148,7 @@ const Profile = (props) => {
                   navigate('/settings');
                 } else if (following) {
                   try {
-                    const res = unfollowUser(props.currentUser, props.authorId);
+                    const res = unfollowUser(props.currentUser, user.data.id);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
@@ -188,6 +188,7 @@ const Profile = (props) => {
                   post={post}
                   setPosts={setPosts}
                   posts={posts}
+                  currentUser={props.currentUser}
                 />
               ))
             ) : (
