@@ -230,7 +230,7 @@ def post_as_base64_img(author_id: str, post_id: str):
         ],
         "responses": {
             200: {"description": "A list of likes", "schema": likes_schema},
-            404: {"description": "Author or post not found"},
+            404: {"description": "Author or post not foundauthor=author.id, "},
         },
     }
 )
@@ -239,7 +239,7 @@ def get_likes(author_id: str, post_id: str):
     """Get a list of likes from other authors on author_id’s post post_id"""
     # Author, post must exist on our server otherwise invalid request
     author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
+    post = Post.query.filter_by(id=post_id).first_or_404()
 
     # fetch all author urls who like this post from database
     stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
@@ -302,46 +302,6 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
         likes.append(like)
 
     return {"type": "likes", "items": likes}
-
-
-@posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["DELETE"])
-def unlike(author_id: str, post_id: str):
-    """
-    Unlike a post.
-    """
-    # Author, post must exist on our server otherwise invalid request
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id).first_or_404()
-
-    # Delete like from database
-    stmt = author_likes_posts.delete().where(
-        and_(
-            author_likes_posts.c.post == post.url,
-            author_likes_posts.c.author == author.url,
-        )
-    )
-    db.session.execute(stmt)
-    db.session.commit()
-
-    return {"success": 1, "message": "Like deleted"}, 200
-
-
-# Like post
-@posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["PUT"])
-def like(author_id: str, post_id: str):
-    """
-    Like a post.
-    """
-    # Author, post must exist on our server otherwise invalid request
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(id=post_id).first_or_404()
-    # Insert like into database
-    stmt = author_likes_posts.insert().values(author=author.url, post=post.url)
-    db.session.execute(stmt)
-    db.session.commit()
-
-    return {"success": 1, "message": "Like created"}, 201
-
 
 @posts_bp.route("/<string:author_id>/liked", methods=["GET"])
 @swag_from(
