@@ -1,5 +1,6 @@
-from pathlib import Path
 import json
+from pathlib import Path
+
 from flasgger import Swagger
 from flask import Flask, jsonify, redirect, url_for
 from flask.helpers import send_from_directory

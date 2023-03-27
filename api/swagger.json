@@ -10,7 +10,7 @@
         "termsOfService": "http://bigger-yoshi.herokuapp.com/terms",
         "version": "0.0.1"
     },
-    "basePath": "/",  
+    "basePath": "/",
     "schemes": ["http", "https"],
     "securityDefinitions": {
         "Basic": {

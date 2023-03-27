@@ -1,12 +1,13 @@
+from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
 # note: this blueprint is usually mounted under /authors URL prefix
 from flask_login import current_user, login_required
-from flasgger import swag_from
+
 from api import basic_auth, db
 from api.user.author.model import Author
-from api.user.followers.model import NonLocalFollower, follows_table
 from api.user.followers.docs import *
+from api.user.followers.model import NonLocalFollower, follows_table
 
 followers_bp = Blueprint("followers", __name__)
 
