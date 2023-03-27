@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 from flasgger import Swagger
@@ -62,10 +63,10 @@ def create_app(testing_env=False):
     app.jinja_env.globals.update(APIConfig=APIConfig)
 
     # docs
-    swag = open("swagger.json", "r")
-    template = json.load(swag)
-    swag.close()
-    Swagger(app, template=template)
+    p = Path(__file__).with_name("swagger.json")
+    with p.open("r") as file:
+        template = json.load(file)
+        Swagger(app, template=template)
 
     @login_manager.user_loader
     def load_user(author_id):
