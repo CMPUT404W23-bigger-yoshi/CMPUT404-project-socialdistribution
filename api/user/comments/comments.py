@@ -1,11 +1,12 @@
+from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import login_required
-from flasgger import swag_from
+
 from api import basic_auth, db
-from api.user.comments.model import Comment
 from api.user.comments.docs import *
+from api.user.comments.model import Comment
 from api.user.posts.model import Post
-from api.utils import get_pagination_params
+from api.utils import generate_object_ID, get_pagination_params
 
 comments_bp = Blueprint("comments", __name__)
 
@@ -81,6 +82,7 @@ def post_comment(author_id: str, post_id: str):
             contentType=data["contentType"],
             post_id=post_id,
             author_id=data["author"]["id"],
+            id=generate_object_ID(),
         )
     except Exception:
         return {"message": "Bad request."}, 400
