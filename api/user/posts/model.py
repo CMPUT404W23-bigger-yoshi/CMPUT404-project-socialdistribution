@@ -17,22 +17,22 @@ def _constructURL(context):
 
 inbox_table = db.Table(
     "inbox",
-    db.Column("post_id", db.String(200), db.ForeignKey("post.id", ondelete="CASCADE"), primary_key=True),
-    db.Column("meant_for", db.String(200), db.ForeignKey("author.id", ondelete="CASCADE"), primary_key=True),
+    db.Column("post_id", db.Text, db.ForeignKey("post.id", ondelete="CASCADE"), primary_key=True),
+    db.Column("meant_for", db.Text, db.ForeignKey("author.id", ondelete="CASCADE"), primary_key=True),
 )
 
 
 @dataclass
 class Post(db.Model):
-    id: str = db.Column(db.String(50), nullable=True, default=generate_object_ID, unique=True, primary_key=True)
+    id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)
     url: str = db.Column(db.Text, default=_constructURL)
-    published: str = db.Column("published", db.String(50), nullable=False)
+    published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False)
     # server -> the last server from which this post was sent into the inbox of the receiver
     source: str = db.Column("source", db.Text, nullable=False)
-    description: str = db.Column("shortDesc", db.String(100))
-    contentType: str = db.Column("contentType", db.String(50), nullable=False)
+    description: str = db.Column("shortDesc", db.Text)
+    contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
     # categories will be comma separated values
     categories: str = db.Column("categories", db.Text)
@@ -44,7 +44,7 @@ class Post(db.Model):
     # timelines
     unlisted: bool = db.Column("unlisted", db.Boolean, nullable=False, default=False)
 
-    author: str = db.Column("author", db.String(50), nullable=False)
+    author: str = db.Column("author", db.Text, nullable=False)
 
     # Relationships -> lazy = "dynamic" returns a query object to further refine.
     comments = db.relationship(

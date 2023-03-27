@@ -28,7 +28,7 @@ def _default_approval_from_config(context):
 
 @dataclass
 class Author(UserMixin, db.Model):
-    id: str = db.Column(db.String(50), primary_key=True, default=generate_object_ID)
+    id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
     url: str = db.Column("url", db.Text, nullable=True, unique=False, default=_constructURL)
     host: str = db.Column("host", db.Text, nullable=False)
     username: str = db.Column("username", db.Text, nullable=False, unique=True)
@@ -69,7 +69,7 @@ class Author(UserMixin, db.Model):
 # we use this table to cache non-local authors
 @dataclass
 class NonLocalAuthor(db.Model):
-    id: str = db.Column(db.String(50), primary_key=True, unique=True)
+    id: str = db.Column(db.Text, primary_key=True, unique=True)
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)
     displayName: str = db.Column("displayName", db.Text, nullable=False, unique=True)

@@ -21,7 +21,7 @@ def _default_approval_from_config(context):
 class Connection(db.Model):
     username: str = db.Column(db.Text, primary_key=True)
     password: str = db.Column(db.Text, nullable=False)
-    email: str = db.Column(db.String(50), nullable=True)
+    email: str = db.Column(db.Text, nullable=True)
     approval: Approval = db.Column(Enum(Approval), nullable=False, default=_default_approval_from_config)
 
 
