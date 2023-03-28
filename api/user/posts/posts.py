@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from api import basic_auth, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
+from api.user.followers.model import NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
@@ -654,7 +655,18 @@ def make_like(json, author_id):
 
 
 def make_follow(json, author_id):
-    pass
+    if not (followed_object := json.get("object")):
+        return {"success": 0, "message": "object key must be specified for inbox!"}
+    assert json["type"].lower() == "follow"
+    try:
+        to_add = NonLocalFollower(follower_id=json["actor"]["url"], followed_id=author_id, approved=False)
+        db.session.add(to_add)
+        db.session.commit()
+    except Exception as e:
+        logger.exception(f"failed to follow {author_id=} {json=}")
+        return {"success": 0, "message": str(e)}
+
+    return {"success": 1, "message": "Follow request has been sent!"}
 
 
 # todo fix later too tired right now

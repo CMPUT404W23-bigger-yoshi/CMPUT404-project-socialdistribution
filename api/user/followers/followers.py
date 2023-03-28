@@ -143,6 +143,9 @@ def add_follower(followed_id: str, follower_id: str):
 
         follower_rec = LocalFollower(**params)
     else:
+        # we dont technically need to track this, we can fire and forget a follow inbox request on the frontend
+        # but what this allows us to do is show when a follow is pending. we know a follow is accepted when
+        # we recieve a post from them
         if NonLocalFollower.query.filter_by(followed_id == followed_id, follower_id=follower_id).count():
             return {"success": False, "message": "You are already following this user!"}
         # we assume that our backend will always serve "followable" people, thus follow requests where we
