@@ -1,6 +1,8 @@
 import base64
+import logging
 from dataclasses import asdict
 
+import requests
 from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
@@ -17,6 +19,8 @@ from api.utils import Visibility, generate_object_ID, get_author_info, get_objec
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
+
+logger = logging.getLogger(__name__)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["GET"])
@@ -112,6 +116,7 @@ def create_post(author_id: str, post_id: str):
     #  * error handling
     #  * foreign authors inbox
     fanout_to_local_inbox(post, author_id)
+    fanout_to_foreign_inbox(post, author_id)
 
     return {"message": "Successfully created new post"}, 201
 
@@ -453,16 +458,16 @@ def make_post_local(data, author_id, post_id=None):
     ]
     for field in required_fields:
         if data.get(field, None) is None:
-            print(f"Data missing Field: {field}")
+            logger.info(f"posted to {author_id=}, but didn't specify required field {field}. aborting")
             return None
 
     if data.get("author").get("id", None) is None:
-        print("Author missing id")
+        logger.info(f"posted to {author_id=}, but didn't specify ID in the body")
         return None
 
     author = Author.query.filter_by(id=data["author"]["id"].split("/")[-1]).first()
     if author is None:
-        print("Author who wrote this post doesn't exist bad request")
+        logger.info(f"{author_id=} does not exist")
         return None
 
     meant_for = Author.query.filter_by(id=author_id).first()
@@ -496,7 +501,7 @@ def make_post_local(data, author_id, post_id=None):
         db.session.add(post)
         db.session.commit()
     except Exception as e:
-        print(e)
+        logger.exception("failed to create post local: ")
         return None
 
     return post
@@ -566,7 +571,6 @@ def make_post_non_local(data, author_id):
 
 
 def fanout_to_local_inbox(post: Post, author: str = None):
-    # todo send to foreign inbox ;-;
     if post.visibility == Visibility.PUBLIC:
         authors = Author.query.all()
         to_insert = []
@@ -578,6 +582,24 @@ def fanout_to_local_inbox(post: Post, author: str = None):
     if post.visibility == Visibility.FRIENDS:
         # todo: eh need a method to determine friends
         pass
+
+
+def fanout_to_foreign_inbox(post, author_id):
+    all_foreign = NonLocalAuthor.query.filter_by(followed_id=author_id).all()
+    logger.debug(f"logging to {len(all_foreign)} endpoints")
+    post_to_send = post.getJSON()
+    for foreign in all_foreign:
+        # author ids are URLs that we should be able to just tack on /inbox to
+        # we strip the trailing slash to make sure we're not double adding one in case one already exists
+        foreign_inbox_url = foreign.follower_id.rstrip("/") + "/inbox"
+        try:
+            resp = requests.post(foreign_inbox_url, post_to_send)
+            logger.debug(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
+            if 200 >= resp.status_code > 300:
+                # breakpoint()
+                logger.warning("non-300 status code!!!")
+        except:
+            logger.exception("failed to send to foreign author: ")
 
 
 def make_like(json, author_id):

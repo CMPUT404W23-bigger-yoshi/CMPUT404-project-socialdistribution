@@ -3,11 +3,12 @@ from flask import Blueprint, jsonify, request
 
 # note: this blueprint is usually mounted under /authors URL prefix
 from flask_login import current_user, login_required
+from sqlalchemy import and_
 
 from api import basic_auth, db
 from api.user.author.model import Author
 from api.user.followers.docs import *
-from api.user.followers.model import NonLocalFollower, follows_table
+from api.user.followers.model import LocalFollower, NonLocalFollower
 
 followers_bp = Blueprint("followers", __name__)
 
@@ -67,13 +68,9 @@ def followers(author_id: str):
 @basic_auth.required
 def followers_count(author_id: str):
     """Get the count for the number of poeple following the author"""
-    found_author = Author.query.filter_by(id=author_id).first_or_404()
-
-    # todo : do we need to ask for more information? unless required will cause response
-    #  failure if other teams node throws an error
-    non_local_followers = list(found_author.non_local_follows.all())
-    local_followers = list(found_author.follows.all())
-    return {"count": len(local_followers) + len(non_local_followers)}, 200
+    following = LocalFollower.query.filter_by(followed_id=author_id).count()
+    non_local_following = NonLocalFollower.query.filter_by(followed_id=author_id).count()
+    return {"count": following + non_local_following}
 
 
 @followers_bp.route("/<string:author_id>/following/count/", methods=["GET"])
@@ -101,9 +98,9 @@ def followers_count(author_id: str):
 @basic_auth.required
 def following_count(author_id: str):
     """Get the count for the number of people author is following"""
-    following = Author.query.filter_by(id=author_id).join(follows_table, follows_table.c.follower_id == Author.id).all()
-    non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).all()
-    return {"count": len(following) + len(non_local_following)}, 200
+    following = LocalFollower.query.filter_by(follower_id=author_id).count()
+    non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).count()
+    return {"count": following + non_local_following}, 200
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
@@ -127,30 +124,49 @@ def remove_follower(author_id: str, foreign_author_id: str):
     return {"message": "Success"}, 200
 
 
-@followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["PUT"])
+@followers_bp.route("/<string:followed_id>/followers/<path:follower_id>/", methods=["PUT"])
 @login_required
-def add_follower(author_id: str, foreign_author_id: str):
+def add_follower(followed_id: str, follower_id: str):
     """Add foreign_author_id as a follower of author_id (must be authenticated)"""
     # todo need clarification: does this authentication need an admin? or author_id should be the one authenticated
-    followed = Author.query.filter_by(id=author_id).first()
-    follower_to_add = Author.query.filter_by(id=foreign_author_id).first()
+    followed_obj = Author.query.filter_by(id=followed_id).first()
+    if not followed_obj:
+        return {"message": f"{followed_id=} doesn't exist!"}, 404
 
-    if not followed:
-        return {"message": "No Author found"}, 404
+    follower_to_add = Author.query.filter_by(id=follower_id).first()
+    params = {"followed_id": followed_id, "follower_id": follower_id}
+    if follower_to_add:
+        if LocalFollower.query.filter(
+            and_(LocalFollower.followed_id == followed_id, LocalFollower.follower_id == follower_id)
+        ).count():
+            return {"success": False, "message": "You are already following this user!"}
 
-    if not follower_to_add:
-        follower_to_add = NonLocalFollower(followed_id=followed.id, follower_id=foreign_author_id)
-        followed.non_local_follows.append(follower_to_add)
-        db.session.add(follower_to_add)
-        db.session.commit()
-        return {"message": "Success"}
+        follower_rec = LocalFollower(**params)
+    else:
+        if NonLocalFollower.query.filter_by(followed_id == followed_id, follower_id=follower_id).count():
+            return {"success": False, "message": "You are already following this user!"}
+        # we assume that our backend will always serve "followable" people, thus follow requests where we
+        # don't have the author in our database *must* be remote authors
+        follower_rec = NonLocalFollower(**params)
 
-    followed.follows.append(follower_to_add)
+    db.session.add(follower_rec)
     db.session.commit()
-    return jsonify({"message": "Success"})
+
+    return {"message": "Successfully followed!"}
+    # if not follower_to_add:
+
+    #     follower_to_add = NonLocalFollower(followed_id=followed.id, follower_id=follower_id, approved=False)
+    #     followed.non_local_follows.append(follower_to_add)
+    #     db.session.add(follower_to_add)
+    #     db.session.commit()
+    #     return {"message": "Success"}
+    #
+    # followed.follows.append(follower_to_add)
+    # db.session.commit()
+    # return jsonify({"message": "Success"})
 
 
-@followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>/", methods=["GET"])
+@followers_bp.route("/<string:author_id>/followers/<path:follower_id>/", methods=["GET"])
 @swag_from(
     {
         "tags": ["Followers"],
@@ -181,17 +197,17 @@ def add_follower(author_id: str, foreign_author_id: str):
     }
 )
 @basic_auth.required
-def check_is_follower(author_id: str, foreign_author_id: str):
+def check_is_follower(author_id: str, follower_id: str):
     """Check if foreign_author_id is a follower of author_id"""
     followed = Author.query.filter_by(id=author_id).first_or_404()
-    follower_to_check = Author.query.filter_by(id=foreign_author_id).first()
+    follower_to_check = Author.query.filter_by(id=follower_id).first()
 
     if not follower_to_check:
         non_local_follower = NonLocalFollower.query.filter_by(
-            followed_id=author_id, follower_id=foreign_author_id
+            followed_id=author_id, follower_id=follower_id
         ).first_or_404()
         return {"found": True}, 200
 
-    follower = followed.follows.filter_by(id=foreign_author_id).first_or_404()
+    follower = followed.follows.filter_by(id=follower_id).first_or_404()
 
     return {"found": True}, 200
