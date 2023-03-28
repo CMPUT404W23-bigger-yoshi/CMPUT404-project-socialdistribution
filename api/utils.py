@@ -94,4 +94,4 @@ def randomized_profile_img():
 
 
 def generate_object_ID() -> str:
-    return "".join(random.choices(ascii_lowercase + "".join(range(10)), k=16))
+    return "".join(map(str, random.choices(ascii_lowercase + "".join(map(str, range(10))), k=16)))
