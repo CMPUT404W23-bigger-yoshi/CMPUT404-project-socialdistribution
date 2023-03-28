@@ -3,6 +3,7 @@ import os
 import random
 import re
 import time
+import uuid
 from dataclasses import asdict, dataclass
 
 import requests
@@ -93,10 +94,4 @@ def randomized_profile_img():
 
 
 def generate_object_ID() -> str:
-    global increment
-    pid = "%04x" % (os.getpid() % ((2**15) - 1))
-    ti = "%08x" % int(time.time())
-    num = "%04x" % int(increment % ((2**15) - 1))
-    ran = "%04x" % int(random.random() * 10e6)
-    increment += 1
-    return ti + num + ran + pid
+    return str(uuid.uuid4())
