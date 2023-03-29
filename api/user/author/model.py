@@ -8,7 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from api import db
 from api.admin.APIConfig import APIConfig
-from api.user.followers.model import follows_table
+from api.user.followers.model import LocalFollower
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
@@ -37,15 +37,6 @@ class Author(UserMixin, db.Model):
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
     approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
     role: Role = db.Column("role", Enum(Role), nullable=False, default=Role.USER)
-
-    follows = db.relationship(
-        "Author",
-        secondary=follows_table,
-        primaryjoin=id == follows_table.c.followed_id,
-        secondaryjoin=id == follows_table.c.follower_id,
-        lazy="dynamic",
-    )  # only load followers when requested
-    non_local_follows = db.relationship("NonLocalFollower", lazy="dynamic")
 
     @hybrid_property
     def is_approved(self):
