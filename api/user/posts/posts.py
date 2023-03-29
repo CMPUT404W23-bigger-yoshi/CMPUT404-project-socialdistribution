@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import asdict
+from urllib.parse import urlparse
 
 import requests
 from flasgger import swag_from
@@ -12,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from api import basic_auth, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
-from api.user.followers.model import NonLocalFollower
+from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
@@ -592,7 +593,7 @@ def fanout_to_foreign_inbox(post, author_id):
     for foreign in all_foreign:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign.follower_id.rstrip("/") + "/inbox"
+        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox"
         try:
             resp = requests.post(
                 foreign_inbox_url, data={"type": "inbox", "author": author_url, "items": [post_to_send]}
@@ -658,13 +659,24 @@ def make_follow(json, author_id):
         return {"success": 0, "message": "object key must be specified for inbox!"}, 400
 
     assert json["type"].lower() == "follow"
-    try:
-        actor = json["actor"]
-        foreign_follower = NonLocalAuthor.query.filter_by(url=actor["url"]).first()
-        if foreign_follower:
-            logger.info("foreign author already exists, declining to update them (todo: fix?)")
+    actor = json["actor"]
+
+    # we need to parse the object id to see who it's coming from :\
+    parsed = urlparse(actor["url"])
+    # hardcode kekw
+    if parsed.hostname.startswith("bigger-yoshi"):
+        FollowTable = LocalFollower
+    else:
+        FollowTable = NonLocalFollower
+
+    logger.info(f"parsed hostname from f{actor['url']}: {parsed.hostname} -> querying {FollowTable.__name__}")
+
+    if FollowTable == NonLocalFollower:
+        non_local_exists = NonLocalAuthor.query.filter_by(url=actor["url"]).first()
+        if non_local_exists:
+            logger.info("foreign author already exists, declining to update them for now (todo: fix?)")
         else:
-            # yes i know this is not the ideal way to do things here
+            logger.info("new foreign author encountered, let's keep record of them")
             db.session.add(
                 NonLocalAuthor(
                     id=actor["id"],
@@ -675,15 +687,12 @@ def make_follow(json, author_id):
                     profileImage=actor["profileImage"],
                 )
             )
-        if NonLocalFollower.query.filter_by(follower_id=actor["url"], followed_id=author_id):
-            return {"success": 0, "message": f"You are already following {author_id}"}
-        to_add = NonLocalFollower(follower_id=actor["url"], followed_id=author_id, approved=False)
-        db.session.add(to_add)
-        db.session.commit()
-    except Exception as e:
-        logger.exception(f"failed to follow {author_id=} {json=}")
-        return {"success": 0, "message": str(e)}
 
+    if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id):
+        return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
+
+    db.session.add(FollowTable(follower_url=actor["url"], followed_url=author_id, approved=False))
+    db.session.commit()
     return {"success": 1, "message": "Follow request has been sent!"}
 
 
