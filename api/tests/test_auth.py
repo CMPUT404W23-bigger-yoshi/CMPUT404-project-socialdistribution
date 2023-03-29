@@ -124,3 +124,44 @@ class TestAuthorAPI:
         url_id = author["id"]
         data_id = url_id.split("/")[-1]
         assert data_id == id
+
+    """
+    Test updating author
+    """
+
+    def test_update_author(self, client, auth, app):
+        auth.register()
+
+        with app.app_context():
+            test_author = Author.query.filter_by(username="test").first()
+        assert test_author
+
+        id = test_author.id
+        old_data = test_author.getJSON()
+        new_data = old_data.copy()
+
+        new_data["displayName"] = "modified"
+
+        # Check updated author username
+        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        assert response.status_code == 200
+        data = response.json
+
+        new_username = data.get("displayName", None)
+        assert new_username and new_username == "modified"
+
+        # Check changing username to an existing one
+        auth.register()  # new test user
+
+        with app.app_context():
+            test_author = Author.query.filter_by(username="test").first()
+        assert test_author
+
+        id = test_author.id
+        old_data = test_author.getJSON()
+        new_data = old_data.copy()
+
+        new_data["displayName"] = "modified"
+
+        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        assert response.status_code == 409  # User with username "modified" was just updated
