@@ -79,6 +79,9 @@ def update_author(author_id: str):
     profileImage = data.get("profileImage", None)
 
     if displayName:
+        exists = Author.query.filter(Author.username == displayName, Author.id != author_id).first()
+        if exists:
+            return {"message": "Username already exists. Try some other name"}, 409
         found_author.username = displayName
     if github:
         found_author.github = github
