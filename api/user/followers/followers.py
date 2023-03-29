@@ -68,8 +68,8 @@ def followers(author_id: str):
 @basic_auth.required
 def followers_count(author_id: str):
     """Get the count for the number of poeple following the author"""
-    following = LocalFollower.query.filter_by(followed_id=author_id).count()
-    non_local_following = NonLocalFollower.query.filter_by(followed_id=author_id).count()
+    following = LocalFollower.query.filter_by(followed_url=author_id).count()
+    non_local_following = NonLocalFollower.query.filter_by(followed_url=author_id).count()
     return {"count": following + non_local_following}
 
 
@@ -83,7 +83,7 @@ def remove_follower(author_id: str, foreign_author_id: str):
     # local author doesn't exist
     if not auth_to_remove:
         non_local_follower = NonLocalFollower.query.filter_by(
-            follower_id=foreign_author_id, followed_id=author_id
+            follower_url=foreign_author_id, followed_url=author_id
         ).first_or_404()
         db.session.delete(non_local_follower)
         db.session.commit()
@@ -100,8 +100,8 @@ def add_follower(followed_id: str, follower_id: str):
     """
     Add follower_id (local or remote) as a follower of followed_id (local) as a follower of author_id
     """
-    foreign_follow = NonLocalFollower.query.filter_by(followed_id=followed_id, follower_id=follower_id).first()
-    local_follow = LocalFollower.query.filter_by(followed_id=followed_id, follower_id=follower_id).first()
+    foreign_follow = NonLocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
+    local_follow = LocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
 
     for follow_state in [foreign_follow, local_follow]:
         # assume no collision between these 2 tables, ie, if one record is found in one table to be approved,
@@ -156,7 +156,7 @@ def check_is_follower(author_id: str, follower_id: str):
 
     if not follower_to_check:
         non_local_follower = NonLocalFollower.query.filter_by(
-            followed_id=author_id, follower_id=follower_id
+            followed_url=author_id, follower_url=follower_id
         ).first_or_404()
         return {"found": True}, 200
 
