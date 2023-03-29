@@ -677,16 +677,7 @@ def make_follow(json, author_id):
             logger.info("foreign author already exists, declining to update them for now (todo: fix?)")
         else:
             logger.info("new foreign author encountered, let's keep record of them")
-            db.session.add(
-                NonLocalAuthor(
-                    id=actor["id"],
-                    url=actor["url"],
-                    host=actor["host"],
-                    displayName=actor["host"],
-                    github=actor["github"],
-                    profileImage=actor["profileImage"],
-                )
-            )
+            create_non_local_author(actor)
 
     if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id):
         return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
@@ -737,9 +728,8 @@ def make_comment(json, author_id):
     return {"message": "Comment made successfully."}, 201
 
 
-def create_non_local_author(data):
+def create_non_local_author(author_to_add):
     try:
-        author_to_add = data
         author = NonLocalAuthor(
             id=author_to_add["id"],
             host=author_to_add["host"],
