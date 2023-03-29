@@ -1,4 +1,6 @@
 import pytest
+from flask import session
+from flask_login import current_user
 
 from api import API_ROOT
 from api.tests.resources.mock_authors import *
@@ -79,10 +81,6 @@ class TestAuthorAPI:
         register = client.post(f"{API_ROOT}/authors/register", json=cred2)
         assert register.status_code == 200
 
-        # Register and Login as test to access API without BasicAuth
-        auth.register()
-        auth.login()
-
         response = client.get(f"{API_ROOT}/authors", follow_redirects=True)
         assert response.status_code == 200
         data = response.json
@@ -150,6 +148,31 @@ class TestAuthorAPI:
         new_username = data.get("displayName", None)
         assert new_username and new_username == "modified"
 
+    """
+    Test existing username
+    """
+
+    def test_existing_username(self, client, app, auth):
+        auth.register()
+
+        with app.app_context():
+            test_author = Author.query.filter_by(username="test").first()
+        assert test_author
+
+        id = test_author.id
+        old_data = test_author.getJSON()
+        new_data = old_data.copy()
+
+        new_data["displayName"] = "modified"
+
+        # Check updated author username
+        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        assert response.status_code == 200
+        data = response.json
+
+        new_username = data.get("displayName", None)
+        assert new_username and new_username == "modified"
+
         # Check changing username to an existing one
         auth.register()  # new test user
 
@@ -165,3 +188,24 @@ class TestAuthorAPI:
 
         response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
         assert response.status_code == 409  # User with username "modified" was just updated
+
+    """
+    Test if logged in user can only update their own profile
+    """
+
+    def test_own_update_only(self, client, auth, app):
+        with client:
+            creds = {"username": "user2", "password": "123"}
+            client.post(f"{API_ROOT}/authors/register", json=creds, follow_redirects=True)
+
+            with app.app_context():
+                user2 = Author.query.filter_by(username=creds["username"]).first()
+            json = user2.getJSON()
+            json["username"] = "Changed"
+            auth.register()
+            auth.login()
+            client.post(
+                f"{API_ROOT}/authors/login", json={"username": "test", "password": "test"}, follow_redirects=True
+            )
+            response = client.post(f"{API_ROOT}/authors/{user2.id}", json=json, follow_redirects=True)
+            assert response.status_code == 401

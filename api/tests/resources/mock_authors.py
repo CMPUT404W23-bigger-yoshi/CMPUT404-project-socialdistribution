@@ -10,10 +10,20 @@ mock_author1 = {
 
 mock_author2 = {
     "type": "author",
+    "id": "http://127.0.0.1:5000/authors/1d698d25ff008f7538453c120f581471",
+    "url": "http://127.0.0.1:5000/authors/1d698d25ff008f7538453c120f581471",
+    "host": "http://127.0.0.1:5000/",
+    "displayName": "Greg Johnson",
+    "github": "http://github.com/gjohnson",
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+}
+
+foreign_mock_author = {
+    "type": "author",
     "id": "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
     "url": "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
     "host": "http://127.0.0.1:5454/",
-    "displayName": "Greg Johnson",
-    "github": "http://github.com/gjohnson",
+    "displayName": "John Wick",
+    "github": "http://github.com/babayaga",
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
 }
