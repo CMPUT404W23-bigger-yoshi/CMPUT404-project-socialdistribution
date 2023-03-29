@@ -6,7 +6,7 @@ import requests
 from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
-from sqlalchemy import desc
+from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
 from api import basic_auth, db
@@ -411,7 +411,6 @@ def post_inbox(author_id: str):
     """
     # todo remaining @matt:
     #   comment
-    #   follow
 
     data = request.json
     post_type = data["type"].lower()
@@ -656,10 +655,29 @@ def make_like(json, author_id):
 
 def make_follow(json, author_id):
     if not (followed_object := json.get("object")):
-        return {"success": 0, "message": "object key must be specified for inbox!"}
+        return {"success": 0, "message": "object key must be specified for inbox!"}, 400
+
     assert json["type"].lower() == "follow"
     try:
-        to_add = NonLocalFollower(follower_id=json["actor"]["url"], followed_id=author_id, approved=False)
+        actor = json["actor"]
+        foreign_follower = NonLocalAuthor.query.filter_by(url=actor["url"]).first()
+        if foreign_follower:
+            logger.info("foreign author already exists, declining to update them (todo: fix?)")
+        else:
+            # yes i know this is not the ideal way to do things here
+            db.session.add(
+                NonLocalAuthor(
+                    id=actor["id"],
+                    url=actor["url"],
+                    host=actor["host"],
+                    displayName=actor["host"],
+                    github=actor["github"],
+                    profileImage=actor["profileImage"],
+                )
+            )
+        if NonLocalFollower.query.filter_by(follower_id=actor["url"], followed_id=author_id):
+            return {"success": 0, "message": f"You are already following {author_id}"}
+        to_add = NonLocalFollower(follower_id=actor["url"], followed_id=author_id, approved=False)
         db.session.add(to_add)
         db.session.commit()
     except Exception as e:
