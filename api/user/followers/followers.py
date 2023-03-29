@@ -73,36 +73,6 @@ def followers_count(author_id: str):
     return {"count": following + non_local_following}
 
 
-@followers_bp.route("/<string:author_id>/following/count/", methods=["GET"])
-@swag_from(
-    {
-        "tags": ["Followers"],
-        "description": "Return the number of people author with author_id follows",
-        "parameters": [
-            {
-                "in": "path",
-                "name": "author_id",
-                "type": "string",
-                "required": "true",
-                "description": "Author id whose following count is to be returned",
-            }
-        ],
-        "responses": {
-            200: {
-                "description": "Number of people author is following",
-                "schema": {"properties": {"count": {"type": "integer"}}},
-            }
-        },
-    }
-)
-@basic_auth.required
-def following_count(author_id: str):
-    """Get the count for the number of people author is following"""
-    following = LocalFollower.query.filter_by(follower_id=author_id).count()
-    non_local_following = NonLocalFollower.query.filter_by(follower_id=author_id).count()
-    return {"count": following + non_local_following}, 200
-
-
 @followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
 @login_required
 def remove_follower(author_id: str, foreign_author_id: str):
@@ -127,46 +97,25 @@ def remove_follower(author_id: str, foreign_author_id: str):
 @followers_bp.route("/<string:followed_id>/followers/<path:follower_id>/", methods=["PUT"])
 @login_required
 def add_follower(followed_id: str, follower_id: str):
-    """Add foreign_author_id as a follower of author_id (must be authenticated)"""
-    # todo need clarification: does this authentication need an admin? or author_id should be the one authenticated
-    followed_obj = Author.query.filter_by(id=followed_id).first()
-    if not followed_obj:
-        return {"message": f"{followed_id=} doesn't exist!"}, 404
+    """
+    Add follower_id (local or remote) as a follower of followed_id (local) as a follower of author_id
+    """
+    foreign_follow = NonLocalFollower.query.filter_by(followed_id=followed_id, follower_id=follower_id).first()
+    local_follow = LocalFollower.query.filter_by(followed_id=followed_id, follower_id=follower_id).first()
 
-    follower_to_add = Author.query.filter_by(id=follower_id).first()
-    params = {"followed_id": followed_id, "follower_id": follower_id}
-    if follower_to_add:
-        if LocalFollower.query.filter(
-            and_(LocalFollower.followed_id == followed_id, LocalFollower.follower_id == follower_id)
-        ).count():
-            return {"success": False, "message": "You are already following this user!"}
-
-        follower_rec = LocalFollower(**params)
-    else:
-        # we dont technically need to track this, we can fire and forget a follow inbox request on the frontend
-        # but what this allows us to do is show when a follow is pending. we know a follow is accepted when
-        # we recieve a post from them
-        if NonLocalFollower.query.filter_by(followed_id == followed_id, follower_id=follower_id).count():
-            return {"success": False, "message": "You are already following this user!"}
-        # we assume that our backend will always serve "followable" people, thus follow requests where we
-        # don't have the author in our database *must* be remote authors
-        follower_rec = NonLocalFollower(**params)
-
-    db.session.add(follower_rec)
-    db.session.commit()
-
-    return {"message": "Successfully followed!"}
-    # if not follower_to_add:
-
-    #     follower_to_add = NonLocalFollower(followed_id=followed.id, follower_id=follower_id, approved=False)
-    #     followed.non_local_follows.append(follower_to_add)
-    #     db.session.add(follower_to_add)
-    #     db.session.commit()
-    #     return {"message": "Success"}
-    #
-    # followed.follows.append(follower_to_add)
-    # db.session.commit()
-    # return jsonify({"message": "Success"})
+    for follow_state in [foreign_follow, local_follow]:
+        # assume no collision between these 2 tables, ie, if one record is found in one table to be approved,
+        # we can confidently give a 400 error that this user is already approved
+        if follow_state:
+            if follow_state.approved:
+                return {"success": 0, "message": "follower already approved"}, 400
+            else:
+                follow_state.approved = True
+                follow_state.update()
+                db.session.commit()
+                return {"success": 0, "message": "Approved local follower!"}, 400
+    # neither a foreign, nor local follow was found to be pending, so there's nothing to approve here
+    return {"success": 0, "message": "failed to approve existing follow request"}, 400
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:follower_id>/", methods=["GET"])
