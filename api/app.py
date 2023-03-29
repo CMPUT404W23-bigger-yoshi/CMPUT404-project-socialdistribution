@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from pathlib import Path
 
 from flasgger import Swagger
@@ -58,10 +59,12 @@ def create_app(testing_env=False):
 
     # admin views
     admin = Admin(app, name="bigger-yoshi", template_mode="bootstrap3")
-    admin.add_view(AuthAdmin(Author, db.session))
-    admin.add_view(ConnectionAdmin(Connection, db.session))
-    admin.add_view(SettingsView(name="Settings", endpoint="settings"))
-    admin.add_view(Logout(name="logout", endpoint="Logout"))
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "Fields missing from ruleset", UserWarning)
+        admin.add_view(AuthAdmin(Author, db.session))
+        admin.add_view(ConnectionAdmin(Connection, db.session))
+        admin.add_view(SettingsView(name="Settings", endpoint="settings"))
+        admin.add_view(Logout(name="logout", endpoint="Logout"))
     app.jinja_env.globals.update(APIConfig=APIConfig)
 
     # docs
