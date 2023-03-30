@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getCurrentUserDetails } from './author';
+import { getUserDetails } from './author';
 axios.defaults.baseURL = '/api';
 
 export function getPost(authorId, postId) {
@@ -12,7 +12,7 @@ export function getPosts(authorId) {
 
 export async function generatePostId(authorId, postContent) {
   try {
-    const userDetails = await getCurrentUserDetails(authorId);
+    const userDetails = await getUserDetails(authorId);
     const data = {
       ...postContent,
       author: userDetails.data,

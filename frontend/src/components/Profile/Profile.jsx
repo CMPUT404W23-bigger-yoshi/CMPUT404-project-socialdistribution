@@ -7,12 +7,10 @@ import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   checkIfFollowing,
-  followUser,
-  getCurrentUserDetails,
+  getUserDetails,
   getCurrentUserId,
   getFollowersCount,
-  getFollowingCount,
-  unfollowUser
+  unfollowUser, sendFollowRequest
 } from '../../services/author';
 import { getPosts } from '../../services/post';
 
@@ -47,7 +45,7 @@ const Profile = (props) => {
         } else {
           userId = { data: { id: props.authorId } };
         }
-        const user = await getCurrentUserDetails(userId.data.id);
+        const user = await getUserDetails(userId.data.id);
         const posts = await getPosts(userId.data.id);
         if (props?.authorId) {
           try {
@@ -61,10 +59,8 @@ const Profile = (props) => {
           }
         }
         const followersCount = await getFollowersCount(userId.data.id);
-        const followingCount = await getFollowingCount(userId.data.id);
         setUserFollowStats({
-          followers: followersCount.data.count,
-          following: followingCount.data.count
+          followers: followersCount.data.count
         });
         setUser(user.data);
 
@@ -110,14 +106,10 @@ const Profile = (props) => {
               <h1>{user.displayName}</h1>
             </div>
             <div className="profile-follow-stats">
-              <Row className="profile-follow-stats-row" xs={2}>
+              <Row className="profile-follow-stats-row" xs={1}>
                 <Col className="px-4">
                   <h3>{userFollowStats.followers}</h3>
                   <p>Following</p>
-                </Col>
-                <Col className="px-4">
-                  <h3>{userFollowStats.following}</h3>
-                  <p>Followers</p>
                 </Col>
               </Row>
             </div>
@@ -143,7 +135,7 @@ const Profile = (props) => {
           <div className="profile-buttons">
             <Button
               className="profile-button follow"
-              onClick={() => {
+              onClick={async () => {
                 if (props.currentUser === getAuthorIdFromUrl(user.id)) {
                   navigate('/settings');
                 } else if (following) {
@@ -155,7 +147,19 @@ const Profile = (props) => {
                   }
                 } else {
                   try {
-                    const res = followUser(props.currentUser, props.authorId);
+                    const currentUserDetails = await getUserDetails(props.currentUser);
+                    const actorUserDetails = await getUserDetails(props.authorId);
+                    const followObject = {
+                      actor: {
+                        ...actorUserDetails.data
+                      },
+                      object: {
+                        ...currentUserDetails.data
+                      },
+                      type: 'Follow',
+                      summary: `${currentUserDetails.data.displayName} wants to follow ${actorUserDetails.data.displayName}`
+                    }
+                    const res = sendFollowRequest(props.currentUser, followObject);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
