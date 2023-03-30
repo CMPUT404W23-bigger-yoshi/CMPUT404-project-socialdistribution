@@ -107,7 +107,7 @@ const Profile = (props) => {
               <Row className="profile-follow-stats-row" xs={1}>
                 <Col className="px-4">
                   <h3>{userFollowStats.followers}</h3>
-                  <p>Following</p>
+                  <p>Followers</p>
                 </Col>
               </Row>
             </div>

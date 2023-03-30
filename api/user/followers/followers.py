@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import and_
 
 from api import basic_auth, db
-from api.user.author.model import Author
+from api.user.author.model import Author, NonLocalAuthor
 from api.user.followers.docs import *
 from api.user.followers.model import LocalFollower, NonLocalFollower
 
@@ -68,8 +68,8 @@ def followers(author_id: str):
 @basic_auth.required
 def followers_count(author_id: str):
     """Get the count for the number of poeple following the author"""
-    following = LocalFollower.query.filter_by(followed_url=author_id).count()
-    non_local_following = NonLocalFollower.query.filter_by(followed_url=author_id).count()
+    following = LocalFollower.query.filter_by(followed_url=author_id, approved=True).count()
+    non_local_following = NonLocalFollower.query.filter_by(followed_url=author_id, approved=True).count()
     return {"count": following + non_local_following}
 
 
@@ -112,9 +112,8 @@ def add_follower(followed_id: str, follower_id: str):
                 return {"success": 0, "message": "follower already approved"}, 400
             else:
                 follow_state.approved = True
-                follow_state.update()
                 db.session.commit()
-                return {"success": 0, "message": "Approved local follower!"}, 400
+                return {"success": 0, "message": "Approved local follower!"}, 200
     # neither a foreign, nor local follow was found to be pending, so there's nothing to approve here
     return {"success": 0, "message": "failed to approve existing follow request"}, 400
 
@@ -169,10 +168,15 @@ def check_is_follower(author_id: str, follower_id: str):
 @followers_bp.route("/<string:author_id>/follow-requests", methods=["GET"])
 def get_follow_notification(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
-    lFollowers = (
+    local_followers = (
         Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
         .filter_by(approved=0, followed_url=author_id)
         .all()
     )
-    res = [{"author": {**follower.getJSON()}, "type": "follow"} for follower in lFollowers]
+    non_local_followers = (
+        NonLocalAuthor.query.join(LocalFollower, NonLocalAuthor.url == LocalFollower.follower_url)
+        .filter_by(approved=0, followed_url=author_id)
+        .all()
+    )
+    res = [{"author": {**follower.getJSON()}, "type": "follow"} for follower in local_followers + non_local_followers]
     return {"message": "Success", "follow_requests": res}

@@ -7,6 +7,7 @@ import {
   PeopleFill,
   XCircleFill
 } from 'react-bootstrap-icons';
+import { acceptFollowRequest } from '../../services/author';
 
 function Notification(props) {
   return (
@@ -42,7 +43,15 @@ function Notification(props) {
         ) : props.type === 'follow' ? (
           /* Two icons one is checkmark and other is x */
           <div className="follow-icons">
-            <CheckCircleFill size={40} onClick={() => {}} />{' '}
+            <CheckCircleFill
+              size={40}
+              onClick={() => {
+                acceptFollowRequest(
+                  props.localAuthor.id.split('/').pop(-1),
+                  props.person.url
+                );
+              }}
+            />{' '}
             <XCircleFill size={40} />
           </div>
         ) : (

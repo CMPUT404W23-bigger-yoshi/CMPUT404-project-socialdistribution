@@ -32,6 +32,7 @@ function Notifications() {
             key={idx}
             type={notification.type}
             person={notification.author}
+            localAuthor={author}
           />
         ))}
       </div>

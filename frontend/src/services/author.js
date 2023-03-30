@@ -56,7 +56,7 @@ export const approveFollowRequest = async (authorId, followObject) => {
   return await axios.post(`/authors/${authorId}/inbox/`, followObject);
 };
 
-export const followUser = async (authorId, foreignAuthorId) => {
+export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
   return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
 };
 
