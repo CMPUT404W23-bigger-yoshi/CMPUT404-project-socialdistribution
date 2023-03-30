@@ -164,3 +164,15 @@ def check_is_follower(author_id: str, follower_id: str):
     follower = followed.follows.filter_by(id=follower_id).first_or_404()
 
     return {"found": True}, 200
+
+
+@followers_bp.route("/<string:author_id>/follow-requests", methods=["GET"])
+def get_follow_notification(author_id: str):
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    lFollowers = (
+        Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
+        .filter_by(approved=0, followed_url=author_id)
+        .all()
+    )
+    res = [{"author": {**follower.getJSON()}, "type": "follow"} for follower in lFollowers]
+    return {"message": "Success", "follow_requests": res}

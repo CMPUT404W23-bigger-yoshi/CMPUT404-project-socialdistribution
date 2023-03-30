@@ -1,8 +1,24 @@
 import './Notifications.css';
 import Notification from './Notification';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthorContext } from '../../context/AuthorContext';
+import { getFollowRequests } from '../../services/author';
 
 function Notifications() {
+  const [notifications, setNotifications] = useState([]);
+  const author = useContext(AuthorContext).author;
+
+  const updateNotifications = async () => {
+    const data = (await getFollowRequests(author.id.split('/').pop(-1))).data
+      .follow_requests;
+    setNotifications(data);
+    console.log(data);
+  };
+
+  useEffect(() => {
+    updateNotifications();
+  }, []);
+
   return (
     <div className="notifications">
       <div className="notificationsbox">
@@ -11,10 +27,13 @@ function Notifications() {
           <a>Posts</a>
           <a>Following</a>
         </div>
-        <Notification type="friend" person="Akshat" />
-        <Notification type="like" person="Manpreet" />
-        <Notification type="comment" person="Matty" />
-        <Notification type="follow" person="Your mom" />
+        {notifications.map((notification, idx) => (
+          <Notification
+            key={idx}
+            type={notification.type}
+            person={notification.author}
+          />
+        ))}
       </div>
     </div>
   );

@@ -91,3 +91,7 @@ export const sendFollowRequest = async (follower, toFollow) => {
     ...data
   });
 };
+
+export const getFollowRequests = (authorId) => {
+  return axios.get(`/authors/${authorId}/follow-requests`);
+};

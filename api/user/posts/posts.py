@@ -679,7 +679,7 @@ def make_follow(json, author_id):
             logger.info("new foreign author encountered, let's keep record of them")
             create_non_local_author(actor)
 
-    if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id):
+    if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id).first():
         return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
 
     db.session.add(FollowTable(follower_url=actor["url"], followed_url=author_id, approved=False))

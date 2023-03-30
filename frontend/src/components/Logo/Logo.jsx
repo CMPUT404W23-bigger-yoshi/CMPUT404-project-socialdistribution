@@ -5,7 +5,7 @@ function Logo(props) {
   return (
     <div className={props.className + ' logo'}>
       <img
-        src={YoshiPhone}
+        src={props.src || YoshiPhone}
         alt="Yoshi Phone"
         height={props.size}
         width={props.size}
