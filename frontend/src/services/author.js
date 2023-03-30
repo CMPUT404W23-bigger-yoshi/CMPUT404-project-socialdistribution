@@ -53,11 +53,8 @@ export const searchMultipleUsers = async (username) => {
 };
 
 export const sendFollowRequest = async (authorId, followObject) => {
-  return await axios.post(
-    `/authors/${authorId}/inbox/`,
-    followObject
-  );
-}
+  return await axios.post(`/authors/${authorId}/inbox/`, followObject);
+};
 
 export const followUser = async (authorId, foreignAuthorId) => {
   return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);

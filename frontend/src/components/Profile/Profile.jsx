@@ -10,7 +10,8 @@ import {
   getUserDetails,
   getCurrentUserId,
   getFollowersCount,
-  unfollowUser, sendFollowRequest
+  unfollowUser,
+  sendFollowRequest
 } from '../../services/author';
 import { getPosts } from '../../services/post';
 
@@ -147,8 +148,12 @@ const Profile = (props) => {
                   }
                 } else {
                   try {
-                    const currentUserDetails = await getUserDetails(props.currentUser);
-                    const actorUserDetails = await getUserDetails(props.authorId);
+                    const currentUserDetails = await getUserDetails(
+                      props.currentUser
+                    );
+                    const actorUserDetails = await getUserDetails(
+                      props.authorId
+                    );
                     const followObject = {
                       actor: {
                         ...actorUserDetails.data
@@ -158,8 +163,11 @@ const Profile = (props) => {
                       },
                       type: 'Follow',
                       summary: `${currentUserDetails.data.displayName} wants to follow ${actorUserDetails.data.displayName}`
-                    }
-                    const res = sendFollowRequest(props.currentUser, followObject);
+                    };
+                    const res = sendFollowRequest(
+                      props.currentUser,
+                      followObject
+                    );
                     console.log(res);
                   } catch (err) {
                     console.log(err);
