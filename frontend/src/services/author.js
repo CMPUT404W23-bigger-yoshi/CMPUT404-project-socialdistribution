@@ -52,7 +52,7 @@ export const searchMultipleUsers = async (username) => {
   return await axios.get(`/authors/${username}/search/multiple`);
 };
 
-export const sendFollowRequest = async (authorId, followObject) => {
+export const approveFollowRequest = async (authorId, followObject) => {
   return await axios.post(`/authors/${authorId}/inbox/`, followObject);
 };
 
@@ -72,4 +72,22 @@ export const checkIfFollowing = async (authorId, foreignAuthorId) => {
 
 export const getFollowersCount = async (authorId) => {
   return await axios.get(`/authors/${authorId}/followers/count/`);
+};
+
+export const sendFollowRequest = async (follower, toFollow) => {
+  const data = {
+    type: 'Follow',
+    summary: `${follower?.displayName} wants to follow ${toFollow?.displayName}`,
+    actor: {
+      type: 'author',
+      ...follower
+    },
+    object: {
+      type: 'author',
+      ...toFollow
+    }
+  };
+  return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox`, {
+    ...data
+  });
 };

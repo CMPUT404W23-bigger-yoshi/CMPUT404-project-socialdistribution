@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
@@ -14,6 +14,7 @@ import {
   sendFollowRequest
 } from '../../services/author';
 import { getPosts } from '../../services/post';
+import { AuthorContext } from '../../context/AuthorContext';
 
 const Profile = (props) => {
   // Get url location using useLocation hook
@@ -22,16 +23,8 @@ const Profile = (props) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [following, setFollowing] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [user, setUser] = useState({
-    id: 'https://www.facebook.com/100009000000000',
-    host: 'https://www.facebook.com',
-    displayName: 'Username',
-    url: 'https://www.facebook.com/100009000000000',
-    github: 'https://github.com/manpreetkaur',
-    twitter: 'https://twitter.com/manpreetkaur',
-    profileImage:
-      'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
-  });
+  const [user, setUser] = useState(null);
+  const loggedInAuthor = useContext(AuthorContext).author;
   const [userFollowStats, setUserFollowStats] = useState({
     following: 0,
     followers: 0
@@ -82,6 +75,10 @@ const Profile = (props) => {
     const urlParts = url.split('/');
     return urlParts[urlParts.length - 1];
   };
+
+  if (user === null) {
+    return <></>;
+  }
 
   return (
     <div className="profile">
@@ -148,26 +145,7 @@ const Profile = (props) => {
                   }
                 } else {
                   try {
-                    const currentUserDetails = await getUserDetails(
-                      props.currentUser
-                    );
-                    const actorUserDetails = await getUserDetails(
-                      props.authorId
-                    );
-                    const followObject = {
-                      actor: {
-                        ...actorUserDetails.data
-                      },
-                      object: {
-                        ...currentUserDetails.data
-                      },
-                      type: 'Follow',
-                      summary: `${currentUserDetails.data.displayName} wants to follow ${actorUserDetails.data.displayName}`
-                    };
-                    const res = sendFollowRequest(
-                      props.currentUser,
-                      followObject
-                    );
+                    const res = sendFollowRequest(loggedInAuthor, user);
                     console.log(res);
                   } catch (err) {
                     console.log(err);

@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCurrentUserId } from '../../services/author';
+import { getCurrentUserId, getUserDetails } from '../../services/author';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
 import Post from '../Post/Post';
@@ -10,11 +10,21 @@ import CreatePost from '../Post/CreatePost';
 import Settings from '../Settings/Settings';
 import Feed from '../Feed/Feed';
 import axios from 'axios';
+import { AuthorContext } from '../../context/AuthorContext';
 
 function Home() {
   const location = useLocation();
   const navigate = useNavigate();
   const [userId, setUserId] = React.useState(null);
+
+  const { setAuthor } = useContext(AuthorContext);
+
+  const updateAuthorContext = async () => {
+    const authorId = (await getCurrentUserId()).data.id;
+    const author = (await getUserDetails(authorId)).data;
+    setAuthor(author);
+  };
+
   useEffect(() => {
     // Checks if user is logged in
     const checkLogin = async () => {
@@ -32,6 +42,7 @@ function Home() {
       }
     };
     checkLogin().then((r) => console.log(r));
+    updateAuthorContext();
   }, []);
 
   const renderHeading = () => {
