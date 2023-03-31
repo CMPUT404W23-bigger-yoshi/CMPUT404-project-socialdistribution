@@ -101,8 +101,11 @@ def add_follower(followed_id: str, follower_id: str):
     Add follower_id (local or remote) as a follower of followed_id (local) as a follower of author_id
     """
     # I don't care we're fetching more than we need to here
-    foreign_follow = NonLocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
-    local_follow = LocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
+    followed_author = Author.query.filter_by(id=follower_id).first_or_404()
+    foreign_follow = NonLocalFollower.query.filter_by(
+        followed_url=followed_id, follower_url=followed_author.url
+    ).first()
+    local_follow = LocalFollower.query.filter_by(followed_url=followed_id, follower_url=followed_author.url).first()
 
     for follow_state in [foreign_follow, local_follow]:
         # assume no collision between these 2 tables, ie, if one record is found in one table to be approved,
@@ -112,6 +115,7 @@ def add_follower(followed_id: str, follower_id: str):
                 return {"success": 0, "message": "follower already approved"}, 400
             else:
                 follow_state.approved = True
+                db.session.delete(follow_state)
                 db.session.commit()
                 return {"success": 0, "message": "Approved local follower!"}, 200
     # neither a foreign, nor local follow was found to be pending, so there's nothing to approve here
