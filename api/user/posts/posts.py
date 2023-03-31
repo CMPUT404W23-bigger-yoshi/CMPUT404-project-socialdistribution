@@ -586,18 +586,18 @@ def fanout_to_local_inbox(post: Post, author: str = None):
 
 
 def fanout_to_foreign_inbox(post, author_id):
-    author_url = f"http://{request.headers['Host']}/authors/{author_id}"
+    author = Author.query.filter_by(id=author_id).first()
+    logger.debug(f"Finding foreign authors for ${author}")
+    author_url = author.url
     all_foreign = NonLocalFollower.query.filter_by(followed_url=author_url).all()
     logger.debug(f"logging to {len(all_foreign)} endpoints")
     post_to_send = post.getJSON()
     for foreign in all_foreign:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox"
+        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
         try:
-            resp = requests.post(
-                foreign_inbox_url, data={"type": "inbox", "author": author_url, "items": [post_to_send]}
-            )
+            resp = requests.post(foreign_inbox_url, data={**post_to_send})
             logger.debug(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
