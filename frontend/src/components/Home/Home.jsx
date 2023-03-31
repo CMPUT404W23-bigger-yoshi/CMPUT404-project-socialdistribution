@@ -1,6 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getCurrentUserId, getUserDetails } from '../../services/author';
+import {
+  getCurrentUserId,
+  getUserById,
+  getUserDetails
+} from '../../services/author';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
 import Post from '../Post/Post';
@@ -17,11 +21,11 @@ function Home() {
   const navigate = useNavigate();
   const [userId, setUserId] = React.useState(null);
 
-  const { setAuthor } = useContext(AuthorContext);
+  const { author, setAuthor } = useContext(AuthorContext);
 
   const updateAuthorContext = async () => {
     const authorId = (await getCurrentUserId()).data.id;
-    const author = (await getUserDetails(authorId)).data;
+    const author = (await getUserById(authorId)).data;
     setAuthor(author);
   };
 
@@ -61,7 +65,7 @@ function Home() {
         </>
       );
     } else if (location.pathname === '/profile') {
-      return <Profile currentUser={userId} />;
+      return <Profile authorUrl={`${window.location.href}?q=${author.url}`} />;
     } else if (location.pathname === '/notifications') {
       return <Notifications />;
     } else if (location.pathname === '/settings') {
@@ -72,8 +76,8 @@ function Home() {
     ) {
       return <Post />;
     } else if (location.pathname.split('/')[1] === 'authors') {
-      const authorId = location.pathname.split('/')[2];
-      return <Profile currentUser={userId} authorId={authorId} />;
+      const authorUrl = window.location.href;
+      return <Profile authorUrl={authorUrl} />;
     } else {
       return <h1>404</h1>;
     }

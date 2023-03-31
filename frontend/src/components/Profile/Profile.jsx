@@ -16,7 +16,8 @@ import {
 import { getPosts } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 
-const Profile = (props) => {
+const Profile = ({ authorUrl }) => {
+  console.log('top', authorUrl);
   // Get url location using useLocation hook
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,48 +34,29 @@ const Profile = (props) => {
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        let userId;
-        if (!props?.authorId) {
-          userId = await getCurrentUserId();
-        } else {
-          userId = { data: { id: props.authorId } };
-        }
-        const user = await getUserDetails(userId.data.id);
-        const posts = await getPosts(userId.data.id);
-        if (props?.authorId) {
-          try {
-            const check = await checkIfFollowing(
-              props.currentUser,
-              userId.data.id
-            );
-            setFollowing(check.data.found);
-          } catch (err) {
-            setFollowing(false);
-          }
-        }
-        const followersCount = await getFollowersCount(userId.data.id);
-        setUserFollowStats({
-          followers: followersCount.data.count
-        });
+        console.log(authorUrl);
+        const user = await getUserDetails(authorUrl);
         setUser(user.data);
 
-        // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
-        posts.data.items.forEach((post) => {
-          if (post.categories === '') {
-            post.categories = [];
-          }
-        });
-        setPosts(posts.data);
+        // const followersCount = await getFollowersCount(authorUrl);
+        // setUserFollowStats({
+        //   followers: followersCount
+        // });
+        //
+        // const posts = await getPosts(authorUrl);
+        // // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
+        // posts.data.items.forEach((post) => {
+        //   if (post.categories === '') {
+        //     post.categories = [];
+        //   }
+        // });
+        // setPosts(posts.data);
       } catch (err) {
         console.log(err);
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, [location.pathname, props]);
-  const getAuthorIdFromUrl = (url) => {
-    const urlParts = url.split('/');
-    return urlParts[urlParts.length - 1];
-  };
+  }, [authorUrl]);
 
   if (user === null) {
     return <></>;
@@ -134,11 +116,11 @@ const Profile = (props) => {
             <Button
               className="profile-button follow"
               onClick={async () => {
-                if (props.currentUser === getAuthorIdFromUrl(user.id)) {
+                if (loggedInAuthor.id === user.id) {
                   navigate('/settings');
                 } else if (following) {
                   try {
-                    const res = unfollowUser(props.currentUser, user.data.id);
+                    const res = unfollowUser(loggedInAuthor.id, user.data.id);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
@@ -153,7 +135,7 @@ const Profile = (props) => {
                 }
               }}
             >
-              {props.currentUser === getAuthorIdFromUrl(user.id)
+              {loggedInAuthor.id === user.id
                 ? 'Edit'
                 : following
                 ? 'Unfollow'
@@ -178,7 +160,7 @@ const Profile = (props) => {
                   post={post}
                   setPosts={setPosts}
                   posts={posts}
-                  currentUser={props.currentUser}
+                  currentUser={loggedInAuthor.id.split('/').pop(-1)}
                 />
               ))
             ) : (
