@@ -170,12 +170,12 @@ def get_follow_notification(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
     local_followers = (
         Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
-        .filter_by(approved=False, followed_url=author_id)
+        .filter_by(approved=False, followed_url=author.url)
         .all()
     )
     non_local_followers = (
         NonLocalAuthor.query.join(LocalFollower, NonLocalAuthor.url == LocalFollower.follower_url)
-        .filter_by(approved=False, followed_url=author_id)
+        .filter_by(approved=False, followed_url=author.url)
         .all()
     )
     res = [{"author": {**follower.getJSON()}, "type": "follow"} for follower in local_followers + non_local_followers]
