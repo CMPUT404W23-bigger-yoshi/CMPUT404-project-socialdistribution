@@ -140,6 +140,7 @@ def create_post_auto_gen_id(author_id: str):
 
     # todo: eh error handling remains
     fanout_to_local_inbox(post, author_id)
+    fanout_to_foreign_inbox(post, author_id)
 
     return {"message": "Successfully created new post"}, 201
 
