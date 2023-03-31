@@ -45,7 +45,7 @@ def followers(author_id: str):
     )
     non_local_followers = (
         NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == NonLocalFollower.follower_url)
-        .filter_by(approved=False, followed_url=found_author.url)
+        .filter_by(approved=True, followed_url=found_author.url)
         .all()
     )
     return [author.getJSON() for author in local_followers + non_local_followers]
