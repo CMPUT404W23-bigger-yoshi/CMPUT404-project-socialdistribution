@@ -37,12 +37,18 @@ followers_bp = Blueprint("followers", __name__)
 def followers(author_id: str):
     """Get a list of authors who are author_id’s followers"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
-    # todo : do we need to ask for more information? unless required will cause response
-    #  failure if other teams node throws an error
-    non_local_followers = list(found_author.non_local_follows.all())
-    local_followers = list(found_author.follows.all())
-    local_followers = local_followers + non_local_followers
-    return jsonify(local_followers)
+
+    local_followers = (
+        Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
+        .filter_by(approved=True, followed_url=found_author.url)
+        .all()
+    )
+    non_local_followers = (
+        NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == NonLocalFollower.follower_url)
+        .filter_by(approved=False, followed_url=found_author.url)
+        .all()
+    )
+    return [author.getJSON() for author in local_followers + non_local_followers]
 
 
 @followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
