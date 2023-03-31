@@ -115,7 +115,6 @@ def add_follower(followed_id: str, follower_id: str):
                 return {"success": 0, "message": "follower already approved"}, 400
             else:
                 follow_state.approved = True
-                db.session.delete(follow_state)
                 db.session.commit()
                 return {"success": 0, "message": "Approved local follower!"}, 200
     # neither a foreign, nor local follow was found to be pending, so there's nothing to approve here
