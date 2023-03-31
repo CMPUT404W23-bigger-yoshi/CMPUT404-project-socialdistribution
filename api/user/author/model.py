@@ -14,7 +14,7 @@ from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
 
 def _constructURL(context):
-    host = "https://bigger-yoshi.herokuapp.com/"
+    host = "https://bigger-yoshi.herokuapp.com/api"
     authorId = context.get_current_parameters()["id"]
     return host + "authors/" + authorId
 

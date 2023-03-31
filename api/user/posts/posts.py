@@ -655,6 +655,7 @@ def make_like(json, author_id):
 
 
 def make_follow(json, author_id):
+    logger.info("Received data:", json)
     if not (followed_object := json.get("object")):
         return {"success": 0, "message": "object key must be specified for inbox!"}, 400
 
