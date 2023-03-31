@@ -101,7 +101,7 @@ def add_follower(followed_id: str, follower_id: str):
     Add follower_id (local or remote) as a follower of followed_id (local) as a follower of author_id
     """
     # I don't care we're fetching more than we need to here
-    followed_author = Author.query.filter_by(id=follower_id).first_or_404()
+    followed_author = Author.query.filter_by(id=followed_id).first_or_404()
     foreign_follow = NonLocalFollower.query.filter_by(
         followed_url=followed_id, follower_url=followed_author.url
     ).first()
