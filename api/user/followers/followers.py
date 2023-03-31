@@ -103,9 +103,9 @@ def add_follower(followed_id: str, follower_id: str):
     # I don't care we're fetching more than we need to here
     followed_author = Author.query.filter_by(id=followed_id).first_or_404()
     foreign_follow = NonLocalFollower.query.filter_by(
-        followed_url=followed_id, follower_url=followed_author.url
+        followed_url=followed_author.url, follower_url=follower_id
     ).first()
-    local_follow = LocalFollower.query.filter_by(followed_url=followed_id, follower_url=followed_author.url).first()
+    local_follow = LocalFollower.query.filter_by(followed_url=followed_author.url, follower_url=follower_id).first()
 
     for follow_state in [foreign_follow, local_follow]:
         # assume no collision between these 2 tables, ie, if one record is found in one table to be approved,
