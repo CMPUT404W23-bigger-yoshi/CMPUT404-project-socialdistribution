@@ -682,7 +682,7 @@ def make_follow(json, author_id):
     if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id).first():
         return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
 
-    db.session.add(FollowTable(follower_url=actor["url"], followed_url=author_id, approved=False))
+    db.session.add(FollowTable(follower_url=actor["url"], followed_url=followed_object["url"], approved=False))
     db.session.commit()
     return {"success": 1, "message": "Follow request has been sent!"}
 
