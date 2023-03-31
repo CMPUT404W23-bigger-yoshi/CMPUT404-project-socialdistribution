@@ -177,7 +177,7 @@ def get_follow_notification(author_id: str):
         .all()
     )
     non_local_followers = (
-        NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == LocalFollower.follower_url)
+        NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == NonLocalFollower.follower_url)
         .filter_by(approved=False, followed_url=author.url)
         .all()
     )
