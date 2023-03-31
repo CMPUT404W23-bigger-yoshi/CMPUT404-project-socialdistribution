@@ -4,6 +4,7 @@ import './App.css';
 import Login from './components/Login/Login';
 import Home from './components/Home/Home';
 import Logout from './components/Login/Logout';
+import { AuthorProvider } from './context/AuthorContext';
 
 const router = createBrowserRouter([
   {
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: '/authors/:id',
+    path: '/authors',
     element: <Home />
   },
   {
@@ -57,7 +58,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthorProvider>
+      <RouterProvider router={router} />;
+    </AuthorProvider>
+  );
 }
 
 export default App;

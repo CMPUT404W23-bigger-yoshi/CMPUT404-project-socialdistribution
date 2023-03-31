@@ -1,5 +1,6 @@
 import base64
 
+import requests
 from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
@@ -96,7 +97,13 @@ def get_author_id_all(author_username: str):
     found_authors = Author.query.filter(
         Author.username.like(f"%{author_username}%"), Author.id != current_user.id
     ).all()
-    authors_json = {"type": "authors", "items": [author.getJSON() for author in found_authors]}
+    # sending get request and saving the response as response object
+    headers = {f"Authorization:": "123"}
+    r = requests.get(url="https://yoshi-connect.herokuapp.com/authors/")
+    # extracting data in json format
+    data = r.json()
+    items = [author.getJSON() for author in found_authors]
+    authors_json = {"type": "authors", "items": items + data["items"]}
     return authors_json
 
 
@@ -172,3 +179,10 @@ def register_user():
     login_user(user)
 
     return {"message": "Success"}, 200
+
+
+@authors_bp.route("/foreign/<path:url>", methods=["GET"])
+def get_foreign_author(url: str):
+    r = requests.get(url)
+    data = r.json()
+    return data

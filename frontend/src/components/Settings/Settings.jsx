@@ -3,7 +3,7 @@ import './Settings.css';
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import {
-  getCurrentUserDetails,
+  getUserDetails,
   getCurrentUserId,
   updateCurrentUserDetails
 } from '../../services/author';
@@ -17,17 +17,17 @@ function Settings() {
     profileImage: ''
   });
   useEffect(() => {
-    const getUserDetails = async () => {
+    const getDetails = async () => {
       try {
         const response = await getCurrentUserId();
         const id = response.data.id;
-        const user = await getCurrentUserDetails(id);
+        const user = await getUserDetails(id);
         setUserDetails({ ...user.data, id });
       } catch (error) {
         console.log(error);
       }
     };
-    getUserDetails().then((r) => console.log(r));
+    getDetails().then((r) => console.log(r));
   }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();

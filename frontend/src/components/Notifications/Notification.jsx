@@ -1,6 +1,5 @@
 import './Notification.css';
 import React from 'react';
-import Logo from '../Logo/Logo';
 import {
   ChatLeftFill,
   CheckCircleFill,
@@ -8,12 +7,18 @@ import {
   PeopleFill,
   XCircleFill
 } from 'react-bootstrap-icons';
+import { acceptFollowRequest } from '../../services/author';
 
 function Notification(props) {
   return (
     <div className="notification">
       <div className="left">
-        <Logo size={70} className="notification-logo" />
+        <img
+          width={70}
+          height={70}
+          className="notification-logo"
+          src={props.person.profileImage}
+        />
         <p>
           {props.type === 'friend' ? (
             `${props.person} is now your friend!`
@@ -22,7 +27,7 @@ function Notification(props) {
           ) : props.type === 'comment' ? (
             `${props.person} commented on your post!`
           ) : props.type === 'follow' ? (
-            `${props.person} wants to follow you!`
+            `${props.person.displayName} wants to follow you!`
           ) : (
             <div></div>
           )}
@@ -38,7 +43,16 @@ function Notification(props) {
         ) : props.type === 'follow' ? (
           /* Two icons one is checkmark and other is x */
           <div className="follow-icons">
-            <CheckCircleFill size={40} /> <XCircleFill size={40} />
+            <CheckCircleFill
+              size={40}
+              onClick={() => {
+                acceptFollowRequest(
+                  props.localAuthor.id.split('/').pop(-1),
+                  props.person.url
+                );
+              }}
+            />{' '}
+            <XCircleFill size={40} />
           </div>
         ) : (
           <div></div>

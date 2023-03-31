@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
 import { Button, Col, Row } from 'react-bootstrap';
 import { Github, Twitter } from 'react-bootstrap-icons';
@@ -7,32 +7,25 @@ import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   checkIfFollowing,
-  followUser,
-  getCurrentUserDetails,
+  getUserDetails,
   getCurrentUserId,
   getFollowersCount,
-  getFollowingCount,
-  unfollowUser
+  unfollowUser,
+  sendFollowRequest
 } from '../../services/author';
 import { getPosts } from '../../services/post';
+import { AuthorContext } from '../../context/AuthorContext';
 
-const Profile = (props) => {
+const Profile = ({ authorUrl }) => {
+  console.log('top', authorUrl);
   // Get url location using useLocation hook
   const navigate = useNavigate();
   const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [following, setFollowing] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [user, setUser] = useState({
-    id: 'https://www.facebook.com/100009000000000',
-    host: 'https://www.facebook.com',
-    displayName: 'Username',
-    url: 'https://www.facebook.com/100009000000000',
-    github: 'https://github.com/manpreetkaur',
-    twitter: 'https://twitter.com/manpreetkaur',
-    profileImage:
-      'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
-  });
+  const [user, setUser] = useState(null);
+  const loggedInAuthor = useContext(AuthorContext).author;
   const [userFollowStats, setUserFollowStats] = useState({
     following: 0,
     followers: 0
@@ -41,50 +34,33 @@ const Profile = (props) => {
   useEffect(() => {
     const fetchUserId = async () => {
       try {
-        let userId;
-        if (!props?.authorId) {
-          userId = await getCurrentUserId();
-        } else {
-          userId = { data: { id: props.authorId } };
-        }
-        const user = await getCurrentUserDetails(userId.data.id);
-        const posts = await getPosts(userId.data.id);
-        if (props?.authorId) {
-          try {
-            const check = await checkIfFollowing(
-              props.currentUser,
-              userId.data.id
-            );
-            setFollowing(check.data.found);
-          } catch (err) {
-            setFollowing(false);
-          }
-        }
-        const followersCount = await getFollowersCount(userId.data.id);
-        const followingCount = await getFollowingCount(userId.data.id);
-        setUserFollowStats({
-          followers: followersCount.data.count,
-          following: followingCount.data.count
-        });
+        console.log(authorUrl);
+        const user = await getUserDetails(authorUrl);
         setUser(user.data);
 
-        // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
-        posts.data.items.forEach((post) => {
-          if (post.categories === '') {
-            post.categories = [];
-          }
-        });
-        setPosts(posts.data);
+        // const followersCount = await getFollowersCount(authorUrl);
+        // setUserFollowStats({
+        //   followers: followersCount
+        // });
+        //
+        // const posts = await getPosts(authorUrl);
+        // // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
+        // posts.data.items.forEach((post) => {
+        //   if (post.categories === '') {
+        //     post.categories = [];
+        //   }
+        // });
+        // setPosts(posts.data);
       } catch (err) {
         console.log(err);
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, [location.pathname, props]);
-  const getAuthorIdFromUrl = (url) => {
-    const urlParts = url.split('/');
-    return urlParts[urlParts.length - 1];
-  };
+  }, [authorUrl]);
+
+  if (user === null) {
+    return <></>;
+  }
 
   return (
     <div className="profile">
@@ -110,13 +86,9 @@ const Profile = (props) => {
               <h1>{user.displayName}</h1>
             </div>
             <div className="profile-follow-stats">
-              <Row className="profile-follow-stats-row" xs={2}>
+              <Row className="profile-follow-stats-row" xs={1}>
                 <Col className="px-4">
                   <h3>{userFollowStats.followers}</h3>
-                  <p>Following</p>
-                </Col>
-                <Col className="px-4">
-                  <h3>{userFollowStats.following}</h3>
                   <p>Followers</p>
                 </Col>
               </Row>
@@ -143,19 +115,19 @@ const Profile = (props) => {
           <div className="profile-buttons">
             <Button
               className="profile-button follow"
-              onClick={() => {
-                if (props.currentUser === getAuthorIdFromUrl(user.id)) {
+              onClick={async () => {
+                if (loggedInAuthor.id === user.id) {
                   navigate('/settings');
                 } else if (following) {
                   try {
-                    const res = unfollowUser(props.currentUser, user.data.id);
+                    const res = unfollowUser(loggedInAuthor.id, user.data.id);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
                   }
                 } else {
                   try {
-                    const res = followUser(props.currentUser, props.authorId);
+                    const res = sendFollowRequest(loggedInAuthor, user);
                     console.log(res);
                   } catch (err) {
                     console.log(err);
@@ -163,7 +135,7 @@ const Profile = (props) => {
                 }
               }}
             >
-              {props.currentUser === getAuthorIdFromUrl(user.id)
+              {loggedInAuthor.id === user.id
                 ? 'Edit'
                 : following
                 ? 'Unfollow'
@@ -188,7 +160,7 @@ const Profile = (props) => {
                   post={post}
                   setPosts={setPosts}
                   posts={posts}
-                  currentUser={props.currentUser}
+                  currentUser={loggedInAuthor.id.split('/').pop(-1)}
                 />
               ))
             ) : (

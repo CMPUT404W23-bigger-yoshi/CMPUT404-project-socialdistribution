@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getCurrentUserDetails } from '../../services/author';
+import { getUserDetails } from '../../services/author';
 import { makeComment } from '../../services/post';
 
 const timeSince = (date) => {
@@ -153,7 +153,7 @@ function Comments(props) {
           className="actions-button"
           onClick={async () => {
             try {
-              const author = await getCurrentUserDetails(authorId);
+              const author = await getUserDetails(authorId);
               const newComment = {
                 ...comment,
                 type: 'comment',
