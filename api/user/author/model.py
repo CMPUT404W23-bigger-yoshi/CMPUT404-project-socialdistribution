@@ -1,3 +1,5 @@
+import logging
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
 
@@ -12,11 +14,20 @@ from api.user.followers.model import LocalFollower
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
+logger = logging.getLogger(__name__)
+
+DEFAULT_API_BASE = "https://bigger-yoshi.herokuapp.com/api/"
+api_base = os.getenv("API_BASE")
+if api_base is None:
+    logger.info(f"falling back to default API base since API_BASE wasn't set: {DEFAULT_API_BASE}")
+    api_base = DEFAULT_API_BASE
+else:
+    logger.info(f"found API_BASE: {api_base}")
+
 
 def _constructURL(context):
-    host = "https://bigger-yoshi.herokuapp.com/api/"
     authorId = context.get_current_parameters()["id"]
-    return host + "authors/" + authorId
+    return api_base + "authors/" + authorId
 
 
 def _default_approval_from_config(context):
