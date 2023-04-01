@@ -18,7 +18,7 @@ from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
+from api.utils import Approval, Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -616,7 +616,7 @@ def make_post_non_local(data, author_id):
     return {"message": "Post created successfully."}, 201
 
 
-def fanout_to_local_inbox(post: Post, author: str = None):
+def fanout_to_local_inbox(post: Post, author_id):
     if post.visibility == Visibility.PUBLIC:
         authors = Author.query.all()
         to_insert = []
@@ -626,8 +626,35 @@ def fanout_to_local_inbox(post: Post, author: str = None):
         db.session.execute(statement)
         db.session.commit()
     if post.visibility == Visibility.FRIENDS:
-        # todo: eh need a method to determine friends
-        pass
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:  # can't do 404, fan-out shouldn't affect the post creation
+            return
+
+        # creates a set of urls
+        followed_by_author = set(
+            map(
+                lambda x: x.followed_url,
+                LocalFollower.query.filter_by(follower_url=author.url, approved=Approval.APPROVED).all(),
+            )
+        )
+        follower_of_author = set(
+            map(
+                lambda x: x.follower_url,
+                LocalFollower.query.filter_by(followed_url=author.url, approved=Approval.APPROVED).all(),
+            )
+        )
+
+        to_insert = []
+        for url in followed_by_author.intersection(follower_of_author):
+            friend = Author.query.filter_by(url=url).first()
+            to_insert.append({"post_id": post.id, "meant_for": friend.id})
+
+        statement = inbox_table.insert().values(to_insert)
+        db.session.execute(statement)
+        db.session.commit()
+
+        # todo: foreign friends
+        return
 
 
 def fanout_to_foreign_inbox(post, author_id):
