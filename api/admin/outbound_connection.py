@@ -29,7 +29,7 @@ class OutboundConnection(db.Model):
         return url.startswith(self.endpoint)
 
 
-class OutboundConnectionView(sqla.ModelView, RedirectingAuthMixin):
+class OutboundConnectionView(RedirectingAuthMixin, sqla.ModelView):
     can_view_details = True
 
     column_list = ["username", "password", "endpoint"]

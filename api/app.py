@@ -17,6 +17,7 @@ from api.admin.APIConfig import APIConfig
 from api.admin.inbound_connection import InboundConnection, InboundConnectionView
 from api.admin.nodes import nodes_bp
 from api.admin.outbound_connection import OutboundConnection, OutboundConnectionView
+from api.admin.post_admin import PostView
 from api.admin.user_account_control import UserAccountControlView
 from api.admin.views import Logout, SettingsView
 from api.user.author.model import Author
@@ -64,6 +65,7 @@ def create_app(testing_env=False):
     admin = Admin(app, name="bigger-yoshi", template_mode="bootstrap3")
     admin.add_view(SettingsView(name="Settings", endpoint="settings"))
     admin.add_view(UserAccountControlView(Author, db.session, name="User Account Control", endpoint="accounts"))
+    admin.add_view(PostView(Post, db.session, name="Posts", endpoint="posts"))
     admin.add_view(
         OutboundConnectionView(
             OutboundConnection, db.session, name="Outbound server connections", endpoint="connections"

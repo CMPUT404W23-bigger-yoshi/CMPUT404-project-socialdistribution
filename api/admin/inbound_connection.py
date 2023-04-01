@@ -29,7 +29,7 @@ class InboundConnection(db.Model):
     approval: Approval = db.Column(Enum(Approval), nullable=False, default=_default_approval_from_config)
 
 
-class InboundConnectionView(sqla.ModelView, RedirectingAuthMixin):
+class InboundConnectionView(RedirectingAuthMixin, sqla.ModelView):
     can_view_details = True
 
     column_list = ["username", "email", "approval"]

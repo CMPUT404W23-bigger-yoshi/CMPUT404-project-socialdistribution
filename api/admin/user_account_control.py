@@ -9,7 +9,7 @@ from api.user.author.model import Author
 from api.utils import Approval
 
 
-class UserAccountControlView(sqla.ModelView, RedirectingAuthMixin):
+class UserAccountControlView(RedirectingAuthMixin, sqla.ModelView):
     can_view_details = True
 
     column_list = ["id", "role", "url", "host", "username", "github", "approval"]
