@@ -195,8 +195,7 @@ def get_recent_posts(author_id: str):
         ],
         "responses": {
             200: {"description": "Post with image content encoded as base64.", "schema": posts_schema},
-            400: {"description": "Not an image"},
-            404: {"description": "Author not found or Post not found."},
+            404: {"description": "Not an Image"},
         },
     }
 )
@@ -208,14 +207,10 @@ def post_as_base64_img(author_id: str, post_id: str):
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
     valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
-    if post.contentType not in valid:
-        return "Not found", 404
+    if not (post.contentType == "application/base64" or post.contentType.startsWith("image/")):
+        return "Not an image", 404
 
-    decoded_img = base64.b64decode(post.content)
-    json = post.getJSON()
-    json["content"] = decoded_img
-
-    return json
+    return post.content
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
@@ -489,7 +484,7 @@ def clear_inbox(author_id: str):
     db.session.execute(statement)
     db.session.commit()
 
-    return {"success": 1, "message": "Inbox cleared succesfully"}, 200
+    return {"success": 1, "message": "Inbox cleared successfully"}, 200
 
 
 # Note: Some code repetition but imo easier to reason about maybe can refactor later
@@ -537,7 +532,6 @@ def make_post_local(data, author_id, post_id=None):
     try:
         post = Post(
             id=post_id,
-            url=f"http://{request.headers['Host']}/{meant_for.id}/posts/{post_id}",
             published=data.get("published"),
             title=data.get("title"),
             origin=data.get("origin"),
@@ -553,7 +547,7 @@ def make_post_local(data, author_id, post_id=None):
         db.session.add(post)
         db.session.commit()
     except Exception as e:
-        logger.exception("failed to create post local: ")
+        logger.exception("failed to create post local:")
         return None
 
     return post
@@ -797,3 +791,10 @@ def create_non_local_author(author_to_add):
         return author
     except Exception:
         return None
+
+
+@posts_bp.route("/posts", methods=["GET"])
+def get_all_public_posts():
+    posts = Post.query.filter_by(visibility=Visibility.PUBLIC).all()
+    data = [post.getJSON() for post in posts]
+    return {"items": data}
