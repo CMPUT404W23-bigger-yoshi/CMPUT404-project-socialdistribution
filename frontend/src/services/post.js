@@ -7,7 +7,7 @@ export function getPost(authorId, postId) {
 }
 
 export function getPosts(authorUrl) {
-  if (authorUrl.match('bigger-yoshi')) {
+  if (authorUrl.match(window.location.host)) {
     return axios.get(`/authors/${authorUrl.split('/').pop(-1)}/posts/`);
   }
   const encoded = encodeURIComponent(authorUrl);
@@ -81,42 +81,42 @@ export async function updatePost(
   }
 }
 
-export async function getInbox(authorId) {
-  const config = {
-    method: 'get',
-    url: `/authors/${authorId}/inbox`
-  };
-  return axios(config);
+export function getInbox(authorId) {
+  return axios.get(`${authorId}/inbox`);
 }
 
-export async function getLikes(authorId, postId) {
-  return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
+export async function getLikes(postUrl) {
+  if (postUrl.match(window.location.host)) {
+    return await axios.get(`${postUrl}/likes`);
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return await axios.get(`/authors/foreign/${encoded}/likes`);
 }
 
-export async function likePost(authorId, likeObj) {
-  const config = {
-    method: 'post',
-    url: `/authors/${authorId}/inbox/`,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(likeObj)
-  };
-  return await axios(config);
+export async function likePost(likeObj) {
+  const postUrl = likeObj.object;
+  if (postUrl.match(window.location.host)) {
+    return axios.post(
+      `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+      likeObj
+    );
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return axios.post(`/authors/foreign/${encoded}/foreign-inbox`, likeObj);
 }
 
-export async function makeComment(authorId, commentObj) {
-  const config = {
-    method: 'post',
-    url: `/authors/${authorId}/inbox/`,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(commentObj)
-  };
-  return await axios(config);
+export function makeComment(commentObj) {
+  const postUrl = commentObj.object;
+  return axios.post(
+    `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+    commentObj
+  );
 }
 
-export async function getComments(authorId, postId) {
-  return await axios.get(`/authors/${authorId}/posts/${postId}/comments`);
+export async function getComments(postUrl) {
+  if (postUrl.match(window.location.host)) {
+    return await axios.get(`${postUrl}/comments`);
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return await axios.get(`/authors/foreign/${encoded}/comments`);
 }

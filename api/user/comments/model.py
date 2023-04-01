@@ -7,7 +7,7 @@ from api.utils import generate_object_ID, get_author_info
 
 @dataclass
 class Comment(db.Model):
-    id: str = db.Column(db.Text, primary_key=True, default="")
+    id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
     published: str = db.Column("published", db.Text, nullable=False)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     comment: str = db.Column("comment", db.Text, nullable=False)

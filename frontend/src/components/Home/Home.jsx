@@ -79,6 +79,10 @@ function Home() {
     }
   };
 
+  if (userId === null || !author?.id) {
+    return <></>;
+  }
+  console.log('rendering');
   return (
     <div className="home">
       <Sidebar />
