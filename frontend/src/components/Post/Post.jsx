@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Post.css';
 import { deletePost, getComments, getLikes, getPost, likePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
@@ -9,18 +9,21 @@ import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
 import { useLocation } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
-import { getUserDetails } from '../../services/author';
+import { AuthorContext } from '../../context/AuthorContext';
 
 const Post = (props) => {
   const [post, setPost] = useState(props.post);
   const [postDetails, setPostDetails] = useState({
-    authorId: '',
-    postId: ''
+    postUrl: ''
   });
+  // Use context to get user details
+  const userDetails = useContext(AuthorContext).author;
   const location = useLocation();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [likes, setLikes] = useState([]);
+  const [commentsSrc, setCommentsSrc] = useState({});
 
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
@@ -50,19 +53,18 @@ const Post = (props) => {
     } else {
       console.log('Post not found');
     }
-  }, [location, post.liked]);
+  }, [location]);
 
   useEffect(() => {
     const fetchLikes = async () => {
       try {
         const response = await getLikes(
-          postDetails.authorId,
-          postDetails.postId
+          post.id
         );
         const liked = response.data.items.find(
           (like) => getIdFromUrl(like.author.id) === props.currentUser
         );
-        setPost({ ...post, liked: !!liked, likes: response.data.items });
+        setLikes(response.data.items);
       } catch (err) {
         console.log(err);
       }
@@ -71,33 +73,32 @@ const Post = (props) => {
     const fetchComments = async () => {
       try {
         const response = await getComments(
-          postDetails.authorId,
-          postDetails.postId
+          post.id
         );
-        setPost({ ...post, commentsSrc: { comments: response.data.comments } });
+        setCommentsSrc(response.data);
       } catch (err) {
         console.log(err);
       }
     };
     fetchComments().then((r) => console.log(r));
-  }, [postDetails]);
+  }, []);
 
   async function handleLike() {
+    console.log('Debug: handleLike')
+    const postOrigin = post.id.split('/').slice(0, 3).join('/');
     try {
-      const userDetails = await getUserDetails(props.currentUser);
       const likeObject = {
         type: 'Like',
-        summary: `${userDetails.data.displayName} liked your post`,
+        summary: `${userDetails.displayName} liked your post`,
         author: {
-          ...userDetails.data
+          ...userDetails
         },
         object:
-          window.location.origin +
+          postOrigin +
           `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
       };
-      const res = await likePost(postDetails.authorId, likeObject);
+      const res = await likePost(likeObject);
       console.log(res);
-      setPost({ ...post, liked: !post.liked });
     } catch (err) {
       console.log(err);
     }
@@ -144,7 +145,7 @@ const Post = (props) => {
       <CommentsModal
         show={showCommentsModal}
         handleClose={() => setShowCommentsModal(false)}
-        comments={post.commentsSrc}
+        comments={commentsSrc}
         authorId={postDetails.authorId}
         postId={postDetails.postId}
       />
@@ -162,7 +163,9 @@ const Post = (props) => {
                   <div className='post-repost'>
                     <span>
                       <img
-                        src={post.author.profileImage !== '' ? post.author.profileImage : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
+                        src={post.author.profileImage !== ''
+                          ? post.author.profileImage
+                          : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
                         className='post-profile-image'
                         alt={post.author.displayName}
                         style={{
@@ -211,15 +214,15 @@ const Post = (props) => {
             <div className='post-categories'>
               {post.categories.length > 0 &&
                 post.categories.map((category, idx) => {
-                if (category !== '') {
-                  return (
-                    <span key={idx} className='post-category'>
+                  if (category !== '') {
+                    return (
+                      <span key={idx} className='post-category'>
                       {category}
                     </span>
-                  );
-                }
-                return null;
-              })}
+                    );
+                  }
+                  return null;
+                })}
             </div>
             <div className='post-body'>
               {post.contentType === 'text/markdown' ? (
@@ -247,7 +250,7 @@ const Post = (props) => {
                       color: post.liked ? 'red' : 'white'
                     }}
                   />{' '}
-                  {post.likes?.length} <span className='icon-hint'>Likes</span>
+                  {likes.length}
                 </Button>
               </div>
             </Col>
@@ -257,8 +260,7 @@ const Post = (props) => {
                   variant='dark'
                   onClick={() => setShowCommentsModal(true)}
                 >
-                  <ChatLeftTextFill /> {post.count}{' '}
-                  <span className='icon-hint'>Comments</span>
+                  <ChatLeftTextFill /> {Math.max(post.count, commentsSrc?.comments?.length)}{' '}
                 </Button>
               </div>
             </Col>

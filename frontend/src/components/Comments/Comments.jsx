@@ -33,13 +33,13 @@ const timeSince = (date) => {
 };
 
 function Comment(props) {
-  const { author, comment, published, contentType } = props;
+  const { author, profileImage, comment, published, contentType } = props;
 
   return (
     <div className="comment">
       <div className="d-flex">
         <img
-          src="https://picsum.photos/200/300"
+          src={profileImage !== '' ? profileImage : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
           alt="profile"
           className="rounded-circle"
         />
@@ -184,6 +184,7 @@ function Comments(props) {
             comment={comment.comment}
             published={comment.published}
             contentType={comment.contentType}
+            profileImage={comment.author.profileImage}
           />
         ))}
       </div>

@@ -89,20 +89,21 @@ export async function getInbox(authorId) {
   return axios(config);
 }
 
-export async function getLikes(authorId, postId) {
-  return await axios.get(`/authors/${authorId}/posts/${postId}/likes`);
+export async function getLikes(postUrl) {
+  if (postUrl.match('bigger-yoshi')) {
+    return await axios.get(`/authors/${postUrl.split('/').pop(-1)}/likes/`);
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return await axios.get(`/authors/foreign/${encoded}/likes`);
 }
 
-export async function likePost(authorId, likeObj) {
-  const config = {
-    method: 'post',
-    url: `/authors/${authorId}/inbox/`,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(likeObj)
-  };
-  return await axios(config);
+export async function likePost(likeObj) {
+  const postUrl = likeObj.object;
+  if (postUrl.match('bigger-yoshi')) {
+    return axios.post(`/authors/${postUrl.split('/').pop(-1)}/inbox/`, likeObj);
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return axios.post(`/authors/foreign/${encoded}/foreign-inbox`, likeObj);
 }
 
 export async function makeComment(authorId, commentObj) {
@@ -117,6 +118,10 @@ export async function makeComment(authorId, commentObj) {
   return await axios(config);
 }
 
-export async function getComments(authorId, postId) {
-  return await axios.get(`/authors/${authorId}/posts/${postId}/comments`);
+export async function getComments(postUrl) {
+  if (postUrl.match('bigger-yoshi')) {
+    return await axios.get(`/authors/${postUrl.split('/').pop(-1)}/comments/`);
+  }
+  const encoded = encodeURIComponent(postUrl);
+  return await axios.get(`/authors/foreign/${encoded}/comments`);
 }
