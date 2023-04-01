@@ -1,8 +1,10 @@
+import os
+
 from flask import request
 from flask_basicauth import BasicAuth
 from flask_login import current_user
 
-from api.admin.model import Connection
+from api.admin.inbound_connection import InboundConnection
 from api.utils import Approval, is_admin_endpoint
 
 
@@ -15,9 +17,8 @@ class APIAuth(BasicAuth):
     """
 
     def check_credentials(self, username, password):
-        exist = Connection.query.filter_by(username=username, password=password).first()
-
-        return exist and exist.approval == Approval.APPROVED
+        exist = InboundConnection.query.filter_by(username=username, password=password).first()
+        return bool(exist and exist.approval == Approval.APPROVED)
 
     """
     Check the request for HTTP basic access authentication header and try

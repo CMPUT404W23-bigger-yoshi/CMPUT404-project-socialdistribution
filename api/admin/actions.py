@@ -1,12 +1,17 @@
+import logging
+
 from flask import Blueprint, current_app, redirect, request
 from flask_login import current_user, login_required, login_user
 
 from api import bcrypt, db
-from api.admin.APIAuth import Connection
 from api.admin.APIConfig import APIConfig
+from api.admin.outbound_connection import OutboundConnection
 from api.user.author.model import Author
 from api.utils import Approval, Role
 
+logger = logging.getLogger(__name__)
+
+# mounted typically: API_ROOT/admin/action
 actions_bp = Blueprint("actions", __name__)
 
 
@@ -17,9 +22,7 @@ def login_admin():
     username = form_data.get("username")
     password = form_data.get("password")
 
-    print(username, password)
-    if not username or not password:
-        return {"message": "Invalid Credentials"}, 400
+    logger.info(f"received admin panel request: {username=}  {password=}")
 
     user = Author.query.filter_by(username=username).first()
 

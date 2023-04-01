@@ -2,7 +2,7 @@ from flask import Blueprint, request
 
 from api import db
 from api.admin.APIConfig import APIConfig
-from api.admin.model import Connection
+from api.admin.outbound_connection import OutboundConnection
 
 nodes_bp = Blueprint("node", __name__)
 
@@ -18,18 +18,18 @@ def register_node():
     password = data.get("password", None)
     email = data.get("email", None)
 
-    count = Connection.query.count()
+    count = OutboundConnection.query.count()
     if count >= APIConfig.NODE_LIMIT:
         return {"message": "Maximum nodes connected."}, 503
 
     if not username or not password:
         return {"message": "Invalid Credentials"}, 400
 
-    host_exists = Connection.query.filter_by(username=username).first()
+    host_exists = OutboundConnection.query.filter_by(username=username).first()
     if host_exists:
         return {"message": "Service already connected."}, 409
 
-    connnection = Connection(username=username, password=password, email=email)
+    connnection = OutboundConnection(username=username, password=password, email=email)
 
     db.session.add(connnection)
     db.session.commit()

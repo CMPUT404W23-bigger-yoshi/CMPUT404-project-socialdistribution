@@ -5,12 +5,13 @@ from urllib.parse import urlparse
 
 import requests
 from flasgger import swag_from
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flask_login import login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
 from api import basic_auth, db
+from api.admin.utils import auth_header_for_url
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
 from api.user.followers.model import LocalFollower, NonLocalFollower
@@ -194,8 +195,7 @@ def get_recent_posts(author_id: str):
         ],
         "responses": {
             200: {"description": "Post with image content encoded as base64.", "schema": posts_schema},
-            400: {"description": "Not an image"},
-            404: {"description": "Author not found or Post not found."},
+            404: {"description": "Not an Image"},
         },
     }
 )
@@ -207,14 +207,10 @@ def post_as_base64_img(author_id: str, post_id: str):
     author = Author.query.filter_all(id=author_id).first_or_404()
     post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
     valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
-    if post.contentType not in valid:
-        return "Not found", 404
+    if not (post.contentType == "application/base64" or post.contentType.startsWith("image/")):
+        return "Not an image", 404
 
-    decoded_img = base64.b64decode(post.content)
-    json = post.getJSON()
-    json["content"] = decoded_img
-
-    return json
+    return post.content
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
@@ -379,6 +375,55 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
+@posts_bp.route("/<string:author_url>/foreign-inbox", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
+        "description": "Send a like, comment, follow or post to a foreign author's inbox having id as author_id",
+        "parameters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
+            {
+                "in": "body",
+                "required": "true",
+                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "Object to be sent to inbox",
+            },
+        ],
+        "responses": {
+            201: {
+                "description": "Post/follow/like/comment sent to inbox successfully",
+                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            },
+            400: {
+                "description": "Request body contains invalid data.",
+                "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
+            },
+        },
+    }
+)
+@basic_auth.required
+def post_foreign_inbox(author_url: str):
+    # assumption: author_id  will be a fully qualified URL
+    parsed = urlparse(author_url)
+    if not all([parsed.scheme, parsed.netloc]):
+        logger.error("you are calling the wrong inbox endpoint. This one expects a fully qualified URL in all cases :/")
+        return {"message": "You gave use a shit author url dawg", "success": 0}
+
+    logger.info(
+        f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
+    )
+
+    res = requests.post(author_url, headers=auth_header_for_url(author_url))
+    # note (matt): I didn't come up with this,
+    # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
+    # We exclude all "hop-by-hop headers" defined by RFC 2616 section 13.5.1 ref.
+    # https://www.rfc-editor.org/rfc/rfc2616#section-13.5.1
+    excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+    headers = {(k, v) for k, v in res.raw.headers.items() if k.lower() not in excluded_headers}
+
+    return Response(res.content, res.status_code, headers)
+
+
 # todo check
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
@@ -439,7 +484,7 @@ def clear_inbox(author_id: str):
     db.session.execute(statement)
     db.session.commit()
 
-    return {"success": 1, "message": "Inbox cleared succesfully"}, 200
+    return {"success": 1, "message": "Inbox cleared successfully"}, 200
 
 
 # Note: Some code repetition but imo easier to reason about maybe can refactor later
@@ -487,7 +532,6 @@ def make_post_local(data, author_id, post_id=None):
     try:
         post = Post(
             id=post_id,
-            url=f"http://{request.headers['Host']}/{meant_for.id}/posts/{post_id}",
             published=data.get("published"),
             title=data.get("title"),
             origin=data.get("origin"),
@@ -503,7 +547,7 @@ def make_post_local(data, author_id, post_id=None):
         db.session.add(post)
         db.session.commit()
     except Exception as e:
-        logger.exception("failed to create post local: ")
+        logger.exception("failed to create post local:")
         return None
 
     return post
@@ -598,7 +642,9 @@ def fanout_to_foreign_inbox(post, author_id):
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
         foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
         try:
-            resp = requests.post(foreign_inbox_url, data={**post_to_send})
+            resp = requests.post(
+                foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
+            )
             logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
@@ -745,3 +791,10 @@ def create_non_local_author(author_to_add):
         return author
     except Exception:
         return None
+
+
+@posts_bp.route("/posts", methods=["GET"])
+def get_all_public_posts():
+    posts = Post.query.filter_by(visibility=Visibility.PUBLIC).all()
+    data = [post.getJSON() for post in posts]
+    return {"items": data}

@@ -6,8 +6,12 @@ export function getPost(authorId, postId) {
   return axios.get(`/authors/${authorId}/posts/${postId}`);
 }
 
-export function getPosts(authorId) {
-  return axios.get(`/authors/${authorId}/posts/`);
+export function getPosts(authorUrl) {
+  if (authorUrl.match('bigger-yoshi')) {
+    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}/posts/`);
+  }
+  const encoded = encodeURIComponent(authorUrl);
+  return axios.get(`/authors/foreign/${encoded}/posts`);
 }
 
 export async function generatePostId(author, postContent) {

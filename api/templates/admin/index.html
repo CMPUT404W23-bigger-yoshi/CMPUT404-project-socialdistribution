@@ -26,23 +26,13 @@
     Additional admin tasks for global configuration.
     </p>
 </li>
-<form action="javascript:login();" method="POST">
-<div class="form-group">
-<label for="username">Enter Admin username</label>
-<input type="text" name="username" id="username">
-    </div>
-<div class="form-group">
-<label for="password">Enter Admin password</label>
-<input type="password" name="password" id="password">
-    </div>
-<input class="btn-primary" type="submit" value="Login">
-</form>
+
 </ul>
 <script type="text/javascript">
     function login() {
         const username = document.querySelector("#username").value;
         const password = document.querySelector("#password").value;
-        const url = "/admin/action/login";
+        const url = "{{ admin_endpoint }}/login";
         $.ajax({
             url: url,
             type: "POST",
