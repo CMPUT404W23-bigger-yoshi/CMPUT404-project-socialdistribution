@@ -10,6 +10,7 @@ from sqlalchemy import Enum
 from api import db
 from api.admin.APIConfig import APIConfig
 from api.user.author.model import Author
+from api.user.posts.model import Post
 from api.utils import Approval, Role
 
 
@@ -137,3 +138,32 @@ class AuthAdmin(sqla.ModelView):
 
         except Exception as e:
             flash(gettext("Failed to approve users. Error {}".format(str(e))))
+
+
+class PostAdmin(sqla.ModelView):
+    can_view_details = True
+
+    column_list = [
+        "id",
+        "url",
+        "published",
+        "author",
+        "title",
+        "description",
+        "contentType",
+        "categories",
+        "origin",
+        "source",
+        "visibility",
+        "unlisted",
+    ]
+
+    column_searchable_list = ["id", "published", "author", "title", "categories"]
+
+    column_default_sort = [("published", True), ("contentType", True)]
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role == Role.ADMIN
+
+    def inaccessible_callback(self, name, **kwargs):
+        return super().inaccessible_callback(name, **kwargs)

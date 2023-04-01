@@ -70,17 +70,18 @@ class TestFollow:
         auth.login(**creds)
         followed_id = self.MockFollowed["id"].split("/")[-1]
         if local:
-            follower_id = self.MockFollower["id"].split("/")[-1]
+            follower_id = self.MockFollower["id"]
         else:
-            follower_id = self.MockForeignFollower["id"].split("/")[-1]
-        client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}")
+            follower_id = self.MockForeignFollower["id"]
+        follower_id = urllib.parse.quote(follower_id, safe="")
+        client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
         auth.logout()
 
     """
     Test get all followers
     """
 
-    def test_get_followers(self, client, auth):
+    def test_get_followers(self, client, auth, app):
         # Can login anyone here just to bypass basic auth
         with client:
             auth.register()

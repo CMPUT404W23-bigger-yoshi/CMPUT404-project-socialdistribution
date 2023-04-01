@@ -8,6 +8,11 @@ class LocalFollower(db.Model):
     followed_url: str = db.Column("followed_url", db.Text, db.ForeignKey("author.url"), primary_key=True)
     approved: bool = db.Column("approved", db.Boolean, nullable=False, default=False)
 
+    def __repr__(self) -> str:
+        return (
+            f"<LocalFollower follower: {self.followed_url}, followed: {self.followed_url}, approved: {self.approved}>"
+        )
+
 
 @dataclass
 class NonLocalFollower(db.Model):

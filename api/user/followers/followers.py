@@ -48,7 +48,7 @@ def followers(author_id: str):
         .filter_by(approved=True, followed_url=found_author.url)
         .all()
     )
-    return [author.getJSON() for author in local_followers + non_local_followers]
+    return {"type": "followers", "items": [author.getJSON() for author in local_followers + non_local_followers]}
 
 
 @followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])

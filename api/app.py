@@ -15,7 +15,7 @@ from api import API_ROOT, basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
 from api.admin.APIConfig import APIConfig
-from api.admin.model import AuthAdmin, Connection, ConnectionAdmin
+from api.admin.model import AuthAdmin, Connection, ConnectionAdmin, PostAdmin
 from api.admin.nodes import nodes_bp
 from api.admin.views import Logout, SettingsView
 from api.user.author.model import Author
@@ -62,6 +62,7 @@ def create_app(testing_env=False):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "Fields missing from ruleset", UserWarning)
         admin.add_view(AuthAdmin(Author, db.session))
+        admin.add_view(PostAdmin(Post, db.session))
         admin.add_view(ConnectionAdmin(Connection, db.session))
         admin.add_view(SettingsView(name="Settings", endpoint="settings"))
         admin.add_view(Logout(name="logout", endpoint="Logout"))
