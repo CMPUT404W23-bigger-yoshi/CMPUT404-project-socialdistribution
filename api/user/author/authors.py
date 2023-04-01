@@ -1,5 +1,7 @@
 import base64
+import logging
 import os
+from typing import List
 
 import requests
 from flasgger import swag_from
@@ -7,10 +9,13 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import basic_auth, bcrypt, db
-from api.admin.APIConfig import APIConfig
+from api.admin.outbound_connection import OutboundConnection
+from api.admin.utils import auth_header_for_url
 from api.user.author.docs import author_schema, authors_schema
 from api.user.author.model import Author
-from api.utils import Approval, Role, get_pagination_params
+from api.utils import Approval, Role, cache_request, get_pagination_params
+
+logger = logging.getLogger(__name__)
 
 # note: this blueprint is usually mounted under /authors URL prefix
 authors_bp = Blueprint("authors", __name__)
@@ -93,21 +98,6 @@ def update_author(author_id: str):
     return found_author.getJSON()
 
 
-@authors_bp.route("/<string:author_username>/search/multiple", methods=["GET"])
-def get_author_id_all(author_username: str):
-    found_authors = Author.query.filter(
-        Author.username.like(f"%{author_username}%"), Author.id != current_user.id
-    ).all()
-    # sending get request and saving the response as response object
-    headers = {f"Authorization:": "123"}
-    r = requests.get(url="https://yoshi-connect.herokuapp.com/authors/")
-    # extracting data in json format
-    data = r.json()
-    items = [author.getJSON() for author in found_authors]
-    authors_json = {"type": "authors", "items": items + data["items"]}
-    return authors_json
-
-
 @authors_bp.route("/authenticated_user_id", methods=["GET"])
 @login_required
 def authenticated_user_id():
@@ -147,6 +137,7 @@ def login():
 
     login_user(user)
 
+    # todo (matt): figure out what the below comment means
     # todo redirect hello
     return {
         "message": "Success",
@@ -218,3 +209,28 @@ def get_foreign_author(url: str):
     r = requests.get(url)
     data = r.json()
     return data
+
+
+@authors_bp.route("/<string:author_username>/search/multiple", methods=["GET"])
+def get_author_id_all(author_username: str):
+    local_authors = Author.query.filter(
+        Author.username.like(f"%{author_username}%"), Author.id != current_user.id
+    ).all()
+
+    items = [author.getJSON() for author in local_authors]
+    # this endpoint gets hammered - once per keystroke. good thing there's only a few authors per server :shrug:
+    all_connections: List[OutboundConnection] = OutboundConnection.query.all()
+    logger.info(f"querying {len(all_connections)=} endpoints for authors")
+    # yes, it is sequential (for now)
+    # I do not care
+    for con in all_connections:
+        authors_url = con.endpoint + "authors/"
+        logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
+        try:
+            # nobody will have more than 100 authors, so we don't bother to write the code to query more than that
+            r = cache_request.get(authors_url, headers=auth_header_for_url(authors_url), params={"size": 100})
+            items.extend(r.json()["items"])
+        except Exception as e:
+            logger.exception(f"failed to make request to {authors_url=}:")
+
+    return {"type": "authors", "items": items}

@@ -1,9 +1,12 @@
 import enum
+import json
 import logging
 import random
 import re
 from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from string import ascii_lowercase
+from typing import Any, Dict, Tuple
 
 import requests
 from flask import request
@@ -94,3 +97,46 @@ def randomized_profile_img():
 
 def generate_object_ID() -> str:
     return "".join(map(str, random.choices(ascii_lowercase + "".join(map(str, range(10))), k=16)))
+
+
+@dataclass
+class CachedResponse:
+    time: datetime
+    resp: Any
+
+
+class _RequestCacher:
+    """
+    requests doesn't cache responses, let's roll our own
+    ignore cache control headers
+    embrace client knowing what's best for it
+    (in reality, lots of endpoints don't have cache control implemented, and we hammer endpoints)
+    """
+
+    def __init__(self, cache_time_s: float):
+        self.responses: Dict[Tuple, CachedResponse] = {}
+        self.cache_timedelta = timedelta(seconds=cache_time_s)
+
+    def _retrieve_from_cache_or_make_request(self, key):
+        refresh = True
+        if key in self.responses.keys():
+            cached_resp = self.responses[key]
+            # if now is past the amount of time we intended to cache for...
+            if datetime.now() < (cached_resp.time + self.cache_timedelta):
+                # no need to re-make the request, it's within the caching interval
+                refresh = False
+
+        if refresh:
+            # wow this is really uglier than i intended it to be. too late to go back idc
+            cached_resp = self.responses[key] = CachedResponse(datetime.now(), key[0](*key[1], **json.loads(key[2])))
+
+        return cached_resp.resp
+
+    def get(self, *args, **kwargs):
+        # ok, I'm sorry. I never realized that this way of implementing caching would have been so cursed
+        # I never would have done it
+        key = (requests.get, tuple(args), json.dumps(kwargs, sort_keys=True))
+        return self._retrieve_from_cache_or_make_request(key)
+
+
+cache_request = _RequestCacher(cache_time_s=3)
