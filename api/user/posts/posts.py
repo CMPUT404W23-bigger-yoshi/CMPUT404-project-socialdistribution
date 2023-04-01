@@ -11,20 +11,14 @@ from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
 from api import basic_auth, db
+from api.admin.utils import auth_header_for_url
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
 from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import (
-    Visibility,
-    auth_header_for_url,
-    generate_object_ID,
-    get_author_info,
-    get_object_type,
-    get_pagination_params,
-)
+from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
