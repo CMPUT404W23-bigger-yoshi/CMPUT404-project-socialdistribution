@@ -51,9 +51,8 @@ const Profile = ({ authorUrl }) => {
         setUserFollowStats({
           followers: followersCount
         });
-        //
+
         const posts = await getPosts(splitAuthorUrl(authorUrl));
-        // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
         posts.data.items.forEach((post) => {
           if (post.categories === '') {
             post.categories = [];
