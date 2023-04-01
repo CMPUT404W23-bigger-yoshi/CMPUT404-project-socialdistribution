@@ -81,12 +81,8 @@ export async function updatePost(
   }
 }
 
-export async function getInbox(authorId) {
-  const config = {
-    method: 'get',
-    url: `/authors/${authorId}/inbox`
-  };
-  return axios(config);
+export function getInbox(authorId) {
+  return axios.get(`${authorId}/inbox`);
 }
 
 export async function getLikes(postUrl) {
