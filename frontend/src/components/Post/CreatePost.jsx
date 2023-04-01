@@ -84,13 +84,12 @@ export default function CreatePost(props) {
           <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
         </div>
         <div className='create-post-body'>
-          <div className="post-title">
+          <div className="post-title-text">
             <div className="input-group">
               <input
-                required=""
+                required={true}
                 type="text"
                 name="text"
-                placeholder="Write your post title here..."
                 autoComplete="off"
                 className="input"
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
