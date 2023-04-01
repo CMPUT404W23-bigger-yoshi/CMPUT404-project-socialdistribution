@@ -1,20 +1,16 @@
-from flask import redirect
+from flask import redirect, render_template
 from flask_admin import BaseView, expose
 from flask_login import current_user, logout_user
 
-from api.utils import Role
+from api.admin import RedirectingAuthMixin
 
 
-class SettingsView(BaseView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.role == Role.ADMIN
-
-    def inaccessible_callback(self, name, **kwargs):
-        return super().inaccessible_callback(name, **kwargs)
-
+class SettingsView(BaseView, RedirectingAuthMixin):
     @expose("/")
     def index(self):
-        return self.render("settings.html")
+        return self.render(
+            "settings.html",
+        )
 
 
 class Logout(BaseView):

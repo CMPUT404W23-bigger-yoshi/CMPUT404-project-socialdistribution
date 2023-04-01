@@ -1,15 +1,14 @@
 import enum
-import os
+import logging
 import random
 import re
-import time
 from dataclasses import asdict, dataclass
 from string import ascii_lowercase
 
 import requests
 from flask import request
 
-increment = 0
+logger = logging.getLogger(__name__)
 
 PROFILE_IMG_CHOICES = [
     "https://play.nintendo.com/images/profile-mk-yoshi.babe07bc.7fdea5d658b63e27.png",

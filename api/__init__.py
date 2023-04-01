@@ -27,4 +27,5 @@ formatter = logging.Formatter(
 stdout_handler.setFormatter(formatter)
 logger.addHandler(stdout_handler)
 
+stdout_handler.setLevel(logging.DEBUG)
 logger.setLevel(logging.DEBUG)
