@@ -86,7 +86,7 @@ export function getInbox(authorId) {
 }
 
 export async function getLikes(postUrl) {
-  if (postUrl.match('bigger-yoshi')) {
+  if (postUrl.match(window.location.host)) {
     return await axios.get(`/authors/${postUrl.split('/').pop(-1)}/likes/`);
   }
   const encoded = encodeURIComponent(postUrl);
@@ -95,7 +95,6 @@ export async function getLikes(postUrl) {
 
 export async function likePost(likeObj) {
   const postUrl = likeObj.object;
-  console.log(postUrl);
   if (postUrl.match(window.location.host)) {
     return axios.post(
       `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
@@ -106,16 +105,12 @@ export async function likePost(likeObj) {
   return axios.post(`/authors/foreign/${encoded}/foreign-inbox`, likeObj);
 }
 
-export async function makeComment(authorId, commentObj) {
-  const config = {
-    method: 'post',
-    url: `/authors/${authorId}/inbox/`,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(commentObj)
-  };
-  return await axios(config);
+export function makeComment(commentObj) {
+  const postUrl = commentObj.object;
+  return axios.post(
+    `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+    commentObj
+  );
 }
 
 export async function getComments(postUrl) {

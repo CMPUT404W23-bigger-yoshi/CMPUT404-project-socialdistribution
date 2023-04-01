@@ -149,8 +149,7 @@ const Post = (props) => {
         show={showCommentsModal}
         handleClose={() => setShowCommentsModal(false)}
         comments={commentsSrc}
-        authorId={postDetails.authorId}
-        postId={postDetails.postId}
+        postId={post.id}
       />
       <div className="post">
         <div className="post-container">

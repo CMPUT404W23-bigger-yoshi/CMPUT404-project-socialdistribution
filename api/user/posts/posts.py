@@ -418,7 +418,7 @@ def post_foreign_inbox(author_url: str):
         f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
     )
 
-    res = requests.post(author_url, headers=auth_header_for_url(author_url))
+    res = requests.post(author_url, headers=auth_header_for_url(author_url), json=request.json)
     # note (matt): I didn't come up with this,
     # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
     # We exclude all "hop-by-hop headers" defined by RFC 2616 section 13.5.1 ref.
@@ -747,9 +747,8 @@ def make_comment(json, author_id):
         author_id: ID of the author who made the
     """
 
-    comment_id = json.get("id") + generate_object_ID()
     author_id = json.get("author", {}).get("id")
-    if comment_id is None or author_id is None:
+    if author_id is None:
         return {"message": "Missing fields"}, 400
 
     author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
@@ -765,13 +764,12 @@ def make_comment(json, author_id):
         return {"message": "Missing fields in author"}, 400
 
     # TODO might need a better way
-    post_id = comment_id.split("posts")[1].split("/")[1]
+    post_id = json["object"].split("/")[-1]
     comment = Comment(
         published=json.get("published"),
         comment=json.get("comment"),
         contentType=json.get("contentType"),
         author_id=author.id,
-        id=comment_id,
         post_id=post_id,
     )
     db.session.add(comment)

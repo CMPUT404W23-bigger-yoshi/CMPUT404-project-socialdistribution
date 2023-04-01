@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './Comments.css';
 import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getUserDetails } from '../../services/author';
 import { makeComment } from '../../services/post';
+import { AuthorContext } from '../../context/AuthorContext';
 
 const timeSince = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
@@ -64,7 +65,8 @@ function Comment(props) {
 }
 
 function Comments(props) {
-  const { comments, authorId, postId } = props;
+  const { comments, postId } = props;
+  const { author } = useContext(AuthorContext);
   const [comment, setComment] = React.useState({
     comment: '',
     contentType: 'text/plain'
@@ -157,19 +159,14 @@ function Comments(props) {
           className="actions-button"
           onClick={async () => {
             try {
-              const author = await getUserDetails(authorId);
               const newComment = {
                 ...comment,
                 type: 'comment',
                 published: new Date().toISOString(),
-                author: {
-                  ...author.data
-                },
-                id:
-                  window.location.origin +
-                  `/authors/${authorId}/posts/${postId}/comments/`
+                author,
+                object: `${postId}`
               };
-              const res = await makeComment(authorId, newComment);
+              const res = await makeComment(newComment);
               console.log(res);
             } catch (e) {
               console.log(e);
@@ -197,7 +194,7 @@ function Comments(props) {
 }
 
 function CommentsModal(props) {
-  const { comments, authorId, postId, show, handleClose } = props;
+  const { comments, postId, show, handleClose } = props;
   return (
     <div className="comments-modal">
       <Modal
@@ -208,11 +205,7 @@ function CommentsModal(props) {
         centered
       >
         <Modal.Body>
-          <Comments
-            comments={comments?.comments}
-            authorId={authorId}
-            postId={postId}
-          />
+          <Comments comments={comments?.comments} postId={postId} />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleClose}>Close</Button>
