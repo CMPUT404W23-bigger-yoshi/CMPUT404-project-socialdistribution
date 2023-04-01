@@ -91,7 +91,6 @@ const Post = (props) => {
   }, []);
 
   async function handleLike() {
-    console.log('Debug: handleLike');
     const postOrigin = post.id.split('/').slice(0, 3).join('/');
     try {
       const likeObject = {
