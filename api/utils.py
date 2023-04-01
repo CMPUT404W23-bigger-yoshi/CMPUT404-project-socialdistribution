@@ -1,15 +1,19 @@
 import enum
+import logging
 import os
 import random
 import re
 import time
 from dataclasses import asdict, dataclass
 from string import ascii_lowercase
+from typing import Dict
 
 import requests
 from flask import request
 
-increment = 0
+from api.admin.outbound_connection import OutboundConnection
+
+logger = logging.getLogger(__name__)
 
 PROFILE_IMG_CHOICES = [
     "https://play.nintendo.com/images/profile-mk-yoshi.babe07bc.7fdea5d658b63e27.png",
@@ -95,3 +99,13 @@ def randomized_profile_img():
 
 def generate_object_ID() -> str:
     return "".join(map(str, random.choices(ascii_lowercase + "".join(map(str, range(10))), k=16)))
+
+
+def auth_header_for_url(url: str) -> Dict[str, str]:
+    configured_endpoints = set()
+    for connection in OutboundConnection.query.all():
+        configured_endpoints.add(connection.endpoint)
+        if connection.matches_url(url):
+            return connection.auth_header_dict
+    logger.error(f"Failed to match {url=} with {configured_endpoints=}")
+    return {}  # is it bad to fail silently? yes. i know. I'm well aware.

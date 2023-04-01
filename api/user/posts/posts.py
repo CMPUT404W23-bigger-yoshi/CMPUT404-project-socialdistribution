@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 import requests
 from flasgger import swag_from
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flask_login import login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
@@ -17,7 +17,14 @@ from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
+from api.utils import (
+    Visibility,
+    auth_header_for_url,
+    generate_object_ID,
+    get_author_info,
+    get_object_type,
+    get_pagination_params,
+)
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -379,6 +386,55 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
+@posts_bp.route("/<string:author_url>/foreign-inbox", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
+        "description": "Send a like, comment, follow or post to a foreign author's inbox having id as author_id",
+        "parameters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
+            {
+                "in": "body",
+                "required": "true",
+                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "Object to be sent to inbox",
+            },
+        ],
+        "responses": {
+            201: {
+                "description": "Post/follow/like/comment sent to inbox successfully",
+                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            },
+            400: {
+                "description": "Request body contains invalid data.",
+                "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
+            },
+        },
+    }
+)
+@basic_auth.required
+def post_foreign_inbox(author_url: str):
+    # assumption: author_id  will be a fully qualified URL
+    parsed = urlparse(author_url)
+    if not all([parsed.scheme, parsed.netloc]):
+        logger.error("you are calling the wrong inbox endpoint. This one expects a fully qualified URL in all cases :/")
+        return {"message": "You gave use a shit author url dawg", "success": 0}
+
+    logger.info(
+        f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
+    )
+
+    res = requests.post(author_url, headers=auth_header_for_url(author_url))
+    # note (matt): I didn't come up with this,
+    # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
+    # We exclude all "hop-by-hop headers" defined by RFC 2616 section 13.5.1 ref.
+    # https://www.rfc-editor.org/rfc/rfc2616#section-13.5.1
+    excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+    headers = {(k, v) for k, v in res.raw.headers.items() if k.lower() not in excluded_headers}
+
+    return Response(res.content, res.status_code, headers)
+
+
 # todo check
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
@@ -598,7 +654,9 @@ def fanout_to_foreign_inbox(post, author_id):
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
         foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
         try:
-            resp = requests.post(foreign_inbox_url, data={**post_to_send})
+            resp = requests.post(
+                foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
+            )
             logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
