@@ -82,12 +82,15 @@ export const checkIfFollowing = async (authorId, foreignAuthorId) => {
 };
 
 export const getFollowersCount = async (authorUrl) => {
-  if (authorUrl.split('//')[1].split('/')[0].startsWith(window.location.host)) {
-    const id = authorUrl.split('?').pop(-1).split('q=')[1];
-    const data = await axios.get(`/authors/${id}/followers/count`);
-    return data.data.count;
+  const query = authorUrl.split('?').pop(-1).split('q=')[1];
+  console.log('Debug: ' + query)
+  if (query.match('bigger-yoshi')) {
+    const res = await axios.get(`/authors/${query.split('/').pop(-1)}/followers/count`);
+    return res.data.count;
   }
-  return 0;
+  const encoded = encodeURIComponent(query);
+  const res = await axios.get(`/authors/foreign/${encoded}/followers/`);
+  return res.data.items.length;
 };
 
 export const sendFollowRequest = async (follower, toFollow) => {

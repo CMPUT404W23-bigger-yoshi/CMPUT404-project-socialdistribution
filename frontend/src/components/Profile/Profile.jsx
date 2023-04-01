@@ -38,10 +38,10 @@ const Profile = ({ authorUrl }) => {
         const user = await getUserDetails(authorUrl);
         setUser(user.data);
 
-        // const followersCount = await getFollowersCount(authorUrl);
-        // setUserFollowStats({
-        //   followers: followersCount
-        // });
+        const followersCount = await getFollowersCount(authorUrl);
+        setUserFollowStats({
+          followers: followersCount
+        });
         //
         // const posts = await getPosts(authorUrl);
         // // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
@@ -56,7 +56,7 @@ const Profile = ({ authorUrl }) => {
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, [authorUrl]);
+  }, [authorUrl, location]);
 
   if (user === null) {
     return <></>;
