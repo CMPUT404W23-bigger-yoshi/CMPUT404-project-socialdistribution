@@ -81,7 +81,9 @@ export const checkIfFollowing = async (authorId, foreignAuthorId) => {
 
 export const getFollowersCount = async (authorUrl) => {
   if (authorUrl.match('bigger-yoshi')) {
-    const res = await axios.get(`/authors/${authorUrl.split('/').pop(-1)}/followers/count`);
+    const res = await axios.get(
+      `/authors/${authorUrl.split('/').pop(-1)}/followers/count`
+    );
     return res.data.count;
   }
   const encoded = encodeURIComponent(authorUrl);

@@ -23,7 +23,7 @@ const splitAuthorUrl = (authorUrl) => {
   } else {
     return authorUrl;
   }
-}
+};
 
 const Profile = ({ authorUrl }) => {
   console.log('top', authorUrl);
@@ -47,7 +47,9 @@ const Profile = ({ authorUrl }) => {
         const user = await getUserDetails(splitAuthorUrl(authorUrl));
         setUser(user.data);
 
-        const followersCount = await getFollowersCount(splitAuthorUrl(authorUrl));
+        const followersCount = await getFollowersCount(
+          splitAuthorUrl(authorUrl)
+        );
         setUserFollowStats({
           followers: followersCount
         });
