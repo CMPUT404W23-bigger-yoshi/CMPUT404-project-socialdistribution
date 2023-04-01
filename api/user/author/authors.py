@@ -1,4 +1,5 @@
 import base64
+import os
 
 import requests
 from flasgger import swag_from
@@ -171,6 +172,37 @@ def register_user():
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
         host=request.host,
+        approval=Approval.PENDING,
+        role=Role.USER,
+    )
+    db.session.add(user)
+    db.session.commit()
+    login_user(user)
+
+    return {"message": "Success"}, 200
+
+
+@authors_bp.route("/create-admin/", methods=["POST"])
+def create_admin():
+    data = request.json
+    secret = data.get("secret-admin")
+    if secret != os.environ.get("SECRET_ADMIN"):
+        return {"Not permitted"}, 401
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username is None or password is None:
+        return {"Missing fields"}, 400
+
+    user_exists = Author.query.filter_by(username=username).first()
+    if user_exists:
+        return {"message": "User Already exists"}, 409
+
+    user = Author(
+        username=username,
+        password=bcrypt.generate_password_hash(password).decode("utf-8"),
+        host=request.host,
         approval=Approval.APPROVED,
         role=Role.ADMIN,
     )
@@ -178,7 +210,7 @@ def register_user():
     db.session.commit()
     login_user(user)
 
-    return {"message": "Success"}, 200
+    return {"message": "Success"}, 201
 
 
 @authors_bp.route("/foreign/<path:url>", methods=["GET"])
