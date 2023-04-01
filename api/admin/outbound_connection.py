@@ -23,7 +23,7 @@ class OutboundConnection(db.Model):
         if None in (self.password, self.username):
             raise ValueError(f"REFUSING TO GENERATE CREDENTIALS because user/pass is None!")
         # encoded the string in bytes, b64encode those bytes, then decode those bytes to str
-        return f"Basic " + base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
+        return {"Authorization": f"Basic " + base64.b64encode(f"{self.username}:{self.password}".encode()).decode()}
 
     def matches_url(self, url: str):
         return url.startswith(self.endpoint)
