@@ -491,8 +491,6 @@ def make_post_local(data, author_id, post_id=None):
     required_fields = [
         "published",
         "title",
-        "origin",
-        "source",
         "description",
         "content",
         "contentType",
@@ -532,8 +530,6 @@ def make_post_local(data, author_id, post_id=None):
             id=post_id,
             published=data.get("published"),
             title=data.get("title"),
-            origin=data.get("origin"),
-            source=data.get("source"),
             description=data.get("description"),
             content=data.get("content"),
             contentType=data.get("contentType"),

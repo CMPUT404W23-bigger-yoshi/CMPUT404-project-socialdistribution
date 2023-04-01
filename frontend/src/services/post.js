@@ -20,8 +20,6 @@ export async function generatePostId(author, postContent) {
       ...postContent,
       author,
       published: new Date().toISOString(),
-      origin: '',
-      source: '',
       description: ''
     };
     const config = {
