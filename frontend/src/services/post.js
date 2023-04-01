@@ -95,8 +95,12 @@ export async function getLikes(postUrl) {
 
 export async function likePost(likeObj) {
   const postUrl = likeObj.object;
-  if (postUrl.match('bigger-yoshi')) {
-    return axios.post(`/authors/${postUrl.split('/').pop(-3)}/inbox/`, likeObj);
+  console.log(postUrl);
+  if (postUrl.match(window.location.host)) {
+    return axios.post(
+      `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+      likeObj
+    );
   }
   const encoded = encodeURIComponent(postUrl);
   return axios.post(`/authors/foreign/${encoded}/foreign-inbox`, likeObj);

@@ -461,8 +461,6 @@ def post_inbox(author_id: str):
     """
     Sends the post/like/follow/comment to the inbox of the author with author_id
     """
-    # todo remaining @matt:
-    #   comment
 
     data = request.json
     post_type = data["type"].lower()
@@ -537,7 +535,6 @@ def make_post_local(data, author_id, post_id=None):
     try:
         post = Post(
             id=post_id,
-            url=f"http://{request.headers['Host']}/{meant_for.id}/posts/{post_id}",
             published=data.get("published"),
             title=data.get("title"),
             origin=data.get("origin"),
@@ -661,6 +658,7 @@ def fanout_to_foreign_inbox(post, author_id):
 
 def make_like(json, author_id):
     # Author's inbox must exist on server
+    logger.debug(f"Like to author: {author_id}")
     Author.query.filter_by(id=author_id).first_or_404()
 
     data = request.json

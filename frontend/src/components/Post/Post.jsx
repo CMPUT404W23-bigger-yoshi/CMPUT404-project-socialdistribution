@@ -91,7 +91,6 @@ const Post = (props) => {
   }, []);
 
   async function handleLike() {
-    const postOrigin = post.id.split('/').slice(0, 3).join('/');
     try {
       const likeObject = {
         type: 'Like',
@@ -99,9 +98,7 @@ const Post = (props) => {
         author: {
           ...userDetails
         },
-        object:
-          postOrigin +
-          `/authors/${postDetails.authorId}/posts/${postDetails.postId}`
+        object: post.id
       };
       const res = await likePost(likeObject);
       console.log(res);
