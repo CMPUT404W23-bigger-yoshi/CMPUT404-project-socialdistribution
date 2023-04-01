@@ -268,8 +268,8 @@ const Post = (props) => {
                   variant="dark"
                   onClick={() => setShowCommentsModal(true)}
                 >
-                  <ChatLeftTextFill />{' '}
-                  {Math.max(post.count, commentsSrc?.comments?.length)}{' '}
+                  <ChatLeftTextFill />
+                  {commentsSrc?.comments ? commentsSrc.comments.length : 0}
                 </Button>
               </div>
             </Col>
