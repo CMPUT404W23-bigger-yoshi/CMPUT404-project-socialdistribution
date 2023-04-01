@@ -8,6 +8,7 @@ from flask_login import current_user
 from sqlalchemy import Enum
 
 from api import db
+from api.admin import RedirectingAuthMixin
 from api.utils import Approval, Role
 
 
@@ -28,7 +29,7 @@ class InboundConnection(db.Model):
     approval: Approval = db.Column(Enum(Approval), nullable=False, default=_default_approval_from_config)
 
 
-class InboundConnectionView(sqla.ModelView):
+class InboundConnectionView(sqla.ModelView, RedirectingAuthMixin):
     can_view_details = True
 
     column_list = ["username", "email", "approval"]
