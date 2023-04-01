@@ -42,7 +42,7 @@
     function login() {
         const username = document.querySelector("#username").value;
         const password = document.querySelector("#password").value;
-        const url = "/admin/action/login";
+        const url = "{{ admin_endpoint }}/login";
         $.ajax({
             url: url,
             type: "POST",
