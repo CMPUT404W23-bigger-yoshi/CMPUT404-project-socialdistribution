@@ -39,7 +39,11 @@ function Comment(props) {
     <div className="comment">
       <div className="d-flex">
         <img
-          src={profileImage !== '' ? profileImage : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
+          src={
+            profileImage !== ''
+              ? profileImage
+              : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+          }
           alt="profile"
           className="rounded-circle"
         />
