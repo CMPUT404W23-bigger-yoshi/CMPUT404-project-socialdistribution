@@ -6,8 +6,13 @@ export function getPost(authorId, postId) {
   return axios.get(`/authors/${authorId}/posts/${postId}`);
 }
 
-export function getPosts(authorId) {
-  return axios.get(`/authors/${authorId}/posts/`);
+export function getPosts(authorUrl) {
+  const query = authorUrl.split('?').pop(-1).split('q=')[1];
+  if (query.match('bigger-yoshi')) {
+    return axios.get(`/authors/${query.split('/').pop(-1)}/posts/`);
+  }
+  const encoded = encodeURIComponent(query);
+  return axios.get(`/authors/foreign/${encoded}/posts`);
 }
 
 export async function generatePostId(author, postContent) {

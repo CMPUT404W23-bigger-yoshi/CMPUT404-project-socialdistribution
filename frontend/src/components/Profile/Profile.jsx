@@ -43,14 +43,14 @@ const Profile = ({ authorUrl }) => {
           followers: followersCount
         });
         //
-        // const posts = await getPosts(authorUrl);
-        // // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
-        // posts.data.items.forEach((post) => {
-        //   if (post.categories === '') {
-        //     post.categories = [];
-        //   }
-        // });
-        // setPosts(posts.data);
+        const posts = await getPosts(authorUrl);
+        // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
+        posts.data.items.forEach((post) => {
+          if (post.categories === '') {
+            post.categories = [];
+          }
+        });
+        setPosts(posts.data);
       } catch (err) {
         console.log(err);
       }
