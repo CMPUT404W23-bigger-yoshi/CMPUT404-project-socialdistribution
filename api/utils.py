@@ -139,4 +139,4 @@ class _RequestCacher:
         return self._retrieve_from_cache_or_make_request(key)
 
 
-cache_request = _RequestCacher(cache_time_s=10)
+cache_request = _RequestCacher(cache_time_s=3)
