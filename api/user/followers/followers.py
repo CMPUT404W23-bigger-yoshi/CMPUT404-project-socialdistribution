@@ -37,12 +37,18 @@ followers_bp = Blueprint("followers", __name__)
 def followers(author_id: str):
     """Get a list of authors who are author_id’s followers"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
-    # todo : do we need to ask for more information? unless required will cause response
-    #  failure if other teams node throws an error
-    non_local_followers = list(found_author.non_local_follows.all())
-    local_followers = list(found_author.follows.all())
-    local_followers = local_followers + non_local_followers
-    return jsonify(local_followers)
+
+    local_followers = (
+        Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
+        .filter_by(approved=True, followed_url=found_author.url)
+        .all()
+    )
+    non_local_followers = (
+        NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == NonLocalFollower.follower_url)
+        .filter_by(approved=True, followed_url=found_author.url)
+        .all()
+    )
+    return [author.getJSON() for author in local_followers + non_local_followers]
 
 
 @followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
@@ -101,8 +107,11 @@ def add_follower(followed_id: str, follower_id: str):
     Add follower_id (local or remote) as a follower of followed_id (local) as a follower of author_id
     """
     # I don't care we're fetching more than we need to here
-    foreign_follow = NonLocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
-    local_follow = LocalFollower.query.filter_by(followed_url=followed_id, follower_url=follower_id).first()
+    followed_author = Author.query.filter_by(id=followed_id).first_or_404()
+    foreign_follow = NonLocalFollower.query.filter_by(
+        followed_url=followed_author.url, follower_url=follower_id
+    ).first()
+    local_follow = LocalFollower.query.filter_by(followed_url=followed_author.url, follower_url=follower_id).first()
 
     for follow_state in [foreign_follow, local_follow]:
         # assume no collision between these 2 tables, ie, if one record is found in one table to be approved,
@@ -170,12 +179,12 @@ def get_follow_notification(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
     local_followers = (
         Author.query.join(LocalFollower, Author.url == LocalFollower.follower_url)
-        .filter_by(approved=0, followed_url=author_id)
+        .filter_by(approved=False, followed_url=author.url)
         .all()
     )
     non_local_followers = (
-        NonLocalAuthor.query.join(LocalFollower, NonLocalAuthor.url == LocalFollower.follower_url)
-        .filter_by(approved=0, followed_url=author_id)
+        NonLocalAuthor.query.join(NonLocalFollower, NonLocalAuthor.url == NonLocalFollower.follower_url)
+        .filter_by(approved=False, followed_url=author.url)
         .all()
     )
     res = [{"author": {**follower.getJSON()}, "type": "follow"} for follower in local_followers + non_local_followers]

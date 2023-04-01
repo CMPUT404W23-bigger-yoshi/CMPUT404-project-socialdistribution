@@ -21,6 +21,7 @@ module.exports = {
     semi: 'off',
     'multiline-ternary': 'off',
     'react/no-children-prop': 'off',
-    indent: 'off'
+    indent: 'off',
+    'no-unused-vars': 'off'
   }
 };

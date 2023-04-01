@@ -14,7 +14,7 @@ from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
 
 def _constructURL(context):
-    host = "https://bigger-yoshi.herokuapp.com/"
+    host = "https://bigger-yoshi.herokuapp.com/api/"
     authorId = context.get_current_parameters()["id"]
     return host + "authors/" + authorId
 
@@ -29,7 +29,7 @@ def _default_approval_from_config(context):
 @dataclass
 class Author(UserMixin, db.Model):
     id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
-    url: str = db.Column("url", db.Text, nullable=True, unique=False, default=_constructURL)
+    url: str = db.Column("url", db.Text, nullable=True, unique=True, default=_constructURL)
     host: str = db.Column("host", db.Text, nullable=False)
     username: str = db.Column("username", db.Text, nullable=False, unique=True)
     password: str = db.Column("password", db.Text, nullable=False)

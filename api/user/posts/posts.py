@@ -140,6 +140,7 @@ def create_post_auto_gen_id(author_id: str):
 
     # todo: eh error handling remains
     fanout_to_local_inbox(post, author_id)
+    fanout_to_foreign_inbox(post, author_id)
 
     return {"message": "Successfully created new post"}, 201
 
@@ -586,24 +587,24 @@ def fanout_to_local_inbox(post: Post, author: str = None):
 
 
 def fanout_to_foreign_inbox(post, author_id):
-    author_url = f"http://{request.headers['Host']}/authors/{author_id}"
+    author = Author.query.filter_by(id=author_id).first()
+    logger.info(f"Finding foreign authors for ${author}")
+    author_url = author.url
     all_foreign = NonLocalFollower.query.filter_by(followed_url=author_url).all()
-    logger.debug(f"logging to {len(all_foreign)} endpoints")
+    logger.info(f"logging to {len(all_foreign)} endpoints")
     post_to_send = post.getJSON()
     for foreign in all_foreign:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox"
+        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
         try:
-            resp = requests.post(
-                foreign_inbox_url, data={"type": "inbox", "author": author_url, "items": [post_to_send]}
-            )
-            logger.debug(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
+            resp = requests.post(foreign_inbox_url, data={**post_to_send})
+            logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
-                logger.warning("non-300 status code!!!")
+                logger.info("non-300 status code!!!")
         except:
-            logger.exception("failed to send to foreign author: ")
+            logger.info("failed to send to foreign author: ")
 
 
 def make_like(json, author_id):
@@ -655,6 +656,7 @@ def make_like(json, author_id):
 
 
 def make_follow(json, author_id):
+    logger.info("Received data:", json)
     if not (followed_object := json.get("object")):
         return {"success": 0, "message": "object key must be specified for inbox!"}, 400
 
@@ -682,7 +684,7 @@ def make_follow(json, author_id):
     if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id).first():
         return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
 
-    db.session.add(FollowTable(follower_url=actor["url"], followed_url=author_id, approved=False))
+    db.session.add(FollowTable(follower_url=actor["url"], followed_url=followed_object["url"], approved=False))
     db.session.commit()
     return {"success": 1, "message": "Follow request has been sent!"}
 

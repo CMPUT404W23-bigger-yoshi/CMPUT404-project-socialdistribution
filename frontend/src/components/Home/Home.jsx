@@ -1,10 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  getCurrentUserId,
-  getUserById,
-  getUserDetails
-} from '../../services/author';
+import { getCurrentUserId, getUserById } from '../../services/author';
 import './Home.css';
 import Sidebar from '../Sidebar/Sidebar';
 import Post from '../Post/Post';
