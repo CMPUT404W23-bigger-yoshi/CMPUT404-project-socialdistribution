@@ -24,8 +24,19 @@ export const getCurrentUserId = async () => {
   return await axios.get('/authors/authenticated_user_id');
 };
 
-export const getCurrentUserDetails = async (authorId) => {
-  return await axios.get(`/authors/${authorId}`);
+export const getUserDetails = async (authorUrl) => {
+  console.log('call');
+  const query = authorUrl.split('?').pop(-1).split('q=')[1];
+  if (query.match('bigger-yoshi')) {
+    console.log(`/authors/${query.split('/').pop(-1)}`);
+    return await axios.get(`/authors/${query.split('/').pop(-1)}`);
+  }
+  const encoded = encodeURIComponent(query);
+  return await axios.get(`/authors/foreign/${encoded}`);
+};
+
+export const getUserById = async (authorId) => {
+  return axios.get(`/authors/${authorId}`);
 };
 
 export const updateCurrentUserDetails = async (authorId, data) => {
@@ -52,7 +63,11 @@ export const searchMultipleUsers = async (username) => {
   return await axios.get(`/authors/${username}/search/multiple`);
 };
 
-export const followUser = async (authorId, foreignAuthorId) => {
+export const approveFollowRequest = async (authorId, followObject) => {
+  return await axios.post(`/authors/${authorId}/inbox/`, followObject);
+};
+
+export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
   return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
 };
 
@@ -66,10 +81,33 @@ export const checkIfFollowing = async (authorId, foreignAuthorId) => {
   return await axios.get(`/authors/${authorId}/followers/${foreignAuthorId}/`);
 };
 
-export const getFollowersCount = async (authorId) => {
-  return await axios.get(`/authors/${authorId}/followers/count/`);
+export const getFollowersCount = async (authorUrl) => {
+  if (authorUrl.split('//')[1].split('/')[0].startsWith(window.location.host)) {
+    const id = authorUrl.split('?').pop(-1).split('q=')[1];
+    const data = await axios.get(`/authors/${id}/followers/count`);
+    return data.data.count;
+  }
+  return 0;
 };
 
-export const getFollowingCount = async (authorId) => {
-  return await axios.get(`/authors/${authorId}/following/count/`);
+export const sendFollowRequest = async (follower, toFollow) => {
+  const data = {
+    type: 'Follow',
+    summary: `${follower?.displayName} wants to follow ${toFollow?.displayName}`,
+    actor: {
+      type: 'author',
+      ...follower
+    },
+    object: {
+      type: 'author',
+      ...toFollow
+    }
+  };
+  return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox`, {
+    ...data
+  });
+};
+
+export const getFollowRequests = (authorId) => {
+  return axios.get(`/authors/${authorId}/follow-requests`);
 };

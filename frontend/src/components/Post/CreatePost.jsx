@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './CreatePost.css';
 import { Button, Col, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
@@ -6,11 +6,13 @@ import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
 import { generatePostId, updatePost } from '../../services/post';
 import { getCurrentUserId } from '../../services/author';
+import { AuthorContext } from '../../context/AuthorContext';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
   const [showPreview, setShowPreview] = useState(false);
   const [image, setImage] = useState(null);
+  const { author } = useContext(AuthorContext);
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -30,7 +32,7 @@ export default function CreatePost(props) {
     try {
       const userId = await getCurrentUserId();
       console.log(post.contentType);
-      const postId = await generatePostId(userId.data.id, post);
+      const postId = await generatePostId(author, post);
       console.log(postId);
     } catch (err) {
       console.log(err);

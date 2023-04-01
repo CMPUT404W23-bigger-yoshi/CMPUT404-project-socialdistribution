@@ -38,8 +38,8 @@ function Sidebar() {
             if (selected.length > 0) {
               // Get the last part of the URL (that is the id)
               setUsernames([]);
-              const id = selected[0].id.split('/').pop();
-              navigate(`/authors/${id}`);
+              const id = selected[0].id;
+              navigate(`/authors?q=${id}`);
             }
           }}
           onInputChange={(username) => {

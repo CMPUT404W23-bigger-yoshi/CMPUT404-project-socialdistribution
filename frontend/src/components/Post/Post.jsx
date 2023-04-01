@@ -20,7 +20,7 @@ import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
 import { useLocation } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
-import { getCurrentUserDetails } from '../../services/author';
+import { getUserDetails } from '../../services/author';
 
 const Post = (props) => {
   const [post, setPost] = useState(props.post);
@@ -95,7 +95,7 @@ const Post = (props) => {
 
   async function handleLike() {
     try {
-      const userDetails = await getCurrentUserDetails(props.currentUser);
+      const userDetails = await getUserDetails(props.currentUser);
       const likeObject = {
         type: 'Like',
         summary: `${userDetails.data.displayName} liked your post`,
