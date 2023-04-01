@@ -25,13 +25,11 @@ export const getCurrentUserId = async () => {
 };
 
 export const getUserDetails = async (authorUrl) => {
-  console.log('call');
-  const query = authorUrl.split('?').pop(-1).split('q=')[1];
-  if (query.match('bigger-yoshi')) {
-    console.log(`/authors/${query.split('/').pop(-1)}`);
-    return await axios.get(`/authors/${query.split('/').pop(-1)}`);
+  if (authorUrl.match('bigger-yoshi')) {
+    console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
+    return await axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
-  const encoded = encodeURIComponent(query);
+  const encoded = encodeURIComponent(authorUrl);
   return await axios.get(`/authors/foreign/${encoded}`);
 };
 
@@ -82,12 +80,15 @@ export const checkIfFollowing = async (authorId, foreignAuthorId) => {
 };
 
 export const getFollowersCount = async (authorUrl) => {
-  if (authorUrl.split('//')[1].split('/')[0].startsWith(window.location.host)) {
-    const id = authorUrl.split('?').pop(-1).split('q=')[1];
-    const data = await axios.get(`/authors/${id}/followers/count`);
-    return data.data.count;
+  if (authorUrl.match('bigger-yoshi')) {
+    const res = await axios.get(
+      `/authors/${authorUrl.split('/').pop(-1)}/followers/count`
+    );
+    return res.data.count;
   }
-  return 0;
+  const encoded = encodeURIComponent(authorUrl);
+  const res = await axios.get(`/authors/foreign/${encoded}/followers/`);
+  return res.data.items.length;
 };
 
 export const sendFollowRequest = async (follower, toFollow) => {

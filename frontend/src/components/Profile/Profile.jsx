@@ -8,13 +8,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   checkIfFollowing,
   getUserDetails,
-  getCurrentUserId,
   getFollowersCount,
   unfollowUser,
   sendFollowRequest
 } from '../../services/author';
 import { getPosts } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
+
+const splitAuthorUrl = (authorUrl) => {
+  if (authorUrl === undefined) {
+    return '';
+  } else if (authorUrl.includes('?')) {
+    return authorUrl.split('?').pop(-1).split('q=')[1];
+  } else {
+    return authorUrl;
+  }
+};
 
 const Profile = ({ authorUrl }) => {
   console.log('top', authorUrl);
@@ -35,28 +44,29 @@ const Profile = ({ authorUrl }) => {
     const fetchUserId = async () => {
       try {
         console.log(authorUrl);
-        const user = await getUserDetails(authorUrl);
+        const user = await getUserDetails(splitAuthorUrl(authorUrl));
         setUser(user.data);
 
-        // const followersCount = await getFollowersCount(authorUrl);
-        // setUserFollowStats({
-        //   followers: followersCount
-        // });
-        //
-        // const posts = await getPosts(authorUrl);
-        // // In all posts in posts.data.items array, replace the categories with an empty array if categories == ''
-        // posts.data.items.forEach((post) => {
-        //   if (post.categories === '') {
-        //     post.categories = [];
-        //   }
-        // });
-        // setPosts(posts.data);
+        const followersCount = await getFollowersCount(
+          splitAuthorUrl(authorUrl)
+        );
+        setUserFollowStats({
+          followers: followersCount
+        });
+
+        const posts = await getPosts(splitAuthorUrl(authorUrl));
+        posts.data.items.forEach((post) => {
+          if (post.categories === '') {
+            post.categories = [];
+          }
+        });
+        setPosts(posts.data);
       } catch (err) {
         console.log(err);
       }
     };
     fetchUserId().catch((err) => console.log(err));
-  }, [authorUrl]);
+  }, [authorUrl, location]);
 
   if (user === null) {
     return <></>;
