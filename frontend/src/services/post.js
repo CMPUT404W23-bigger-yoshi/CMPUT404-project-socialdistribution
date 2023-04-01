@@ -7,11 +7,10 @@ export function getPost(authorId, postId) {
 }
 
 export function getPosts(authorUrl) {
-  const query = authorUrl.split('?').pop(-1).split('q=')[1];
-  if (query.match('bigger-yoshi')) {
-    return axios.get(`/authors/${query.split('/').pop(-1)}/posts/`);
+  if (authorUrl.match('bigger-yoshi')) {
+    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}/posts/`);
   }
-  const encoded = encodeURIComponent(query);
+  const encoded = encodeURIComponent(authorUrl);
   return axios.get(`/authors/foreign/${encoded}/posts`);
 }
 
