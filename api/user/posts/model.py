@@ -3,19 +3,19 @@ from dataclasses import asdict, dataclass
 from flask import jsonify
 from sqlalchemy import Enum, event
 
-from api import db
-from api.user.author.model import Author, NonLocalAuthor, api_base
+from api import API_BASE, db
+from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
 
-def _constructURL(context):
+def construct_url(context):
     id = context.get_current_parameters()["id"]
     author_id = context.get_current_parameters()["author"]
-    url = f"{api_base}authors/{author_id}/posts/{id}"
+    url = f"{API_BASE}authors/{author_id}/posts/{id}"
     return url
 
 
-def _constructHostOrigin(context):
+def construct_host_origin(context):
     return context.get_current_parameters()["url"]
 
 
@@ -29,12 +29,12 @@ inbox_table = db.Table(
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.Text, default=_constructURL)
+    url: str = db.Column(db.Text, default=construct_url)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
-    origin: str = db.Column("origin", db.Text, nullable=False, default=_constructHostOrigin)
+    origin: str = db.Column("origin", db.Text, nullable=False, default=construct_host_origin)
     # server -> the last server from which this post was sent into the inbox of the receiver
-    source: str = db.Column("source", db.Text, nullable=False, default=_constructHostOrigin)
+    source: str = db.Column("source", db.Text, nullable=False, default=construct_host_origin)
     description: str = db.Column("shortDesc", db.Text)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)

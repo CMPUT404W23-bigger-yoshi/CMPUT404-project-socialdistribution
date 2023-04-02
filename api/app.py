@@ -11,7 +11,7 @@ from flask_cors import CORS
 from sqlalchemy import URL
 
 import api.user.followers.model
-from api import API_ROOT, basic_auth, bcrypt, db, login_manager
+from api import API_PATH, basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
 from api.admin.APIAuth import APIAuth
 from api.admin.APIConfig import APIConfig
@@ -46,10 +46,10 @@ def create_app(testing_env=False):
         # otherwise, we should be serving a frontend resource here
         return send_from_directory(app.static_folder, path)
 
-    ADMIN_ENDPOINT = f"{API_ROOT}/admin/action"
+    ADMIN_ENDPOINT = f"{API_PATH}/admin/action"
 
-    app.register_blueprint(user_bp, url_prefix=f"{API_ROOT}/authors")
-    app.register_blueprint(nodes_bp, url_prefix=f"{API_ROOT}/nodes")
+    app.register_blueprint(user_bp, url_prefix=f"{API_PATH}/authors")
+    app.register_blueprint(nodes_bp, url_prefix=f"{API_PATH}/nodes")
     app.register_blueprint(actions_bp, url_prefix=ADMIN_ENDPOINT)
 
     app.config.from_object("api.config.Config")

@@ -2,7 +2,7 @@ import pytest
 from flask import session
 from flask_login import current_user
 
-from api import API_ROOT
+from api import API_PATH
 from api.tests.resources.mock_authors import *
 from api.user.author.model import Author
 
@@ -14,7 +14,7 @@ class TestAuthUnit:
     """
 
     def test_register(self, client, app):
-        response = client.post(f"{API_ROOT}/authors/register", json={"username": "test", "password": "test"})
+        response = client.post(f"{API_PATH}/authors/register", json={"username": "test", "password": "test"})
 
         assert response.status_code == 200
 
@@ -33,7 +33,7 @@ class TestAuthUnit:
         ),
     )
     def test_register_invalid_input(self, client, username, password, response_code):
-        response = client.post(f"{API_ROOT}/authors/register", json={"username": username, "password": password})
+        response = client.post(f"{API_PATH}/authors/register", json={"username": username, "password": password})
 
         assert response.status_code == response_code
 
@@ -56,7 +56,7 @@ class TestAuthUnit:
         auth.register()
         auth.login()
 
-        response = client.post(f"{API_ROOT}/authors/logout")
+        response = client.post(f"{API_PATH}/authors/logout")
         assert response.status_code == 200
 
 
@@ -75,13 +75,13 @@ class TestAuthorAPI:
         cred1 = {"username": mock_author1["displayName"], "password": "123"}
         cred2 = {"username": mock_author2["displayName"], "password": "123"}
 
-        register = client.post(f"{API_ROOT}/authors/register", json=cred1)
+        register = client.post(f"{API_PATH}/authors/register", json=cred1)
         assert register.status_code == 200
 
-        register = client.post(f"{API_ROOT}/authors/register", json=cred2)
+        register = client.post(f"{API_PATH}/authors/register", json=cred2)
         assert register.status_code == 200
 
-        response = client.get(f"{API_ROOT}/authors", follow_redirects=True)
+        response = client.get(f"{API_PATH}/authors", follow_redirects=True)
         assert response.status_code == 200
         data = response.json
 
@@ -113,7 +113,7 @@ class TestAuthorAPI:
 
         id = test_author.id
 
-        response = client.get(f"{API_ROOT}/authors/{id}", follow_redirects=True)
+        response = client.get(f"{API_PATH}/authors/{id}", follow_redirects=True)
         assert response.status_code == 200
 
         author = response.json
@@ -141,7 +141,7 @@ class TestAuthorAPI:
         new_data["displayName"] = "modified"
 
         # Check updated author username
-        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        response = client.post(f"{API_PATH}/authors/{id}", json=new_data, follow_redirects=True)
         assert response.status_code == 200
         data = response.json
 
@@ -166,7 +166,7 @@ class TestAuthorAPI:
         new_data["displayName"] = "modified"
 
         # Check updated author username
-        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        response = client.post(f"{API_PATH}/authors/{id}", json=new_data, follow_redirects=True)
         assert response.status_code == 200
         data = response.json
 
@@ -186,7 +186,7 @@ class TestAuthorAPI:
 
         new_data["displayName"] = "modified"
 
-        response = client.post(f"{API_ROOT}/authors/{id}", json=new_data, follow_redirects=True)
+        response = client.post(f"{API_PATH}/authors/{id}", json=new_data, follow_redirects=True)
         assert response.status_code == 409  # User with username "modified" was just updated
 
     """
@@ -196,7 +196,7 @@ class TestAuthorAPI:
     def test_own_update_only(self, client, auth, app):
         with client:
             creds = {"username": "user2", "password": "123"}
-            client.post(f"{API_ROOT}/authors/register", json=creds, follow_redirects=True)
+            client.post(f"{API_PATH}/authors/register", json=creds, follow_redirects=True)
 
             with app.app_context():
                 user2 = Author.query.filter_by(username=creds["username"]).first()
@@ -205,7 +205,7 @@ class TestAuthorAPI:
             auth.register()
             auth.login()
             client.post(
-                f"{API_ROOT}/authors/login", json={"username": "test", "password": "test"}, follow_redirects=True
+                f"{API_PATH}/authors/login", json={"username": "test", "password": "test"}, follow_redirects=True
             )
-            response = client.post(f"{API_ROOT}/authors/{user2.id}", json=json, follow_redirects=True)
+            response = client.post(f"{API_PATH}/authors/{user2.id}", json=json, follow_redirects=True)
             assert response.status_code == 401

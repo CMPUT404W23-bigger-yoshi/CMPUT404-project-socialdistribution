@@ -1,6 +1,6 @@
 import pytest
 
-from api import API_ROOT
+from api import API_PATH
 from api.app import create_app, db
 
 
@@ -9,13 +9,13 @@ class AuthActions(object):
         self._client = client
 
     def login(self, username="test", password="test"):
-        return self._client.post(f"{API_ROOT}/authors/login", json={"username": username, "password": password})
+        return self._client.post(f"{API_PATH}/authors/login", json={"username": username, "password": password})
 
     def register(self, username="test", password="test"):
-        return self._client.post(f"{API_ROOT}/authors/register", json={"username": username, "password": password})
+        return self._client.post(f"{API_PATH}/authors/register", json={"username": username, "password": password})
 
     def logout(self):
-        return self._client.post(f"{API_ROOT}/authors/logout")
+        return self._client.post(f"{API_PATH}/authors/logout")
 
     # For cross server API testing
     def register_node(self):

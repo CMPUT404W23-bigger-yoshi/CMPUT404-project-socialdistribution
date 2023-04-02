@@ -3,7 +3,7 @@ import urllib.parse
 import pytest
 from flask_login import current_user
 
-from api import API_ROOT
+from api import API_PATH
 from api.tests.resources.mock_authors import foreign_mock_author, mock_author1, mock_author2
 from api.tests.resources.mock_follow import mock_follow_request
 from api.user.author.model import Author
@@ -23,8 +23,8 @@ class TestFollow:
 
     @pytest.fixture(scope="function", autouse=True)
     def register_mock_authors(self, client, app):
-        client.post(f"{API_ROOT}/authors/register", json={"username": mock_author1["displayName"], "password": "test"})
-        client.post(f"{API_ROOT}/authors/register", json={"username": mock_author2["displayName"], "password": "test"})
+        client.post(f"{API_PATH}/authors/register", json={"username": mock_author1["displayName"], "password": "test"})
+        client.post(f"{API_PATH}/authors/register", json={"username": mock_author2["displayName"], "password": "test"})
         with app.app_context():
             self.MockFollowed = Author.query.filter_by(username=mock_author1["displayName"]).first().getJSON()
             self.MockFollower = Author.query.filter_by(username=mock_author2["displayName"]).first().getJSON()
@@ -53,11 +53,11 @@ class TestFollow:
             follower = self.MockFollower["id"].split("/")[-1]
             login_cred = {"username": self.MockFollower["displayName"], "password": "test"}
             auth.login(**login_cred)
-            client.post(f"{API_ROOT}/authors/{followed}/inbox", json=self.MockFollowRequest, follow_redirects=True)
+            client.post(f"{API_PATH}/authors/{followed}/inbox", json=self.MockFollowRequest, follow_redirects=True)
             auth.logout()
         else:
             follower = urllib.parse.quote(self.MockForeignFollower["id"], safe="")
-            client.post(f"{API_ROOT}/authors/{followed}/inbox", json=self.MockForeignRequest, follow_redirects=True)
+            client.post(f"{API_PATH}/authors/{followed}/inbox", json=self.MockForeignRequest, follow_redirects=True)
 
         return (followed, follower)
 
@@ -74,7 +74,7 @@ class TestFollow:
         else:
             follower_id = self.MockForeignFollower["id"]
         follower_id = urllib.parse.quote(follower_id, safe="")
-        client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+        client.put(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
         auth.logout()
 
     """
@@ -88,7 +88,7 @@ class TestFollow:
             followed_id, follower_id = self.send_follow(client, auth)
             self.approve_follow(client, auth)
             auth.login()
-            response = client.get(f"{API_ROOT}/authors/{followed_id}/followers", follow_redirects=True)
+            response = client.get(f"{API_PATH}/authors/{followed_id}/followers", follow_redirects=True)
         assert response.status_code == 200
 
         data = response.json
@@ -116,7 +116,7 @@ class TestFollow:
             auth.login()
             with app.app_context():
                 print(LocalFollower.query.all())
-            response = client.get(f"{API_ROOT}/authors/{followed_id}/followers/count", follow_redirects=True)
+            response = client.get(f"{API_PATH}/authors/{followed_id}/followers/count", follow_redirects=True)
         assert response.status_code == 200
         assert response.json["count"] == 1
 
@@ -134,7 +134,7 @@ class TestFollow:
             auth.login(**login_cred)
             # Send request
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
             auth.logout()
             assert response.status_code == 201
@@ -158,7 +158,7 @@ class TestFollow:
         with client:
             auth.login(**login_cred)
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
             auth.logout()
         assert response.status_code == 201
@@ -167,7 +167,7 @@ class TestFollow:
         with client:
             auth.login(**login_cred)
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
             auth.logout()
         assert response.status_code == 409  # Conflict
@@ -187,7 +187,7 @@ class TestFollow:
             auth.logout()
             assert not current_user.is_authenticated
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
         assert response.status_code == 401
 
@@ -204,7 +204,7 @@ class TestFollow:
         login_creds = {"username": self.MockFollower["displayName"], "password": "test"}
         with client:
             auth.login(**login_creds)
-            response = client.post(f"{API_ROOT}/authors/{followed_id}/inbox", follow_redirects=True)
+            response = client.post(f"{API_PATH}/authors/{followed_id}/inbox", follow_redirects=True)
         assert response.status_code == 400
 
     """
@@ -219,7 +219,7 @@ class TestFollow:
         with client:
             auth.login()
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
             )
         assert response.status_code == 201
 
@@ -242,7 +242,7 @@ class TestFollow:
         with client:
             auth.login()
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
             )
             auth.logout()
         assert response.status_code == 201
@@ -250,7 +250,7 @@ class TestFollow:
         with client:
             auth.login()
             response = client.post(
-                f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
+                f"{API_PATH}/authors/{followed_id}/inbox", json=self.MockForeignRequest, follow_redirects=True
             )
             auth.logout()
         assert response.status_code == 409
@@ -265,7 +265,7 @@ class TestFollow:
         followed_id = self.MockFollowed["id"].split("/")[-1]
         with client:
             auth.login()
-            response = client.post(f"{API_ROOT}/authors/{followed_id}/inbox", follow_redirects=True)
+            response = client.post(f"{API_PATH}/authors/{followed_id}/inbox", follow_redirects=True)
         assert response.status_code == 400
 
     """
@@ -277,7 +277,7 @@ class TestFollow:
         with client:
             auth.logout()
             assert not current_user.is_authenticated
-            response = client.post(f"{API_ROOT}/authors/{followed_id}/inbox", follow_redirects=True)
+            response = client.post(f"{API_PATH}/authors/{followed_id}/inbox", follow_redirects=True)
         assert response.status_code == 401
 
     """
@@ -298,7 +298,7 @@ class TestFollow:
             follower_id = urllib.parse.quote(self.MockFollower["url"], safe="")
             login_creds = {"username": self.MockFollowed["displayName"], "password": "test"}
             auth.login(**login_creds)
-            response = client.delete(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}")
+            response = client.delete(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}")
         assert response.status_code == 200
 
         with app.app_context():
@@ -323,7 +323,7 @@ class TestFollow:
             follower_id = urllib.parse.quote(self.MockForeignFollower["id"], safe="")
             login_creds = {"username": self.MockFollowed["displayName"], "password": "test"}
             auth.login(**login_creds)
-            response = client.delete(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}")
+            response = client.delete(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}")
         assert response.status_code == 200
 
         with app.app_context():
@@ -344,7 +344,7 @@ class TestFollow:
             follower_id = urllib.parse.quote(self.MockForeignFollower["id"], safe="")
             auth.register()
             auth.login()
-            response = client.get(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response = client.get(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             auth.logout()
         assert response.status_code == 200
         found = response.json["found"]
@@ -365,7 +365,7 @@ class TestFollow:
             req_obj["actor"] = self.MockFollowed
 
             auth.login(**login_creds)
-            response = client.post(f"{API_ROOT}/authors/{followed_id}/inbox", json=req_obj, follow_redirects=True)
+            response = client.post(f"{API_PATH}/authors/{followed_id}/inbox", json=req_obj, follow_redirects=True)
             auth.logout()
             print(LocalFollower.query.all())
         assert response.status_code == 400
@@ -382,8 +382,8 @@ class TestFollow:
         login_creds = {"username": self.MockFollowed["displayName"], "password": "test"}
         with client:
             auth.login(**login_creds)
-            response1 = client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
-            response2 = client.get(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response1 = client.put(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response2 = client.get(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             auth.logout()
             assert response1.status_code == 200
             assert response2.status_code == 200
@@ -401,8 +401,8 @@ class TestFollow:
         login_creds = {"username": self.MockFollowed["displayName"], "password": "test"}
         with client:
             auth.login(**login_creds)
-            response1 = client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
-            response2 = client.get(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response1 = client.put(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response2 = client.get(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             auth.logout()
             assert response1.status_code == 200
             assert response2.status_code == 200
@@ -418,5 +418,5 @@ class TestFollow:
         followed_id = self.MockFollowed["id"].split("/")[-1]
         follower_id = urllib.parse.quote(self.MockFollower["id"], safe="")
         with client:
-            response1 = client.put(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
+            response1 = client.put(f"{API_PATH}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             assert response1.status_code == 401

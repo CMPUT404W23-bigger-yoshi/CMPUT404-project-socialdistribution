@@ -11,7 +11,7 @@ from flask_login import login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
-from api import basic_auth, db
+from api import API_HOSTNAME, basic_auth, db
 from api.admin.utils import auth_header_for_url
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
@@ -765,15 +765,13 @@ def make_follow(json, author_id):
         return {"success": 0, "message": "Bad follow request"}, 400
 
     # we need to parse the object id to see who it's coming from :\
-    parsed = urlparse(actor["url"])
-    # hardcode kekw
-    if parsed.hostname.startswith("bigger-yoshi"):
+    parsed_actor_url = urlparse(actor["url"])
+    if parsed_actor_url.hostname == API_HOSTNAME:
         FollowTable = LocalFollower
     else:
         FollowTable = NonLocalFollower
 
-    logger.info(f"parsed hostname from f{actor['url']}: {parsed.hostname} -> querying {FollowTable.__name__}")
-
+    logger.info(f"parsed hostname from f{actor['url']}: {parsed_actor_url.hostname} -> querying {FollowTable.__name__}")
     if FollowTable == NonLocalFollower:
         non_local_exists = NonLocalAuthor.query.filter_by(url=actor["url"]).first()
         if non_local_exists:
