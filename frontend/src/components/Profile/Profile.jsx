@@ -14,6 +14,7 @@ import {
 import { getPosts } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import GitHubCalendar from 'react-github-calendar';
+import MessageModal from '../MessageModal/MessageModal';
 
 const splitAuthorUrl = (authorUrl) => {
   if (authorUrl === undefined) {
@@ -29,6 +30,8 @@ const Profile = ({ authorUrl }) => {
   // Get url location using useLocation hook
   const navigate = useNavigate();
   const location = useLocation();
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [message, setMessage] = useState('Error');
   const [showShareModal, setShowShareModal] = useState(false);
   const [following, setFollowing] = useState(false);
   const [posts, setPosts] = useState([]);
@@ -77,6 +80,12 @@ const Profile = ({ authorUrl }) => {
         show={showShareModal}
         handleClose={() => setShowShareModal(false)}
         link={user.id}
+      />
+      <MessageModal
+        title="Follow"
+        show={showMessageModal}
+        handleClose={() => setShowMessageModal(false)}
+        error={message}
       />
       <div className="profile-border">
         <div className="profile-container">
@@ -137,9 +146,11 @@ const Profile = ({ authorUrl }) => {
                 } else {
                   try {
                     const res = sendFollowRequest(loggedInAuthor, user);
-                    console.log(res);
+                    setMessage('Follow request sent!');
+                    setShowMessageModal(true);
                   } catch (err) {
-                    console.log(err);
+                    setMessage('Error sending follow request');
+                    setShowMessageModal(true);
                   }
                 }
               }}
