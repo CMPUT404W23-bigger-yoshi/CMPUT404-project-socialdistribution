@@ -56,10 +56,12 @@ function Notification(props) {
                 acceptFollowRequest(
                   props.localAuthor.id.split('/').pop(-1),
                   props.person.url
-                );
+                ).then((res) => {
+                  console.log(res);
+                });
+                props.setNotificationsUpdated(true);
               }}
             />{' '}
-            <XCircleFill size={40} className="follow-icon reject" />
           </div>
         ) : (
           <div></div>

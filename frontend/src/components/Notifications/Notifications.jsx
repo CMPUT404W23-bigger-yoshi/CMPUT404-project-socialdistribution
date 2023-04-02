@@ -7,17 +7,19 @@ import { getFollowRequests } from '../../services/author';
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const author = useContext(AuthorContext).author;
+  const [notificationsUpdated, setNotificationsUpdated] = useState(false);
 
   const updateNotifications = async () => {
     const data = (await getFollowRequests(author.id.split('/').pop(-1))).data
       .follow_requests;
     setNotifications(data);
+    setNotificationsUpdated(false);
     console.log(data);
   };
 
   useEffect(() => {
     updateNotifications();
-  }, []);
+  }, [notificationsUpdated]);
 
   return (
     <div className='notifications'>
@@ -29,6 +31,7 @@ function Notifications() {
                 type={notification.type}
                 person={notification.author}
                 localAuthor={author}
+                setNotificationsUpdated={setNotificationsUpdated}
               />
             ))
           ) : (

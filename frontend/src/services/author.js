@@ -26,8 +26,7 @@ export const getCurrentUserId = async () => {
 };
 
 export const getUserDetails = (authorUrl) => {
-  if (authorUrl.match('bigger-yoshi')) {
-    console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
+  if (authorUrl.match(window.location.host)) {
     return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
   const encoded = encodeURIComponent(`${authorUrl}`);
@@ -104,7 +103,7 @@ export const sendFollowRequest = async (follower, toFollow) => {
     }
   };
   if (toFollow.id.match(window.location.host)) {
-    return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox`, {
+    return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox/`, {
       ...data
     });
   }
