@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 axios.defaults.baseURL = '/api';
 
 export const login = ({ username, password }) => {
@@ -53,28 +54,21 @@ export const searchMultipleUsers = async (username) => {
   return await axios.get(`/authors/${username}/search/multiple`);
 };
 
-export const approveFollowRequest = async (authorId, followObject) => {
-  return await axios.post(`/authors/${authorId}/inbox/`, followObject);
-};
-
 export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
   return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
 };
 
 export const unfollowUser = async (authorId, foreignAuthorId) => {
+  const authorIdVal = authorId.split('/').pop();
   return await axios.delete(
-    `/authors/${authorId}/followers/${foreignAuthorId}/`
+    `/authors/${authorIdVal}/followers/${foreignAuthorId}`
   );
-};
-
-export const checkIfFollowing = async (authorId, foreignAuthorId) => {
-  return await axios.get(`/authors/${authorId}/followers/${foreignAuthorId}/`);
 };
 
 export const getFollowersCount = async (authorUrl) => {
   if (authorUrl.match(window.location.host)) {
     const res = await axios.get(
-      `/authors/${authorUrl.split('/').pop(-1)}/followers/count`
+      `/authors/${authorUrl.split('/').pop()}/followers/count`
     );
     return res.data.count;
   }
@@ -82,6 +76,19 @@ export const getFollowersCount = async (authorUrl) => {
   const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
   return res.data.items.length;
 };
+
+export const checkFollowing = async (authorUrl, foreignAuthorUrl) => {
+  console.log('checkFollowing', authorUrl, foreignAuthorUrl)
+  if (authorUrl.match(window.location.host)) {
+    const res = await axios.get(
+      `/authors/${authorUrl.split('/').pop()}/followers/${foreignAuthorUrl}`
+    );
+    return res.data;
+  }
+  const encoded = encodeURIComponent(`${authorUrl}/followers/`);
+  const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
+  return res.data;
+}
 
 export const sendFollowRequest = async (follower, toFollow) => {
   const data = {

@@ -86,9 +86,9 @@ def followers_count(author_id: str):
 def remove_follower(author_id: str, follower_url: str):
     """remove foreign_author_id as a follower of author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
-
+    print(found_author)
     islocal = LocalFollower.query.filter_by(followed_url=found_author.url, follower_url=follower_url).first()
-
+    print(islocal)
     # local author doesn't exist
     if not islocal:
         non_local_follower = NonLocalFollower.query.filter_by(

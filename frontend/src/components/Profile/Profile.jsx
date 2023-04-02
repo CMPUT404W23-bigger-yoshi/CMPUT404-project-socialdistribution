@@ -9,7 +9,8 @@ import {
   getFollowersCount,
   getUserDetails,
   sendFollowRequest,
-  unfollowUser
+  unfollowUser,
+  checkFollowing
 } from '../../services/author';
 import { getPosts } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
@@ -63,6 +64,11 @@ const Profile = ({ authorUrl }) => {
           }
         });
         setPosts(posts.data);
+        console.log('Debug: Check if following')
+        const isFollowing = await checkFollowing(loggedInAuthor.id, splitAuthorUrl(authorUrl));
+        console.log('Debug: Check if following')
+        console.log('isFollowing: ' + isFollowing)
+        setFollowing(isFollowing.found);
       } catch (err) {
         console.log(err);
       }
@@ -138,7 +144,7 @@ const Profile = ({ authorUrl }) => {
                   navigate('/settings');
                 } else if (following) {
                   try {
-                    const res = unfollowUser(loggedInAuthor.id, user.data.id);
+                    const res = unfollowUser(loggedInAuthor.id, splitAuthorUrl(authorUrl));
                     console.log(res);
                   } catch (err) {
                     console.log(err);
