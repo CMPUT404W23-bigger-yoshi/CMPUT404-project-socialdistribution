@@ -8,11 +8,11 @@ from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
 
-def construct_url(context):
-    id = context.get_current_parameters()["id"]
-    author_id = context.get_current_parameters()["author"]
-    url = f"{API_BASE}authors/{author_id}/posts/{id}"
-    return url
+def construct_post_url(context):
+    params = context.get_current_parameters()
+    id_ = params["id"]
+    author_id = params["author"]
+    return f"{API_BASE}authors/{author_id}/posts/{id_}"
 
 
 def construct_host_origin(context):
@@ -29,7 +29,7 @@ inbox_table = db.Table(
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.Text, default=construct_url)
+    url: str = db.Column(db.Text, default=construct_post_url)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     origin: str = db.Column("origin", db.Text, nullable=False, default=construct_host_origin)
@@ -41,7 +41,6 @@ class Post(db.Model):
     # categories will be comma separated values
     categories: str = db.Column("categories", db.Text)
 
-    # 0 -> "PUBLIC", 1-> "FRIENDS"
     visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
     # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in
