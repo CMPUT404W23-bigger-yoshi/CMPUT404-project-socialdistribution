@@ -259,7 +259,7 @@ const Post = (props) => {
                       color: post.liked ? 'red' : 'white'
                     }}
                   />{' '}
-                  {likes.length}
+                  {likes?.length}
                 </Button>
               </div>
             </Col>
@@ -270,7 +270,7 @@ const Post = (props) => {
                   onClick={() => setShowCommentsModal(true)}
                 >
                   <ChatLeftTextFill />
-                  {commentsSrc?.comments ? commentsSrc.comments.length : 0}
+                  {commentsSrc?.comments ? commentsSrc?.comments?.length : 0}
                 </Button>
               </div>
             </Col>
