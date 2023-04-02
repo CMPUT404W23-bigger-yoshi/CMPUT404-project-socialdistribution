@@ -99,16 +99,24 @@ export async function likePost(likeObj) {
       likeObj
     );
   }
-  const encoded = encodeURIComponent(postUrl);
-  return axios.post(`/authors/foreign/${encoded}/foreign-inbox`, likeObj);
+  const encoded = encodeURIComponent(
+    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
+  );
+  return axios.post(`/authors/foreign-inbox/${encoded}`, likeObj);
 }
 
 export function makeComment(commentObj) {
   const postUrl = commentObj.object;
-  return axios.post(
-    `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
-    commentObj
+  if (postUrl.match(window.location.host)) {
+    return axios.post(
+      `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+      commentObj
+    );
+  }
+  const encoded = encodeURIComponent(
+    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
   );
+  return axios.post(`/authors/foreign-inbox/${encoded}`, commentObj);
 }
 
 export async function getComments(postUrl) {
