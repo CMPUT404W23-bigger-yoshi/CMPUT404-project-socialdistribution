@@ -12,6 +12,7 @@ from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
 from api import basic_auth, db
+from api.admin.APIConfig import APIConfig
 from api.admin.utils import auth_header_for_url
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
@@ -770,8 +771,9 @@ def make_follow(json, author_id):
 
     # we need to parse the object id to see who it's coming from :\
     parsed = urlparse(actor["url"])
-    # hardcode kekw
-    if parsed.hostname.startswith("bigger-yoshi"):
+    server_domain = urlparse(APIConfig.API_BASE)
+    # No need to hard code everywhere, use APIConfig
+    if parsed.hostname == server_domain.hostname:
         FollowTable = LocalFollower
     else:
         FollowTable = NonLocalFollower

@@ -4,14 +4,15 @@ from flask import jsonify
 from sqlalchemy import Enum, event
 
 from api import db
-from api.user.author.model import Author, NonLocalAuthor, api_base
+from api.admin.APIConfig import APIConfig
+from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
 
 def _constructURL(context):
     id = context.get_current_parameters()["id"]
     author_id = context.get_current_parameters()["author"]
-    url = f"{api_base}authors/{author_id}/posts/{id}"
+    url = f"{APIConfig.API_BASE}authors/{author_id}/posts/{id}"
     return url
 
 
