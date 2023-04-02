@@ -19,8 +19,12 @@ function Notification(props) {
           width={70}
           height={70}
           className="notification-logo"
-          src={props.person.profileImage !== '' ? props.person.profileImage : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
-         alt="profile"
+          src={
+            props.person.profileImage !== ''
+              ? props.person.profileImage
+              : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+          }
+          alt="profile"
         />
         <p>
           {props.type === 'friend' ? (
@@ -30,7 +34,10 @@ function Notification(props) {
           ) : props.type === 'comment' ? (
             `${props.person} commented on your post!`
           ) : props.type === 'follow' ? (
-            <div className="follow" onClick={() => navigate(`/authors?q=${props.person.id}`)}>
+            <div
+              className="follow"
+              onClick={() => navigate(`/authors?q=${props.person.id}`)}
+            >
               <span className="user-name">{props.person.displayName}</span>
               <span> wants to follow you!</span>
             </div>

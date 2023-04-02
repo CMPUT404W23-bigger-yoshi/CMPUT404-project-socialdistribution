@@ -77,7 +77,7 @@ export const getFollowersCount = async (authorUrl) => {
 };
 
 export const checkFollowing = async (authorUrl, foreignAuthorUrl) => {
-  console.log('checkFollowing', authorUrl, foreignAuthorUrl)
+  console.log('checkFollowing', authorUrl, foreignAuthorUrl);
   if (authorUrl.match(window.location.host)) {
     const res = await axios.get(
       `/authors/${authorUrl.split('/').pop()}/followers/${foreignAuthorUrl}`
@@ -87,7 +87,7 @@ export const checkFollowing = async (authorUrl, foreignAuthorUrl) => {
   const encoded = encodeURIComponent(`${authorUrl}/followers/`);
   const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
   return res.data;
-}
+};
 
 export const sendFollowRequest = async (follower, toFollow) => {
   const data = {

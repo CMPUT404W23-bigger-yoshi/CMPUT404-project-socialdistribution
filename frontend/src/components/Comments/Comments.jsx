@@ -200,7 +200,11 @@ function CommentsModal(props) {
         centered
       >
         <Modal.Body>
-          <Comments comments={comments?.comments} postId={postId} updateComments={updateComments} />
+          <Comments
+            comments={comments?.comments}
+            postId={postId}
+            updateComments={updateComments}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleClose}>Close</Button>
