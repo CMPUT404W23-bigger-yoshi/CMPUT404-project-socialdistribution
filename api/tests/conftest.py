@@ -1,6 +1,7 @@
 import pytest
 
 from api import API_PATH
+from api.admin.api_config import API_CONFIG
 from api.app import create_app, db
 
 
@@ -31,6 +32,8 @@ def auth(client):
 def app():
     app = create_app(testing_env=True)
     app.config.update({"TESTING": True})
+    API_CONFIG.init_app(app)
+    API_CONFIG.set_author_approval(False)
 
     yield app
 
