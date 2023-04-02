@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -45,6 +46,5 @@ else:
 parsed_base = urlparse(API_BASE)
 API_HOSTNAME = parsed_base.hostname
 
-from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent / ".env")
