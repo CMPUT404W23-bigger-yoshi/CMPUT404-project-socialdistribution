@@ -74,7 +74,7 @@ class NonLocalAuthor(db.Model):
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)
     username: str = db.Column("username", db.Text, nullable=False)
-    github: str = db.Column("github", db.Text, nullable=False)
+    github: str = db.Column("github", db.Text, nullable=True)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
 
     def getJSON(self):
