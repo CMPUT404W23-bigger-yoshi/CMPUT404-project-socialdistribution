@@ -1,3 +1,4 @@
+import logging
 from dataclasses import asdict, dataclass
 
 from flask import jsonify
@@ -6,6 +7,8 @@ from sqlalchemy import Enum, event
 from api import API_BASE, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
+
+logger = logging.getLogger(__name__)
 
 
 def construct_post_url(context):
@@ -32,9 +35,10 @@ class Post(db.Model):
     url: str = db.Column(db.Text, default=construct_post_url)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
-    origin: str = db.Column("origin", db.Text, nullable=False, default=construct_host_origin)
     # server -> the last server from which this post was sent into the inbox of the receiver
     source: str = db.Column("source", db.Text, nullable=False, default=construct_host_origin)
+    # where is it actually from
+    origin: str = db.Column("origin", db.Text, nullable=False, default=construct_host_origin)
     description: str = db.Column("shortDesc", db.Text)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
@@ -85,16 +89,26 @@ class Post(db.Model):
         elif post["visibility"] == Visibility.FRIENDS:
             post["visibility"] = "FRIENDS"
 
-        # Comments
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()
-        comments = curr_post.comments.all()
-
-        comments = [comment.getJSON() for comment in comments]
 
         # Renaming url to id
         post["id"] = post["url"]
-        post["comments"] = comments
+        post["comments"] = post["url"] + "/comments"
+
+        # Comments
+        try:
+            post["commentsSrc"] = {
+                "type": "comments",
+                "page": 1,
+                "size": 5,
+                "post": self.url,
+                "id": f"{self.url}/comments",
+                "comments": [comment.getJSON() for comment in self.comments.limit(5).all()],
+            }
+        except Exception:
+            logger.exception("failed to add optional commentsSrc property to response, continuing without it: ")
+
         del post["url"]
         return post
 
