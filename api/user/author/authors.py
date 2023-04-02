@@ -9,7 +9,7 @@ from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from api import basic_auth, bcrypt, db
+from api import API_BASE, basic_auth, bcrypt, db
 from api.admin.api_config import API_CONFIG
 from api.admin.outbound_connection import OutboundConnection
 from api.admin.utils import auth_header_for_url
@@ -180,7 +180,7 @@ def register_user():
     user = Author(
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
-        host=request.host,
+        host=API_BASE,
         approval=Approval.PENDING if API_CONFIG.restrict_signups else Approval.APPROVED,
         role=role,
     )

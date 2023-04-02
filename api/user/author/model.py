@@ -23,6 +23,11 @@ def construct_author_url(context):
     return API_BASE + "authors/" + author_id
 
 
+# eh other team wants it like that idk why?
+def construct_host(context):
+    return API_BASE
+
+
 def _default_approval_from_config(context):
     if API_CONFIG.restrict_signups:
         return Approval.PENDING
@@ -34,7 +39,7 @@ def _default_approval_from_config(context):
 class Author(UserMixin, db.Model):
     id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
     url: str = db.Column("url", db.Text, nullable=True, unique=True, default=construct_author_url)
-    host: str = db.Column("host", db.Text, nullable=False)
+    host: str = db.Column("host", db.Text, nullable=False, default=construct_host)
     username: str = db.Column("username", db.Text, nullable=False, unique=True)
     password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
