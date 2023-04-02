@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, redirect, request
 from flask_login import current_user, login_required, login_user
 
 from api import bcrypt, db
-from api.admin.APIConfig import APIConfig
+from api.admin.api_config import API_CONFIG
 from api.admin.outbound_connection import OutboundConnection
 from api.user.author.model import Author
 from api.utils import Approval, Role
@@ -47,27 +47,16 @@ def modify_config():
 
     api_protect = form_data.get("API")
     author_auto = form_data.get("Approve-authors")
-    nodes_auto = form_data.get("Approve-nodes")
     node_limit = form_data.get("Node-limit")
 
-    if api_protect:
-        APIConfig.set_API_protection(True)
-    else:
-        APIConfig.set_API_protection(False)
-
-    if author_auto:
-        APIConfig.set_author_approval(True)
-    else:
-        APIConfig.set_author_approval(False)
-
-    if nodes_auto:
-        APIConfig.set_node_approval(True)
-    else:
-        APIConfig.set_node_approval(False)
+    if api_protect is not None:
+        API_CONFIG.set_api_protection(api_protect)
+    if author_auto is not None:
+        API_CONFIG.set_author_approval(author_auto)
 
     if node_limit:
         val = int(node_limit)
         if val >= 0:
-            APIConfig.set_node_limit(val)
+            API_CONFIG.set_node_limit(val)
 
     return {"message": "Success"}, 200

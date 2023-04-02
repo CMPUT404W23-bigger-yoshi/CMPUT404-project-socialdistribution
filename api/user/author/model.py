@@ -9,7 +9,7 @@ from sqlalchemy import Enum, event
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from api import API_BASE, db
-from api.admin.APIConfig import APIConfig
+from api.admin.api_config import API_CONFIG
 from api.user.followers.model import LocalFollower
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
@@ -23,10 +23,10 @@ def construct_author_url(context):
 
 
 def _default_approval_from_config(context):
-    if APIConfig.AUTHOR_AUTO_APPROVE:
-        return Approval.APPROVED
-    else:
+    if API_CONFIG.restrict_signups:
         return Approval.PENDING
+    else:
+        return Approval.APPROVED
 
 
 @dataclass

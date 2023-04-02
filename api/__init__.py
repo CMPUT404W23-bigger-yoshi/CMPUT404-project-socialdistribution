@@ -44,3 +44,7 @@ else:
 
 parsed_base = urlparse(API_BASE)
 API_HOSTNAME = parsed_base.hostname
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")

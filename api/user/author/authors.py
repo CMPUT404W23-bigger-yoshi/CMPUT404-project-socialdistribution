@@ -10,6 +10,7 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 from api import basic_auth, bcrypt, db
+from api.admin.api_config import API_CONFIG
 from api.admin.outbound_connection import OutboundConnection
 from api.admin.utils import auth_header_for_url
 from api.user.author.docs import author_schema, authors_schema
@@ -167,12 +168,19 @@ def register_user():
         # username already exists
         return {"message": "User Already exists"}, 409
 
+    anyone_exists = Author.query.first()
+    if anyone_exists:
+        role = Role.USER
+    else:
+        logger.info("since this is the very first signup, automatically granting admin permission")
+        role = Role.ADMIN
+
     user = Author(
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
         host=request.host,
-        approval=Approval.PENDING,
-        role=Role.USER,
+        approval=Approval.PENDING if API_CONFIG.restrict_signups else Approval.APPROVED,
+        role=role,
     )
     db.session.add(user)
     db.session.commit()
