@@ -830,7 +830,13 @@ def make_comment(json, author_id):
     Arguments:
         author_id: ID of the author who made the
     """
-    # todo: validate the post actually exists :/
+    url = json.get("object")
+    if not url:
+        return {"message": "failed to provide object key"}, 400
+
+    post_exists = Post.query.filter_by(url=url).first()
+    if not post_exists:
+        return {"message": f"failed to find post @ {url=}"}, 400
 
     author_id = json.get("author", {}).get("id")
     if author_id is None:
