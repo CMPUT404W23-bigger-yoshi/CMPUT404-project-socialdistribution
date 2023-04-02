@@ -66,7 +66,7 @@ class NonLocalAuthor(db.Model):
     id: str = db.Column(db.Text, primary_key=True, unique=True)
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)
-    displayName: str = db.Column("displayName", db.Text, nullable=False, unique=True)
+    displayName: str = db.Column("displayName", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=False)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
 

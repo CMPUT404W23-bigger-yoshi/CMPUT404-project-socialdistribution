@@ -824,13 +824,13 @@ def make_follow(json, author_id):
     return {"success": 1, "message": "Follow request has been sent!"}, 201
 
 
-# todo fix later too tired right now
 def make_comment(json, author_id):
     """
     Submit a comment made on author's post with id as author_id.
     Arguments:
         author_id: ID of the author who made the
     """
+    # todo: validate the post actually exists :/
 
     author_id = json.get("author", {}).get("id")
     if author_id is None:
