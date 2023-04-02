@@ -7,12 +7,14 @@ import CategoryInput from '../CategoryInput/CategoryInput';
 import { generatePostId, updatePost } from '../../services/post';
 import { getCurrentUserId } from '../../services/author';
 import { AuthorContext } from '../../context/AuthorContext';
+import { FileUploader } from 'react-drag-drop-files';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
   const [showPreview, setShowPreview] = useState(false);
   const [image, setImage] = useState(null);
   const { author } = useContext(AuthorContext);
+  const acceptedMediaTypes = ['JPG', 'PNG', 'GIF'];
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -48,8 +50,7 @@ export default function CreatePost(props) {
     }
   }
 
-  function handleImageUpload(e) {
-    const file = e.target.files[0];
+  function handleImageUpload(file) {
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -198,10 +199,10 @@ export default function CreatePost(props) {
                       className="post-content-image-preview"
                     />
                   ) : (
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
+                    <FileUploader
+                      handleChange={handleImageUpload}
+                      name="file"
+                      types={acceptedMediaTypes}
                     />
                   )}
                 </div>
