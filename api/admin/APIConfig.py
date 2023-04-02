@@ -19,8 +19,6 @@ class APIConfig:
     NODE_AUTO_APPROVE = True
     AUTHOR_AUTO_APPROVE = False
     NODE_LIMIT = 100
-    API_BASE = environ.get("API_BASE") if environ.get("API_BASE") else "https://bigger-yoshi.herokuapp.com/api/"
-    logger.info(f"API_BASE Initialized to: {API_BASE}")
 
     @classmethod
     def set_node_limit(self, limit: int):
