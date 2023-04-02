@@ -362,12 +362,12 @@ class TestFollow:
 
             # Try to follow self
             req_obj = self.MockFollowRequest.copy()
-            req_obj["object"] = self.MockFollowed
+            req_obj["actor"] = self.MockFollowed
 
             auth.login(**login_creds)
             response = client.post(f"{API_ROOT}/authors/{followed_id}/inbox", json=req_obj, follow_redirects=True)
             auth.logout()
-
+            print(LocalFollower.query.all())
         assert response.status_code == 400
 
     """
@@ -386,7 +386,7 @@ class TestFollow:
             response2 = client.get(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             auth.logout()
             assert response1.status_code == 200
-            assert response2 == 200
+            assert response2.status_code == 200
             assert response2.json["found"] == True
 
     """
@@ -405,7 +405,7 @@ class TestFollow:
             response2 = client.get(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}", follow_redirects=True)
             auth.logout()
             assert response1.status_code == 200
-            assert response2 == 200
+            assert response2.status_code == 200
             assert response2.json["found"] == True
 
     """
