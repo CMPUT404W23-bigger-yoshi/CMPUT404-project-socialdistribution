@@ -1,6 +1,7 @@
 import base64
 import logging
 import os
+from json import JSONDecodeError
 from typing import List
 
 import requests
@@ -233,11 +234,14 @@ def get_author_id_all(author_username: str):
     for con in all_connections:
         authors_url = con.endpoint + "authors/"
         logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
+        r = None
         try:
             # nobody will have more than 100 authors, so we don't bother to write the code to query more than that
             r = cache_request.get(authors_url, headers=auth_header_for_url(authors_url), params={"size": 100})
             items.extend(r.json().get("items", []))
+        except JSONDecodeError:
+            logger.error(f"failed to parse JSON response {r.status_code=} {r.content.decode()=}")
         except Exception as e:
-            logger.exception(f"failed to make request to {authors_url=}:")
+            logger.exception(f"failed to make request to {authors_url=}: ")
 
     return {"type": "authors", "items": items}
