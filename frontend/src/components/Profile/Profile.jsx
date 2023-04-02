@@ -6,14 +6,14 @@ import ShareModal from '../ShareModal/ShareModal';
 import Post from '../Post/Post';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  checkIfFollowing,
-  getUserDetails,
   getFollowersCount,
-  unfollowUser,
-  sendFollowRequest
+  getUserDetails,
+  sendFollowRequest,
+  unfollowUser
 } from '../../services/author';
 import { getPosts } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
+import GitHubCalendar from 'react-github-calendar';
 
 const splitAuthorUrl = (authorUrl) => {
   if (authorUrl === undefined) {
@@ -26,7 +26,6 @@ const splitAuthorUrl = (authorUrl) => {
 };
 
 const Profile = ({ authorUrl }) => {
-  console.log('top', authorUrl);
   // Get url location using useLocation hook
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,6 +161,11 @@ const Profile = ({ authorUrl }) => {
       </div>
       <div className="profile-post-border">
         <div className="profile-post-container">
+          {user.github && (
+            <div className="profile-github">
+              <GitHubCalendar username={user.github.split('/').pop()} />
+            </div>
+          )}
           <div className="profile-posts">
             {posts?.items?.length > 0 ? (
               posts.items.map((post) => (

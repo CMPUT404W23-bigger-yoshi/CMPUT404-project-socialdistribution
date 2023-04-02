@@ -4,15 +4,19 @@ from flask import jsonify
 from sqlalchemy import Enum, event
 
 from api import db
-from api.user.author.model import Author, NonLocalAuthor
+from api.user.author.model import Author, NonLocalAuthor, api_base
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
 
 def _constructURL(context):
     id = context.get_current_parameters()["id"]
-    author_url = context.get_current_parameters()["author"]
-    url = author_url + "/posts/" + id
+    author_id = context.get_current_parameters()["author"]
+    url = f"{api_base}authors/{author_id}/posts/{id}"
     return url
+
+
+def _constructHostOrigin(context):
+    return context.get_current_parameters()["url"]
 
 
 inbox_table = db.Table(
@@ -28,9 +32,9 @@ class Post(db.Model):
     url: str = db.Column(db.Text, default=_constructURL)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
-    origin: str = db.Column("origin", db.Text, nullable=False)
+    origin: str = db.Column("origin", db.Text, nullable=False, default=_constructHostOrigin)
     # server -> the last server from which this post was sent into the inbox of the receiver
-    source: str = db.Column("source", db.Text, nullable=False)
+    source: str = db.Column("source", db.Text, nullable=False, default=_constructHostOrigin)
     description: str = db.Column("shortDesc", db.Text)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
