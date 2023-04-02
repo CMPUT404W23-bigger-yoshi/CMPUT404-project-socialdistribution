@@ -686,10 +686,10 @@ def fanout_to_local_inbox(post: Post, author_id) -> None:
         if author is None:  # can't do 404, fan-out shouldn't affect the post creation
             return
 
-        followed_by_author = LocalFollower.query.filter_by(follower_url=author.url, approved=Approval.APPROVED).all()
+        followed_by_author = LocalFollower.query.filter_by(follower_url=author.url, approved=True).all()
         followed_by_author_urls = set(map(lambda x: x.followed_url, followed_by_author))
 
-        follower_of_author = LocalFollower.query.filter_by(followed_url=author.url, approved=Approval.APPROVED).all()
+        follower_of_author = LocalFollower.query.filter_by(followed_url=author.url, approved=True).all()
         follower_of_author_urls = set(map(lambda x: x.follower_url, follower_of_author))
 
         to_insert = []
@@ -710,7 +710,7 @@ def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
     logger.info(f"finding foreign authors for {post_author} with {post.visibility=}")
     foreign_followers = NonLocalFollower.query.filter_by(followed_url=post_author.url).all()
 
-    if post.visibility == Visibility.FRIENDS:
+    if post.visibility == Visibility.FRIENDS and len(foreign_followers) > 0:
         # it is very easy to find when they follow us, but more difficult to determine when we follow them,
         # because follow requests can be denied. what we need to do is:
         #  1. record our local -> remote follow requests, with approval pending
