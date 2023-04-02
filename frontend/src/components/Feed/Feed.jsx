@@ -17,7 +17,7 @@ function Feed(props) {
         if (isInbox) {
           response = await getInbox(author.id);
         } else {
-          response = await getHomeFeed(author.id);
+          response = await getHomeFeed();
         }
         setPosts(response.data.items);
       } catch (error) {
@@ -28,7 +28,7 @@ function Feed(props) {
   }, [isInbox]);
   return (
     <div className="feed">
-      {posts.length > 0 ? (
+      {posts?.length > 0 ? (
         posts.map((post) => (
           <Post post={post} key={post.id} currentUser={author.id} />
         ))
