@@ -45,12 +45,7 @@ class Author(UserMixin, db.Model):
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
     # since the other table will create this type, no need to :)
-    approval: Approval = db.Column(
-        "approval",
-        pgEnum(Approval, create_type=False, name="Approval"),
-        nullable=False,
-        default=_default_approval_from_config,
-    )
+    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
     role: Role = db.Column("role", Enum(Role), nullable=False, default=Role.USER)
 
     @hybrid_property
@@ -78,7 +73,7 @@ class NonLocalAuthor(db.Model):
     id: str = db.Column(db.Text, primary_key=True, unique=True)
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)
-    displayName: str = db.Column("displayName", db.Text, nullable=False)
+    username: str = db.Column("username", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=False)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
 
