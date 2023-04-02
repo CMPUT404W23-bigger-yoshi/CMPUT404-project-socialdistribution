@@ -1,24 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './Post.css';
-import {
-  deletePost,
-  getComments,
-  getLikes,
-  getPost,
-  likePost
-} from '../../services/post';
+import { deletePost, getComments, getLikes, getPost, likePost } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import {
-  ChatLeftTextFill,
-  HeartFill,
-  ShareFill,
-  ThreeDots
-} from 'react-bootstrap-icons';
+import { ChatLeftTextFill, HeartFill, ShareFill, ThreeDots } from 'react-bootstrap-icons';
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
 import { AuthorContext } from '../../context/AuthorContext';
 
@@ -30,6 +19,7 @@ const Post = (props) => {
   // Use context to get user details
   const userDetails = useContext(AuthorContext).author;
   const location = useLocation();
+  const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -152,18 +142,18 @@ const Post = (props) => {
         postId={post.id}
         updateComments={() => setUpdateComments(true)}
       />
-      <div className="post">
-        <div className="post-container">
-          <Row className="post-header">
+      <div className='post'>
+        <div className='post-container'>
+          <Row className='post-header'>
             {/* The post header will contain the following: */}
             {/* 1. The author's profile image on the left */}
             {/* 2. The author's display name on the right of the image */}
             {/* 3. The post's visibility right below the display name */}
             {/* 4. The post's published date on the rightmost side of the header */}
             <Col md={6} xs={12}>
-              <div className="post-info">
+              <div className='post-info'>
                 {props.isRepost && (
-                  <div className="post-repost">
+                  <div className='post-repost'>
                     <span>
                       <img
                         src={
@@ -171,7 +161,7 @@ const Post = (props) => {
                             ? post.author.profileImage
                             : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
                         }
-                        className="post-profile-image"
+                        className='post-profile-image'
                         alt={post.author.displayName}
                         style={{
                           width: '25px',
@@ -180,11 +170,11 @@ const Post = (props) => {
                         }}
                       />
                     </span>
-                    <span className="post-repost-text">
+                    <span className='post-repost-text'>
                       Reposted from {post.author.displayName}
                     </span>
                     {/* Draw a line */}
-                    <hr className="post-repost-line" />
+                    <hr className='post-repost-line' />
                   </div>
                 )}
                 <img
@@ -193,39 +183,46 @@ const Post = (props) => {
                       ? post.author.profileImage
                       : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
                   }
-                  className="post-profile-image"
+                  className='post-profile-image'
                   alt={post.author.displayName}
+                  onClick={() => {
+                    navigate(`/authors?q=${post.author.id}`);
+                  }}
                 />
-                <div className="post-info-author">
-                  <div className="post-author-name">
+                <div className='post-info-author'>
+                  <div className='post-author-name'
+                       onClick={() => {
+                         navigate(`/authors?q=${post.author.id}`);
+                       }}
+                  >
                     {post.author.displayName}{' '}
-                    <span className="post-date">
+                    <span className='post-date'>
                       • {formatDate(post.published)}
                     </span>
                   </div>
-                  <div className="post-visibility">{post.visibility}</div>
+                  <div className='post-visibility'>{post.visibility}</div>
                 </div>
               </div>
             </Col>
             <Col md={6} xs={12}>
-              <div className="post-published">{formatDate(post.published)}</div>
+              <div className='post-published'>{formatDate(post.published)}</div>
             </Col>
           </Row>
-          <Row className="post-content">
+          <Row className='post-content'>
             {/* The post content will contain the following: */}
             {/* 1. The post's title */}
             {/* 2. The post's content */}
             {/* 3. The post's categories */}
             {/* 4. The post's image if any */}
-            <div className="post-title">
+            <div className='post-title'>
               <h3>{post.title}</h3>
             </div>
-            <div className="post-categories">
+            <div className='post-categories'>
               {post?.categories?.length > 0 &&
                 post.categories.map((category, idx) => {
                   if (category !== '') {
                     return (
-                      <span key={idx} className="post-category">
+                      <span key={idx} className='post-category'>
                         {category}
                       </span>
                     );
@@ -233,27 +230,27 @@ const Post = (props) => {
                   return null;
                 })}
             </div>
-            <div className="post-body">
+            <div className='post-body'>
               {post.contentType === 'text/markdown' ? (
                 <ReactMarkdown
                   children={post.content}
                   remarkPlugins={[remarkGfm]}
                 />
               ) : post.contentType.startsWith('image/') ? (
-                <img src={`${post.content}`} className="post-image" alt="" />
+                <img src={`${post.content}`} className='post-image' alt='' />
               ) : (
                 post.content
               )}
             </div>
           </Row>
-          <Row className="post-footer">
+          <Row className='post-footer'>
             {/* The post footer will contain the following: */}
             {/* 1. The number of comments */}
             {/* 2. A share button */}
             {/* 3. A three dot button that will show a dropdown menu */}
-            <Col xs={3} className="post-buttons">
-              <div className="post-likes-count">
-                <Button variant="dark" onClick={handleLike}>
+            <Col xs={3} className='post-buttons'>
+              <div className='post-likes-count'>
+                <Button variant='dark' onClick={handleLike}>
                   <HeartFill
                     style={{
                       color: post.liked ? 'red' : 'white'
@@ -263,10 +260,10 @@ const Post = (props) => {
                 </Button>
               </div>
             </Col>
-            <Col xs={3} className="post-buttons">
-              <div className="post-comments-count">
+            <Col xs={3} className='post-buttons'>
+              <div className='post-comments-count'>
                 <Button
-                  variant="dark"
+                  variant='dark'
                   onClick={() => setShowCommentsModal(true)}
                 >
                   <ChatLeftTextFill />
@@ -274,18 +271,18 @@ const Post = (props) => {
                 </Button>
               </div>
             </Col>
-            <Col xs={3} className="post-buttons">
-              <div className="post-share">
-                <Button variant="dark" onClick={() => setShowShareModal(true)}>
-                  <ShareFill /> <span className="icon-hint">Share</span>
+            <Col xs={3} className='post-buttons'>
+              <div className='post-share'>
+                <Button variant='dark' onClick={() => setShowShareModal(true)}>
+                  <ShareFill /> <span className='icon-hint'>Share</span>
                 </Button>
               </div>
             </Col>
-            <Col xs={3} className="post-buttons">
-              <div className="post-more">
+            <Col xs={3} className='post-buttons'>
+              <div className='post-more'>
                 <Dropdown>
-                  <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                    <ThreeDots /> <span className="icon-hint">More</span>
+                  <Dropdown.Toggle variant='dark' id='dropdown-basic'>
+                    <ThreeDots /> <span className='icon-hint'>More</span>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
@@ -317,8 +314,8 @@ const Post = (props) => {
                         </Dropdown.Item>
                       </>
                     )}
-                    <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
-                    <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
+                    <Dropdown.Item href='#/action-3'>Source</Dropdown.Item>
+                    <Dropdown.Item href='#/action-4'>Origin</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
