@@ -25,7 +25,19 @@ export const getCurrentUserId = async () => {
 };
 
 export const getUserDetails = async (authorUrl) => {
-  if (authorUrl.match('bigger-yoshi')) {
+  // Check if it is a url or id
+  let isUrl = true;
+  try {
+    URL(authorUrl);
+  } catch (_) {
+    isUrl = false;
+  }
+
+  if (
+    authorUrl.match('bigger-yoshi') ||
+    authorUrl.match('localhost') ||
+    !isUrl
+  ) {
     console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
     return await axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
