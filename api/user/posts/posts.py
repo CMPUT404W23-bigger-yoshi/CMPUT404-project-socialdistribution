@@ -767,10 +767,9 @@ def make_like(json, author_id):
     # if author doesn't exist both locally and non-locally
     if author is None:
         author = create_non_local_author(json.get("author"))
-
-    # if failed to create the author
-    if author is None:
-        return {"message": "Missing fields in author"}, 400
+        # if failed to create the author
+        if author is None:
+            return {"message": "failed to create foreign author"}, 500
 
     response = {"success": 1, "message": "Like created"}, 201
     try:
@@ -836,16 +835,19 @@ def make_comment(json, author_id):
     if author_id is None:
         return {"message": "Missing fields"}, 400
 
-    author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
-    if author is None:
-        author = NonLocalAuthor.query.filter_by(id=author_id).first()
-
-    # if author doesn't exist both locally and non-locally
-    if author is None:
-        author = create_non_local_author(json.get("author"))
-        # if failed to create the author
-        if author is None:
-            return {"message": "failed to create author"}, 500
+    local_author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
+    if local_author is None:
+        foreign_author = NonLocalAuthor.query.filter_by(id=author_id).first()
+        # if author doesn't exist both locally and non-locally
+        if foreign_author is None:
+            new_foreign_author = create_non_local_author(json.get("author"))
+            # if failed to create the author
+            if new_foreign_author is None:
+                return {"message": "failed to create author"}, 500
+        else:
+            author = foreign_author
+    else:
+        author = local_author
 
     # TODO might need a better way
     post_id = json["object"].split("/")[-1]
