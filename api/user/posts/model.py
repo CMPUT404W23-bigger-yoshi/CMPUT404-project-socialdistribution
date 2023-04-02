@@ -1,22 +1,24 @@
+import logging
 from dataclasses import asdict, dataclass
 
 from flask import jsonify
 from sqlalchemy import Enum, event
 
-from api import db
-from api.admin.APIConfig import APIConfig
+from api import API_BASE, db
 from api.user.author.model import Author, NonLocalAuthor
 from api.utils import Visibility, generate_object_ID, get_pagination_params
 
-
-def _constructURL(context):
-    id = context.get_current_parameters()["id"]
-    author_id = context.get_current_parameters()["author"]
-    url = f"{APIConfig.API_BASE}authors/{author_id}/posts/{id}"
-    return url
+logger = logging.getLogger(__name__)
 
 
-def _constructHostOrigin(context):
+def construct_post_url(context):
+    params = context.get_current_parameters()
+    id_ = params["id"]
+    author_id = params["author"]
+    return f"{API_BASE}authors/{author_id}/posts/{id_}"
+
+
+def construct_host_origin(context):
     return context.get_current_parameters()["url"]
 
 
@@ -30,19 +32,19 @@ inbox_table = db.Table(
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.Text, default=_constructURL)
+    url: str = db.Column(db.Text, default=construct_post_url, unique=True)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
-    origin: str = db.Column("origin", db.Text, nullable=False, default=_constructHostOrigin)
     # server -> the last server from which this post was sent into the inbox of the receiver
-    source: str = db.Column("source", db.Text, nullable=False, default=_constructHostOrigin)
+    source: str = db.Column("source", db.Text, nullable=False, default=construct_host_origin)
+    # where is it actually from
+    origin: str = db.Column("origin", db.Text, nullable=False, default=construct_host_origin)
     description: str = db.Column("shortDesc", db.Text)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
     # categories will be comma separated values
     categories: str = db.Column("categories", db.Text)
 
-    # 0 -> "PUBLIC", 1-> "FRIENDS"
     visibility: Visibility = db.Column("visibility", Enum(Visibility), nullable=False, default=Visibility.PUBLIC)
 
     # unlisted means it is public if you know the post name -- use this for images, it's so images don't show up in
@@ -87,16 +89,26 @@ class Post(db.Model):
         elif post["visibility"] == Visibility.FRIENDS:
             post["visibility"] = "FRIENDS"
 
-        # Comments
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()
-        comments = curr_post.comments.all()
-
-        comments = [comment.getJSON() for comment in comments]
 
         # Renaming url to id
         post["id"] = post["url"]
-        post["comments"] = comments
+        post["comments"] = post["url"] + "/comments"
+
+        # Comments
+        try:
+            post["commentsSrc"] = {
+                "type": "comments",
+                "page": 1,
+                "size": 5,
+                "post": self.url,
+                "id": f"{self.url}/comments",
+                "comments": [comment.getJSON() for comment in self.comments.limit(5).all()],
+            }
+        except Exception:
+            logger.exception("failed to add optional commentsSrc property to response, continuing without it: ")
+
         del post["url"]
         return post
 

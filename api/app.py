@@ -11,10 +11,10 @@ from flask_cors import CORS
 from sqlalchemy import URL
 
 import api.user.followers.model
-from api import API_ROOT, basic_auth, bcrypt, db, login_manager
+from api import API_PATH, basic_auth, bcrypt, db, login_manager
 from api.admin.actions import actions_bp
+from api.admin.api_config import API_CONFIG
 from api.admin.APIAuth import APIAuth
-from api.admin.APIConfig import APIConfig
 from api.admin.inbound_connection import InboundConnection, InboundConnectionView
 from api.admin.nodes import nodes_bp
 from api.admin.outbound_connection import OutboundConnection, OutboundConnectionView
@@ -46,10 +46,10 @@ def create_app(testing_env=False):
         # otherwise, we should be serving a frontend resource here
         return send_from_directory(app.static_folder, path)
 
-    ADMIN_ENDPOINT = f"{API_ROOT}/admin/action"
+    ADMIN_ENDPOINT = f"{API_PATH}/admin/action"
 
-    app.register_blueprint(user_bp, url_prefix=f"{API_ROOT}/authors")
-    app.register_blueprint(nodes_bp, url_prefix=f"{API_ROOT}/nodes")
+    app.register_blueprint(user_bp, url_prefix=f"{API_PATH}/authors")
+    app.register_blueprint(nodes_bp, url_prefix=f"{API_PATH}/nodes")
     app.register_blueprint(actions_bp, url_prefix=ADMIN_ENDPOINT)
 
     app.config.from_object("api.config.Config")
@@ -59,9 +59,15 @@ def create_app(testing_env=False):
 
     basic_auth.init_app(app)
     db.init_app(app)
+    with app.app_context():
+        # need DB before we can populate API_CONFIG below
+        db.create_all()
+
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    API_CONFIG.init_app(app)
 
+    app.jinja_env.globals.update(APIConfig=API_CONFIG, admin_endpoint=ADMIN_ENDPOINT)
     # admin views
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "Fields missing from ruleset", UserWarning)
@@ -80,7 +86,6 @@ def create_app(testing_env=False):
             )
         )
         admin.add_view(Logout(name="logout", endpoint="Logout"))
-        app.jinja_env.globals.update(APIConfig=APIConfig, admin_endpoint=ADMIN_ENDPOINT)
 
     # docs
     p = Path(__file__).with_name("swagger.json")
@@ -91,9 +96,6 @@ def create_app(testing_env=False):
     @login_manager.user_loader
     def load_user(author_id):
         return Author.query.filter(Author.id == author_id).first()
-
-    with app.app_context():
-        db.create_all()
 
     return app
 

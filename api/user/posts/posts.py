@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import asdict
+from datetime import datetime
 from io import BytesIO
 from urllib.parse import urlparse
 
@@ -11,8 +12,7 @@ from flask_login import login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
-from api import basic_auth, db
-from api.admin.APIConfig import APIConfig
+from api import API_HOSTNAME, basic_auth, db
 from api.admin.utils import auth_header_for_url
 from api.user.author.model import Author, NonLocalAuthor
 from api.user.comments.model import Comment
@@ -20,7 +20,7 @@ from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
+from api.utils import Approval, Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -148,6 +148,7 @@ def create_post_auto_gen_id(author_id: str):
     return {"message": "Successfully created new post"}, 201
 
 
+@posts_bp.route("/<string:author_id>/posts", methods=["GET"])
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
 @swag_from(
     {
@@ -424,7 +425,7 @@ def post_foreign_inbox(author_url: str):
     logger.info(
         f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
     )
-
+    logger.info(f"Proxying your request with data: {request.json}\nWith credentials: {auth_header_for_url(author_url)}")
     res = requests.post(author_url, headers=auth_header_for_url(author_url), json=request.json)
     # note (matt): I didn't come up with this,
     # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
@@ -481,11 +482,11 @@ def get_foreign_inbox(author_url: str):
     # https://www.rfc-editor.org/rfc/rfc2616#section-13.5.1
     excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
     headers = {(k, v) for k, v in res.raw.headers.items() if k.lower() not in excluded_headers}
-
     return Response(res.content, res.status_code, headers)
 
 
 # todo check
+@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
     {
@@ -675,31 +676,58 @@ def make_post_non_local(data, author_id):
     return {"message": "Post created successfully."}, 201
 
 
-def fanout_to_local_inbox(post: Post, author: str = None):
+def fanout_to_local_inbox(post: Post, author_id) -> None:
     if post.visibility == Visibility.PUBLIC:
         authors = Author.query.all()
         to_insert = []
         for author in authors:
             to_insert.append({"post_id": post.id, "meant_for": author.id})
         statement = inbox_table.insert().values(to_insert)
-        db.session.execute(statement)
-        db.session.commit()
-    if post.visibility == Visibility.FRIENDS:
-        # todo: eh need a method to determine friends
-        pass
+    elif post.visibility == Visibility.FRIENDS:
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:  # can't do 404, fan-out shouldn't affect the post creation
+            return
+
+        followed_by_author = LocalFollower.query.filter_by(follower_url=author.url, approved=True).all()
+        followed_by_author_urls = set(map(lambda x: x.followed_url, followed_by_author))
+
+        follower_of_author = LocalFollower.query.filter_by(followed_url=author.url, approved=True).all()
+        follower_of_author_urls = set(map(lambda x: x.follower_url, follower_of_author))
+
+        to_insert = []
+        for url in followed_by_author_urls.intersection(follower_of_author_urls):
+            friend = Author.query.filter_by(url=url).first()
+            to_insert.append({"post_id": post.id, "meant_for": friend.id})
+
+        statement = inbox_table.insert().values(to_insert)
+    else:
+        raise ValueError(f"unrecognized: {post.visibility=}")
+
+    db.session.execute(statement)
+    db.session.commit()
 
 
-def fanout_to_foreign_inbox(post, author_id):
-    author = Author.query.filter_by(id=author_id).first()
-    logger.info(f"Finding foreign authors for ${author}")
-    author_url = author.url
-    all_foreign = NonLocalFollower.query.filter_by(followed_url=author_url).all()
-    logger.info(f"logging to {len(all_foreign)} endpoints")
+def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
+    post_author = Author.query.filter_by(id=author_id).first()
+    logger.info(f"finding foreign authors for {post_author} with {post.visibility=}")
+    foreign_followers = NonLocalFollower.query.filter_by(followed_url=post_author.url).all()
+
+    if post.visibility == Visibility.FRIENDS and len(foreign_followers) > 0:
+        # it is very easy to find when they follow us, but more difficult to determine when we follow them,
+        # because follow requests can be denied. what we need to do is:
+        #  1. record our local -> remote follow requests, with approval pending
+        #       - (currently, we simply proxy the foreign inbox endpoint that this would be sent through)
+        #  2. set up an endpoint to *confirm* a follow request has been accepted
+        #       - what we can do without needing a separate endpoint is following is change state to
+        #       accepted when they send us a post for that user
+        logger.warning(f"{post.visibility=} not yet implemented for foreign authors :/")
+
     post_to_send = post.getJSON()
-    for foreign in all_foreign:
+    logger.info(f"logging to {len(foreign_followers)} endpoints")
+    for foreign_follower in foreign_followers:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
+        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox/"
         try:
             resp = requests.post(
                 foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
@@ -707,9 +735,9 @@ def fanout_to_foreign_inbox(post, author_id):
             logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
-                logger.info("non-300 status code!!!")
+                logger.warning("non-200 status code!")
         except:
-            logger.info("failed to send to foreign author: ")
+            logger.exception("failed to send to foreign author: ")
 
 
 def make_like(json, author_id):
@@ -739,10 +767,9 @@ def make_like(json, author_id):
     # if author doesn't exist both locally and non-locally
     if author is None:
         author = create_non_local_author(json.get("author"))
-
-    # if failed to create the author
-    if author is None:
-        return {"message": "Missing fields in author"}, 400
+        # if failed to create the author
+        if author is None:
+            return {"message": "failed to create foreign author"}, 500
 
     response = {"success": 1, "message": "Like created"}, 201
     try:
@@ -770,16 +797,13 @@ def make_follow(json, author_id):
         return {"success": 0, "message": "Bad follow request"}, 400
 
     # we need to parse the object id to see who it's coming from :\
-    parsed = urlparse(actor["url"])
-    server_domain = urlparse(APIConfig.API_BASE)
-    # No need to hard code everywhere, use APIConfig
-    if parsed.hostname == server_domain.hostname:
+    parsed_actor_url = urlparse(actor["url"])
+    if parsed_actor_url.hostname == API_HOSTNAME:
         FollowTable = LocalFollower
     else:
         FollowTable = NonLocalFollower
 
-    logger.info(f"parsed hostname from f{actor['url']}: {parsed.hostname} -> querying {FollowTable.__name__}")
-
+    logger.info(f"parsed hostname from f{actor['url']}: {parsed_actor_url.hostname} -> querying {FollowTable.__name__}")
     if FollowTable == NonLocalFollower:
         non_local_exists = NonLocalAuthor.query.filter_by(url=actor["url"]).first()
         if non_local_exists:
@@ -799,38 +823,48 @@ def make_follow(json, author_id):
     return {"success": 1, "message": "Follow request has been sent!"}, 201
 
 
-# todo fix later too tired right now
 def make_comment(json, author_id):
     """
     Submit a comment made on author's post with id as author_id.
     Arguments:
         author_id: ID of the author who made the
     """
+    url = json.get("object")
+    if not url:
+        return {"message": "failed to provide object key"}, 400
+
+    post_exists = Post.query.filter_by(url=url).first()
+    if not post_exists:
+        return {"message": f"failed to find post @ {url=}"}, 400
 
     author_id = json.get("author", {}).get("id")
     if author_id is None:
         return {"message": "Missing fields"}, 400
 
-    author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
-    if author is None:
-        author = NonLocalAuthor.query.filter_by(id=author_id).first()
-
-    # if author doesn't exist both locally and non-locally
-    if author is None:
-        author = create_non_local_author(json.get("author"))
-
-    # if failed to create the author
-    if author is None:
-        return {"message": "Missing fields in author"}, 400
+    local_author = Author.query.filter_by(id=author_id.split("/")[-1]).first()
+    if local_author is None:
+        foreign_author = NonLocalAuthor.query.filter_by(id=author_id).first()
+        # if author doesn't exist both locally and non-locally
+        if foreign_author is None:
+            new_foreign_author = create_non_local_author(json.get("author"))
+            # if failed to create the author
+            if new_foreign_author is None:
+                return {"message": "failed to create author"}, 500
+            else:
+                author = new_foreign_author
+        else:
+            author = foreign_author
+    else:
+        author = local_author
 
     # TODO might need a better way
-    post_id = json["object"].split("/")[-1]
+    post_url = json["object"]
     comment = Comment(
-        published=json.get("published"),
+        published=json.get("published", datetime.now().isoformat()),
         comment=json.get("comment"),
         contentType=json.get("contentType"),
         author_id=author.id,
-        post_id=post_id,
+        post_url=post_url,
     )
     db.session.add(comment)
     db.session.commit()
@@ -852,6 +886,7 @@ def create_non_local_author(author_to_add):
         db.session.commit()
         return author
     except Exception:
+        logger.exception(f"failed to create non-local author: {author_to_add.get('id')}")
         return None
 
 
