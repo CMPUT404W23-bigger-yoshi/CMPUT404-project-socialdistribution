@@ -706,8 +706,8 @@ def make_follow(json, author_id):
     if not (followed_object := json.get("object")):
         return {"success": 0, "message": "object key must be specified for inbox!"}, 400
 
-    assert json["type"].lower() == "follow"
-    actor = json["actor"]
+    if not (type := json.get("type", None)) or not (actor := json.get("actor", None)):
+        return {"success": 0, "message": "Bad follow request"}, 400
 
     # we need to parse the object id to see who it's coming from :\
     parsed = urlparse(actor["url"])
@@ -727,12 +727,12 @@ def make_follow(json, author_id):
             logger.info("new foreign author encountered, let's keep record of them")
             create_non_local_author(actor)
 
-    if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=author_id).first():
-        return {"success": 0, "message": f"A follow request is already pending for {author_id=}!"}
+    if FollowTable.query.filter_by(follower_url=actor["url"], followed_url=followed_object["url"]).first():
+        return {"success": 0, "message": f"A follow request is already pending for {author_id}!"}, 409
 
     db.session.add(FollowTable(follower_url=actor["url"], followed_url=followed_object["url"], approved=False))
     db.session.commit()
-    return {"success": 1, "message": "Follow request has been sent!"}
+    return {"success": 1, "message": "Follow request has been sent!"}, 201
 
 
 # todo fix later too tired right now

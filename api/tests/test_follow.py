@@ -132,11 +132,14 @@ class TestFollow:
         login_cred = {"username": follower_id, "password": "test"}
         with client:
             auth.login(**login_cred)
+            # Send request
             response = client.post(
                 f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
             auth.logout()
-        assert response.status_code == 201
+            assert response.status_code == 201
+            # Approve request (no need to test here, tested separately afterwards)
+            self.approve_follow(client, auth)
 
         with app.app_context():
             request_sent = LocalFollower.query.filter_by(followed_url=followed_url, follower_url=follower_url).first()
@@ -158,7 +161,7 @@ class TestFollow:
                 f"{API_ROOT}/authors/{followed_id}/inbox", json=self.MockFollowRequest, follow_redirects=True
             )
             auth.logout()
-        assert response.status_code == 200
+        assert response.status_code == 201
 
         # Send again
         with client:
@@ -233,6 +236,9 @@ class TestFollow:
 
     def test_non_local_follow_twice(self, auth, client):
         followed_id = self.MockFollowed["id"].split("/")[-1]
+        login_creds = {"username": self.MockFollower["displayName"], "password": "test"}
+        # we can login as test as it is just basic auth
+        auth.register()
         with client:
             auth.login()
             response = client.post(
@@ -289,7 +295,7 @@ class TestFollow:
                 assert follow_made
 
             followed_id = self.MockFollowed["id"].split("/")[-1]
-            follower_id = self.MockFollower["id"].split("/")[-1]
+            follower_id = urllib.parse.quote(self.MockFollower["url"], safe="")
             login_creds = {"username": self.MockFollowed["displayName"], "password": "test"}
             auth.login(**login_creds)
             response = client.delete(f"{API_ROOT}/authors/{followed_id}/followers/{follower_id}")

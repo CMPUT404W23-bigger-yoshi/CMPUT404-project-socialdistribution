@@ -74,28 +74,31 @@ def followers(author_id: str):
 @basic_auth.required
 def followers_count(author_id: str):
     """Get the count for the number of poeple following the author"""
-    following = LocalFollower.query.filter_by(followed_url=author_id, approved=True).count()
-    non_local_following = NonLocalFollower.query.filter_by(followed_url=author_id, approved=True).count()
+    found_author = Author.query.filter_by(id=author_id).first_or_404()
+    following = LocalFollower.query.filter_by(followed_url=found_author.url, approved=True).count()
+    non_local_following = NonLocalFollower.query.filter_by(followed_url=found_author.url, approved=True).count()
+
     return {"count": following + non_local_following}
 
 
-@followers_bp.route("/<string:author_id>/followers/<path:foreign_author_id>", methods=["DELETE"])
+@followers_bp.route("/<string:author_id>/followers/<path:follower_url>", methods=["DELETE"])
 @login_required
-def remove_follower(author_id: str, foreign_author_id: str):
+def remove_follower(author_id: str, follower_url: str):
     """remove foreign_author_id as a follower of author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
-    auth_to_remove = found_author.follows.filter_by(id=foreign_author_id).first()
+
+    islocal = LocalFollower.query.filter_by(followed_url=found_author.url, follower_url=follower_url).first()
 
     # local author doesn't exist
-    if not auth_to_remove:
+    if not islocal:
         non_local_follower = NonLocalFollower.query.filter_by(
-            follower_url=foreign_author_id, followed_url=author_id
+            follower_url=follower_url, followed_url=found_author.url
         ).first_or_404()
         db.session.delete(non_local_follower)
         db.session.commit()
         return {"message": "Success"}, 200
 
-    found_author.follows.remove(auth_to_remove)
+    db.session.delete(islocal)
     db.session.commit()
     return {"message": "Success"}, 200
 
@@ -127,7 +130,7 @@ def add_follower(followed_id: str, follower_id: str):
     return {"success": 0, "message": "failed to approve existing follow request"}, 400
 
 
-@followers_bp.route("/<string:author_id>/followers/<path:follower_id>/", methods=["GET"])
+@followers_bp.route("/<string:author_id>/followers/<path:follower_url>/", methods=["GET"])
 @swag_from(
     {
         "tags": ["Followers"],
@@ -158,20 +161,19 @@ def add_follower(followed_id: str, follower_id: str):
     }
 )
 @basic_auth.required
-def check_is_follower(author_id: str, follower_id: str):
+def check_is_follower(author_id: str, follower_url: str):
     """Check if foreign_author_id is a follower of author_id"""
     followed = Author.query.filter_by(id=author_id).first_or_404()
-    follower_to_check = Author.query.filter_by(id=follower_id).first()
-
-    if not follower_to_check:
+    islocal = LocalFollower.query.filter_by(followed_url=followed.url, follower_url=follower_url).first()
+    found = True
+    if not islocal:
         non_local_follower = NonLocalFollower.query.filter_by(
-            followed_url=author_id, follower_url=follower_id
-        ).first_or_404()
-        return {"found": True}, 200
-
-    follower = followed.follows.filter_by(id=follower_id).first_or_404()
-
-    return {"found": True}, 200
+            followed_url=followed.url, follower_url=follower_url
+        ).first()
+        if not non_local_follower:
+            found = False
+        return {"found": found}, 200
+    return {"found": found}, 200
 
 
 @followers_bp.route("/<string:author_id>/follow-requests", methods=["GET"])
