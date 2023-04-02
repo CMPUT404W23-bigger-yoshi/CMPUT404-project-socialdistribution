@@ -877,6 +877,7 @@ def create_non_local_author(author_to_add):
         db.session.commit()
         return author
     except Exception:
+        logger.exception(f"failed to create non-local author: {author_to_add.get('id')}")
         return None
 
 
