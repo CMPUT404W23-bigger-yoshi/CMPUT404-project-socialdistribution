@@ -35,3 +35,4 @@ flasgger
 flask_admin
 Flask-BasicAuth
 flask_cors
+pytest-cov

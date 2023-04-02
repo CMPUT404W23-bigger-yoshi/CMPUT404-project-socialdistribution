@@ -76,6 +76,10 @@ def get_single_author(author_id: str):
 @authors_bp.route("/<string:author_id>", methods=["POST"])
 @login_required
 def update_author(author_id: str):
+    # Logged in author can only update their own profile
+    if current_user.id != author_id:
+        return {"message": "Unauthorized"}, 401
+
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     data = request.json
     displayName = data.get("displayName", None)
@@ -84,6 +88,9 @@ def update_author(author_id: str):
     profileImage = data.get("profileImage", None)
 
     if displayName:
+        exists = Author.query.filter(Author.username == displayName, Author.id != author_id).first()
+        if exists:
+            return {"message": "Username already exists. Try some other name"}, 409
         found_author.username = displayName
     if github:
         found_author.github = github

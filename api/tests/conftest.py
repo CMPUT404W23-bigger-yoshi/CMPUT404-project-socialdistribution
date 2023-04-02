@@ -17,6 +17,10 @@ class AuthActions(object):
     def logout(self):
         return self._client.post(f"{API_ROOT}/authors/logout")
 
+    # For cross server API testing
+    def register_node(self):
+        pass
+
 
 @pytest.fixture
 def auth(client):
@@ -36,6 +40,11 @@ def app():
         for table in reversed(meta.sorted_tables):
             db.session.execute(table.delete())
         db.session.commit()
+
+
+@pytest.fixture
+def headers():
+    return {"Authorization"}
 
 
 @pytest.fixture()
