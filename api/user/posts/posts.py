@@ -425,7 +425,7 @@ def post_foreign_inbox(author_url: str):
     logger.info(
         f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
     )
-
+    logger.info(f"Proxying your request with data: {request.json}\nWith credentials: {auth_header_for_url(author_url)}")
     res = requests.post(author_url, headers=auth_header_for_url(author_url), json=request.json)
     # note (matt): I didn't come up with this,
     # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
@@ -463,7 +463,7 @@ def post_foreign_inbox(author_url: str):
         },
     }
 )
-@login_required
+@basic_auth.required
 def get_foreign_inbox(author_url: str):
     # assumption: author_id  will be a fully qualified URL
     parsed = urlparse(author_url)
@@ -482,7 +482,6 @@ def get_foreign_inbox(author_url: str):
     # https://www.rfc-editor.org/rfc/rfc2616#section-13.5.1
     excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
     headers = {(k, v) for k, v in res.raw.headers.items() if k.lower() not in excluded_headers}
-
     return Response(res.content, res.status_code, headers)
 
 
@@ -859,13 +858,13 @@ def make_comment(json, author_id):
         author = local_author
 
     # TODO might need a better way
-    post_id = json["object"].split("/")[-1]
+    post_url = json["object"]
     comment = Comment(
         published=json.get("published", datetime.now().isoformat()),
         comment=json.get("comment"),
         contentType=json.get("contentType"),
         author_id=author.id,
-        post_id=post_id,
+        post_url=post_url,
     )
     db.session.add(comment)
     db.session.commit()

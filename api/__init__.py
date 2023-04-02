@@ -34,7 +34,7 @@ logger.setLevel(logging.DEBUG)
 
 # some params that are used around the app
 API_PATH = "/api"
-
+load_dotenv()
 DEFAULT_API_BASE = "https://bigger-yoshi.herokuapp.com/api/"
 API_BASE = os.getenv("API_BASE")  # must be set manually on heroku
 if API_BASE is None:

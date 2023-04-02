@@ -31,7 +31,7 @@ class Comment(db.Model):
         json["id"] = self.post.url + "/comments/" + self.id
 
         del json["author_id"]
-        del json["post_id"]
+        del json["post_url"]
 
         return json
 

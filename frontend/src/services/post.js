@@ -99,9 +99,7 @@ export async function likePost(likeObj) {
       likeObj
     );
   }
-  const encoded = encodeURIComponent(
-    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
-  );
+  const encoded = encodeURIComponent(`${postUrl.split('/posts')[0]}/inbox`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, likeObj);
 }
 
@@ -113,9 +111,7 @@ export function makeComment(commentObj) {
       commentObj
     );
   }
-  const encoded = encodeURIComponent(
-    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
-  );
+  const encoded = encodeURIComponent(`${postUrl.split('/posts')[0]}/inbox/`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, commentObj);
 }
 
