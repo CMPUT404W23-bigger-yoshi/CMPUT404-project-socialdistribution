@@ -45,12 +45,7 @@ class Author(UserMixin, db.Model):
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
     # since the other table will create this type, no need to :)
-    approval: Approval = db.Column(
-        "approval",
-        pgEnum(Approval, create_type=False, name="Approval"),
-        nullable=False,
-        default=_default_approval_from_config,
-    )
+    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
     role: Role = db.Column("role", Enum(Role), nullable=False, default=Role.USER)
 
     @hybrid_property
