@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import asdict
+from datetime import datetime
 from io import BytesIO
 from urllib.parse import urlparse
 
@@ -844,6 +845,8 @@ def make_comment(json, author_id):
             # if failed to create the author
             if new_foreign_author is None:
                 return {"message": "failed to create author"}, 500
+            else:
+                author = new_foreign_author
         else:
             author = foreign_author
     else:
@@ -852,7 +855,7 @@ def make_comment(json, author_id):
     # TODO might need a better way
     post_id = json["object"].split("/")[-1]
     comment = Comment(
-        published=json.get("published"),
+        published=json.get("published", datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")),
         comment=json.get("comment"),
         contentType=json.get("contentType"),
         author_id=author.id,
