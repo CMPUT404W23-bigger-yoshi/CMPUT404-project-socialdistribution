@@ -8,12 +8,12 @@ from api.utils import generate_object_ID, get_author_info
 @dataclass
 class Comment(db.Model):
     id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
-    published: str = db.Column("published", db.Text, nullable=False)
-    contentType: str = db.Column("contentType", db.Text, nullable=False)
-    comment: str = db.Column("comment", db.Text, nullable=False)
+    published: str = db.Column(db.Text, nullable=False)
+    contentType: str = db.Column(db.Text, nullable=False)
+    comment: str = db.Column(db.Text, nullable=False)
     # we can't enforce an FK constraint here - we may be commenting on a remote post
-    author_id: str = db.Column("author_id", db.Text, nullable=False)
-    post_id: str = db.Column("post_id", db.Text, db.ForeignKey("post.id"), nullable=False)
+    author_id: str = db.Column(db.Text, nullable=False)
+    post_url: str = db.Column(db.Text, db.ForeignKey("post.url"), nullable=False)
 
     def getJSON(self):
         json = asdict(self)
@@ -31,7 +31,7 @@ class Comment(db.Model):
         json["id"] = self.post.url + "/comments/" + self.id
 
         del json["author_id"]
-        del json["post_id"]
+        del json["post_url"]
 
         return json
 

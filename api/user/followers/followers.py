@@ -13,7 +13,7 @@ from api.user.followers.model import LocalFollower, NonLocalFollower
 followers_bp = Blueprint("followers", __name__)
 
 
-@followers_bp.route("/<string:author_id>/followers/", methods=["GET"])
+@followers_bp.route("/<string:author_id>/followers", methods=["GET"])
 @swag_from(
     {
         "tags": ["Followers"],
@@ -51,7 +51,7 @@ def followers(author_id: str):
     return {"type": "followers", "items": [author.getJSON() for author in local_followers + non_local_followers]}
 
 
-@followers_bp.route("/<string:author_id>/followers/count/", methods=["GET"])
+@followers_bp.route("/<string:author_id>/followers/count", methods=["GET"])
 @swag_from(
     {
         "tags": ["Followers"],
@@ -103,7 +103,7 @@ def remove_follower(author_id: str, follower_url: str):
     return {"message": "Success"}, 200
 
 
-@followers_bp.route("/<string:followed_id>/followers/<path:follower_id>/", methods=["PUT"])
+@followers_bp.route("/<string:followed_id>/followers/<path:follower_id>", methods=["PUT"])
 @login_required
 def add_follower(followed_id: str, follower_id: str):
     """
@@ -130,7 +130,7 @@ def add_follower(followed_id: str, follower_id: str):
     return {"success": 0, "message": "failed to approve existing follow request"}, 400
 
 
-@followers_bp.route("/<string:author_id>/followers/<path:follower_url>/", methods=["GET"])
+@followers_bp.route("/<string:author_id>/followers/<path:follower_url>", methods=["GET"])
 @swag_from(
     {
         "tags": ["Followers"],

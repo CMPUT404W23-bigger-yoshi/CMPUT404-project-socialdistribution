@@ -1,4 +1,7 @@
+import base64
 import logging
+import os
+from json import JSONDecodeError
 from typing import List
 
 import requests
@@ -6,7 +9,8 @@ from flasgger import swag_from
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
 
-from api import basic_auth, bcrypt, db
+from api import API_BASE, basic_auth, bcrypt, db
+from api.admin.api_config import API_CONFIG
 from api.admin.outbound_connection import OutboundConnection
 from api.admin.utils import auth_header_for_url
 from api.user.author.docs import author_schema, authors_schema
@@ -138,7 +142,9 @@ def login():
         return {"message": "Invalid credentials"}, 401
 
     if user.approval == Approval.PENDING:
-        return {"message": "Author approval pending"}, 401
+        return {
+            "message": "This account is pending approval. Please contact your site administrator for more details"
+        }, 401
 
     login_user(user)
 
@@ -164,19 +170,55 @@ def register_user():
         # username already exists
         return {"message": "User Already exists"}, 409
 
+    anyone_exists = Author.query.first()
+    if anyone_exists:
+        role = Role.USER
+    else:
+        logger.info("since this is the very first signup, automatically granting admin permission")
+        role = Role.ADMIN
+
     user = Author(
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
-        host=request.host_url,
+        host=API_BASE,
+        approval=Approval.PENDING if API_CONFIG.restrict_signups else Approval.APPROVED,
+        role=role,
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    return {"message": "Success"}, 200
+
+
+@authors_bp.route("/create-admin/", methods=["POST"])
+def create_admin():
+    data = request.json
+    secret = data.get("secret-admin")
+    if secret != os.environ.get("SECRET_ADMIN"):
+        return {"Not permitted"}, 401
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username is None or password is None:
+        return {"Missing fields"}, 400
+
+    user_exists = Author.query.filter_by(username=username).first()
+    if user_exists:
+        return {"message": "User Already exists"}, 409
+
+    user = Author(
+        username=username,
+        password=bcrypt.generate_password_hash(password).decode("utf-8"),
+        host=request.host,
         approval=Approval.APPROVED,
-        github="",
         role=Role.ADMIN,
     )
     db.session.add(user)
     db.session.commit()
     login_user(user)
 
-    return {"message": "Success"}, 200
+    return {"message": "Success"}, 201
 
 
 @authors_bp.route("/foreign/<path:url>", methods=["GET"])
@@ -199,13 +241,16 @@ def get_author_id_all(author_username: str):
     # yes, it is sequential (for now)
     # I do not care
     for con in all_connections:
-        authors_url = con.endpoint + "authors"
+        authors_url = con.endpoint + "authors/"
         logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
+        r = None
         try:
             # nobody will have more than 100 authors, so we don't bother to write the code to query more than that
             r = cache_request.get(authors_url, headers=auth_header_for_url(authors_url), params={"size": 100})
             items.extend(r.json().get("items", []))
+        except JSONDecodeError:
+            logger.error(f"failed to parse JSON response {r.status_code=} {r.content.decode()=}")
         except Exception as e:
-            logger.exception(f"failed to make request to {authors_url=}:")
+            logger.exception(f"failed to make request to {authors_url=}: ")
 
     return {"type": "authors", "items": items}

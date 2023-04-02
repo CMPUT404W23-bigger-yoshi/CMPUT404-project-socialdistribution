@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from api import db
-from api.admin.APIConfig import APIConfig
+from api.admin.api_config import API_CONFIG
 from api.admin.outbound_connection import OutboundConnection
 
 nodes_bp = Blueprint("node", __name__)
@@ -19,7 +19,7 @@ def register_node():
     email = data.get("email", None)
 
     count = OutboundConnection.query.count()
-    if count >= APIConfig.NODE_LIMIT:
+    if count >= API_CONFIG.node_limit:
         return {"message": "Maximum nodes connected."}, 503
 
     if not username or not password:

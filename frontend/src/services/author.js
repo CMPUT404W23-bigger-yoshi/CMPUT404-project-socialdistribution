@@ -25,7 +25,7 @@ export const getCurrentUserId = async () => {
 };
 
 export const getUserDetails = (authorUrl) => {
-  if (authorUrl.match('bigger-yoshi')) {
+  if (authorUrl.match(window.location.host)) {
     console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
     return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
@@ -66,7 +66,8 @@ export const approveFollowRequest = async (authorId, followObject) => {
 };
 
 export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
-  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
+  console.log(`aceep follo request called ${foreignAuthorId}`);
+  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}`);
 };
 
 export const unfollowUser = async (authorId, foreignAuthorId) => {

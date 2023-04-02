@@ -4,6 +4,7 @@ from flask import request
 from flask_basicauth import BasicAuth
 from flask_login import current_user
 
+from api.admin.api_config import API_CONFIG
 from api.admin.inbound_connection import InboundConnection
 from api.utils import Approval, is_admin_endpoint
 
@@ -33,6 +34,10 @@ class APIAuth(BasicAuth):
         if current_user.is_authenticated:
             return True
 
+        if not API_CONFIG.protect_api:
+            return True
+
+        # todo: this is somewhat obsolete
         if is_admin_endpoint(path) or request.host in [
             "localhost:5000",
             "127.0.0.1:5000",
