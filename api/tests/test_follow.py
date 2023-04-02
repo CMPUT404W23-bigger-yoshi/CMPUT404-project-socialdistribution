@@ -140,8 +140,11 @@ class TestFollow:
             assert response.status_code == 201
             # Approve request (no need to test here, tested separately afterwards)
             self.approve_follow(client, auth)
+            print(LocalFollower.query.all())
+            print(NonLocalFollower.query.all())
 
         with app.app_context():
+            print(LocalFollower.query.all())
             request_sent = LocalFollower.query.filter_by(followed_url=followed_url, follower_url=follower_url).first()
         assert request_sent
 
