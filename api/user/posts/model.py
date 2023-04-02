@@ -32,7 +32,7 @@ inbox_table = db.Table(
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)
-    url: str = db.Column(db.Text, default=construct_post_url)
+    url: str = db.Column(db.Text, default=construct_post_url, unique=True)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
     # server -> the last server from which this post was sent into the inbox of the receiver
