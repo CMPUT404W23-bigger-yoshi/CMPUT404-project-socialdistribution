@@ -33,7 +33,8 @@
   padding: 10px;
 }
 
-.post .post-author-name, .post .post-profile-image {
+.post .post-author-name,
+.post .post-profile-image {
   color: #41f141;
   cursor: pointer;
 }
