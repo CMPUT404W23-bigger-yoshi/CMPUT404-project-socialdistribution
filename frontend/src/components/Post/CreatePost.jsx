@@ -298,6 +298,7 @@ export default function CreatePost(props) {
                     editPost();
                   } else {
                     createPost();
+                    props.setUpdateFeed(true);
                   }
                 }}
               >

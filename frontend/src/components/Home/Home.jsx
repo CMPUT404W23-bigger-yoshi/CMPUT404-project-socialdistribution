@@ -49,14 +49,12 @@ function Home() {
     if (location.pathname === '/') {
       return (
         <>
-          <CreatePost />
           <Feed userId={userId} isInbox={false} />
         </>
       );
     } else if (location.pathname === '/inbox') {
       return (
         <>
-          <CreatePost />
           <Feed userId={userId} isInbox={true} />
         </>
       );

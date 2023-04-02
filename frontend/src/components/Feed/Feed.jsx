@@ -3,12 +3,14 @@ import './Feed.css';
 import { getHomeFeed, getInbox } from '../../services/post';
 import Post from '../Post/Post';
 import { AuthorContext } from '../../context/AuthorContext';
+import CreatePost from '../Post/CreatePost';
 
 function Feed(props) {
   const { isInbox } = props;
   const { author } = useContext(AuthorContext);
   console.log(`feed author: ${author.id}`);
   const [posts, setPosts] = useState([]);
+  const [updateFeed, setUpdateFeed] = useState(false);
   useEffect(() => {
     // Fetch posts from backend
     const fetchPosts = async () => {
@@ -24,10 +26,11 @@ function Feed(props) {
         console.log(error);
       }
     };
-    fetchPosts().then((r) => console.log(r));
-  }, [isInbox]);
+    fetchPosts().then((r) => setUpdateFeed(false));
+  }, [isInbox, updateFeed]);
   return (
     <div className="feed">
+      <CreatePost setUpdateFeed={setUpdateFeed} />
       {posts?.length > 0 ? (
         posts.map((post) => (
           <Post post={post} key={post.id} currentUser={author.id} />
