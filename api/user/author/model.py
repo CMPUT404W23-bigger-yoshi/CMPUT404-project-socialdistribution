@@ -79,5 +79,6 @@ class NonLocalAuthor(db.Model):
 
     def getJSON(self):
         json = asdict(self)
+        json["displayName"] = json["username"]
         json["type"] = "author"
         return json
