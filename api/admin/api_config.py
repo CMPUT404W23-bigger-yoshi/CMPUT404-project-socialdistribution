@@ -56,6 +56,7 @@ class APIConfigLazyLoader:
         # this is the value that gets saved to db. ugly i know
         setattr(self.config_row, key, val)
         with self.app.app_context():
+            db.session.query(_APIConfigVals).filter(_APIConfigVals._id == self.config_row._id).update({key: val})
             db.session.commit()
 
     def set_node_limit(self, limit: int):
