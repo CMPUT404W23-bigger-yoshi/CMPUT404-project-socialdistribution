@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Settings.css';
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -7,28 +7,12 @@ import {
   getCurrentUserId,
   updateCurrentUserDetails
 } from '../../services/author';
+import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
   const navigate = useNavigate();
-  const [userDetails, setUserDetails] = useState({
-    id: '',
-    displayName: '',
-    github: '',
-    profileImage: ''
-  });
-  useEffect(() => {
-    const getDetails = async () => {
-      try {
-        const response = await getCurrentUserId();
-        const id = response.data.id;
-        const user = await getUserDetails(id);
-        setUserDetails({ ...user.data, id });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getDetails().then((r) => console.log(r));
-  }, []);
+  const author = useContext(AuthorContext).author;
+  const [userDetails, setUserDetails] = useState(author);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
