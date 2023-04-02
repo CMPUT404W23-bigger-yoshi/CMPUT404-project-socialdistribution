@@ -94,7 +94,9 @@ function Settings() {
                         github: 'https://github.com/' + e.target.value
                       })
                     }
-                    disabled={userDetails.host.startsWith(window.location.origin)}
+                    disabled={userDetails.host.startsWith(
+                      window.location.origin
+                    )}
                   />
                 </InputGroup>
               </Form.Group>
