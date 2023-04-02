@@ -145,11 +145,6 @@ const Post = (props) => {
       <div className='post'>
         <div className='post-container'>
           <Row className='post-header'>
-            {/* The post header will contain the following: */}
-            {/* 1. The author's profile image on the left */}
-            {/* 2. The author's display name on the right of the image */}
-            {/* 3. The post's visibility right below the display name */}
-            {/* 4. The post's published date on the rightmost side of the header */}
             <Col md={6} xs={12}>
               <div className='post-info'>
                 {props.isRepost && (
