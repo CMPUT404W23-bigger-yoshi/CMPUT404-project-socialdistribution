@@ -65,7 +65,7 @@ function Comment(props) {
 }
 
 function Comments(props) {
-  const { comments, postId } = props;
+  const { comments, postId, updateComments } = props;
   const { author } = useContext(AuthorContext);
   const [comment, setComment] = React.useState({
     comment: '',
@@ -77,12 +77,6 @@ function Comments(props) {
     <div className="container mt-5 border-left border-right">
       <div className="d-flex justify-content-center pt-3 pb-2">
         <div className="post-content">
-          {/* This will contain: */}
-          {/* A bar that displays the content type on the left */}
-          {/* The bar will allow user to toggle between text/plain and
-            text/markdown using a button on the right */}
-          {/* If the content type is text/plain, a textarea will be displayed */}
-          {/* If the content type is text/markdown, a textarea will be displayed with a preview on the bottom right */}
           <div className="post-content-type-bar">
             <Row className="post-content-type">
               <Col className="post-content-type-text" md={6} xs={12}>
@@ -167,6 +161,7 @@ function Comments(props) {
                 object: `${postId}`
               };
               const res = await makeComment(newComment);
+              updateComments(true);
               console.log(res);
             } catch (e) {
               console.log(e);
@@ -194,7 +189,7 @@ function Comments(props) {
 }
 
 function CommentsModal(props) {
-  const { comments, postId, show, handleClose } = props;
+  const { comments, postId, show, handleClose, updateComments } = props;
   return (
     <div className="comments-modal">
       <Modal
@@ -205,7 +200,7 @@ function CommentsModal(props) {
         centered
       >
         <Modal.Body>
-          <Comments comments={comments?.comments} postId={postId} />
+          <Comments comments={comments?.comments} postId={postId} updateComments={updateComments} />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={handleClose}>Close</Button>

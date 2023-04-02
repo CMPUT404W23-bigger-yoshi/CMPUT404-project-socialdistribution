@@ -3,7 +3,7 @@ import './Settings.css';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { updateCurrentUserDetails } from '../../services/author';
-import SettingsModal from '../SettingsModal/SettingsModal';
+import MessageModal from '../MessageModal/MessageModal';
 import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
@@ -24,6 +24,9 @@ function Settings() {
       if (error.response.status === 409) {
         setError(error.response.data.message);
         handleShow();
+      } else {
+        setError('Error updating settings');
+        handleShow();
       }
       console.log(error);
     }
@@ -42,10 +45,10 @@ function Settings() {
     <div className='settings'>
       <div className='settings-border'>
         <div className='settings-container'>
-          <SettingsModal
+          <MessageModal
             title={'Settings'}
             show={show}
-            error={errorMsg}
+            error={errorMsg}C
             handleClose={handleClose}
           />
           <div className='settings-title'>
@@ -72,6 +75,7 @@ function Settings() {
                       displayName: e.target.value
                     })
                   }
+                  disabled={window.location.origin !== userDetails.host}
                 />
               </Form.Group>
               <Form.Group className='settings-form-group'>
@@ -84,9 +88,10 @@ function Settings() {
                                 onChange={(e) =>
                                   setUserDetails({
                                     ...userDetails,
-                                    githubLink: 'https://github.com/' + e.target.value
+                                    github: 'https://github.com/' + e.target.value
                                   })
                                 }
+                                disabled={window.location.origin !== userDetails.host}
                   />
                 </InputGroup>
               </Form.Group>
@@ -97,6 +102,7 @@ function Settings() {
                   accept='image/*'
                   placeholder='Enter profile picture'
                   onChange={handleImageSelect} // added onChange handler to handle file selection
+                  disabled={window.location.origin !== userDetails.host}
                 />
               </Form.Group>
               <Button
@@ -104,8 +110,12 @@ function Settings() {
                 type='submit'
                 className='settings-submit'
                 onClick={handleSubmit}
+                disabled={window.location.origin !== userDetails.host}
               >
-                Submit
+                {window.location.origin === userDetails.host
+                  ? 'Save Changes'
+                  : 'Cannot edit settings on other hosts'
+                }
               </Button>
             </Form>
             <div className='settings-admin'>

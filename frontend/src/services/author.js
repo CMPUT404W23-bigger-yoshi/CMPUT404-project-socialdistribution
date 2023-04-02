@@ -24,20 +24,8 @@ export const getCurrentUserId = async () => {
   return await axios.get('/authors/authenticated_user_id');
 };
 
-export const getUserDetails = async (authorUrl) => {
-  // Check if it is a url or id
-  let isUrl = true;
-  try {
-    URL(authorUrl);
-  } catch (_) {
-    isUrl = false;
-  }
-
-  if (
-    authorUrl.match('bigger-yoshi') ||
-    authorUrl.match('localhost') ||
-    !isUrl
-  ) {
+export const getUserDetails = (authorUrl) => {
+  if (authorUrl.match('bigger-yoshi')) {
     console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
     return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
@@ -50,19 +38,11 @@ export const getUserById = async (authorId) => {
 };
 
 export const updateCurrentUserDetails = async (authorId, data) => {
-  const userDetails = {
-    ...data,
-    type: 'author'
-  };
-  const config = {
-    method: 'post',
-    url: `/authors/${authorId}`,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(userDetails)
-  };
-  return axios(config);
+  if (data.id.match(window.location.host)) {
+    return await axios.post(`/authors/${authorId}`, data);
+  }
+  const encoded = encodeURIComponent(`${data.id}`);
+  return await axios.post(`/authors/${encoded}`, data);
 };
 
 export const searchSingleUser = async (username) => {

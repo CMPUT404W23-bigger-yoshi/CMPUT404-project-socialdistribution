@@ -33,8 +33,10 @@ const Post = (props) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
-  const [likes, setLikes] = useState([]);
+  const [updateLikes, setUpdateLikes] = useState(false);
+  const [updateComments, setUpdateComments] = useState(false);
   const [commentsSrc, setCommentsSrc] = useState({});
+  const [likes, setLikes] = useState([]);
 
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
@@ -78,7 +80,7 @@ const Post = (props) => {
         console.log(err);
       }
     };
-    fetchLikes().then((r) => console.log(r));
+    fetchLikes().then((r) => setUpdateLikes(false));
     const fetchComments = async () => {
       try {
         const response = await getComments(post.id);
@@ -87,8 +89,8 @@ const Post = (props) => {
         console.log(err);
       }
     };
-    fetchComments().then((r) => console.log(r));
-  }, []);
+    fetchComments().then((r) => setUpdateComments(false));
+  }, [updateLikes, updateComments]);
 
   async function handleLike() {
     try {
@@ -100,6 +102,7 @@ const Post = (props) => {
         },
         object: post.id
       };
+      setUpdateLikes(true);
       const res = await likePost(likeObject);
       console.log(res);
     } catch (err) {
@@ -150,6 +153,7 @@ const Post = (props) => {
         handleClose={() => setShowCommentsModal(false)}
         comments={commentsSrc}
         postId={post.id}
+        updateComments={() => setUpdateComments(true)}
       />
       <div className="post">
         <div className="post-container">

@@ -4,7 +4,7 @@ import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 import { KeyFill, PersonFill } from 'react-bootstrap-icons';
 import React, { useEffect, useState } from 'react';
 import { getCurrentUserId, login, register } from '../../services/author';
-import LoginModal from '../LoginModal/LoginModal';
+import MessageModal from '../MessageModal/MessageModal';
 import { useNavigate } from 'react-router-dom';
 
 const textContent = {
@@ -92,7 +92,7 @@ function Login(props) {
   return (
     <div className="login">
       <div className="login-container">
-        <LoginModal
+        <MessageModal
           title={content.button}
           error={errorMsg}
           show={show}
