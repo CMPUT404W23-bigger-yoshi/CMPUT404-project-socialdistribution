@@ -12,8 +12,11 @@ import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
   const navigate = useNavigate();
-  const author = useContext(AuthorContext).author;
-  const [userDetails, setUserDetails] = useState(author);
+  const [userDetails, setUserDetails] = useState(useContext(AuthorContext).author);
+  const [errorMsg, setError] = useState('Error');
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
