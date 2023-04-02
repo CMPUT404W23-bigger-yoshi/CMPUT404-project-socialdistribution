@@ -855,7 +855,7 @@ def make_comment(json, author_id):
     # TODO might need a better way
     post_id = json["object"].split("/")[-1]
     comment = Comment(
-        published=json.get("published", datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")),
+        published=json.get("published", datetime.now().isoformat()),
         comment=json.get("comment"),
         contentType=json.get("contentType"),
         author_id=author.id,
