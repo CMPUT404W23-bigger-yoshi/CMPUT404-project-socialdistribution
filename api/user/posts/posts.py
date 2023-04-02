@@ -843,10 +843,9 @@ def make_comment(json, author_id):
     # if author doesn't exist both locally and non-locally
     if author is None:
         author = create_non_local_author(json.get("author"))
-
-    # if failed to create the author
-    if author is None:
-        return {"message": "Missing fields in author"}, 400
+        # if failed to create the author
+        if author is None:
+            return {"message": "failed to create author"}, 500
 
     # TODO might need a better way
     post_id = json["object"].split("/")[-1]
