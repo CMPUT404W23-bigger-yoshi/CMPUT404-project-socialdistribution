@@ -22,11 +22,7 @@ function Notifications() {
   return (
     <div className="notifications">
       <div className="notificationsbox">
-        <div className="header">
-          <a>All</a>
-          <a>Posts</a>
-          <a>Following</a>
-        </div>
+        <Notification type="follow" person="test" localAuthor={author} />
         {notifications.map((notification, idx) => (
           <Notification
             key={idx}

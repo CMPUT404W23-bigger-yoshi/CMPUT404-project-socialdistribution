@@ -30,8 +30,33 @@
 .notification-logo {
   border: 2px solid white;
   border-radius: 50%;
+  padding: 5px;
+  margin: 5px;
 }
 
 b {
   font-size: 1.1em;
 }
+
+.notification .follow-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+  font-size: 2.5em;
+}
+
+.notification .follow-icons .follow-icon {
+  border-radius: 50%;
+}
+
+.notification .follow-icons .follow-icon.accept:hover, .notification .follow-icons .follow-icon.accept path:hover {
+  color: #0df327;
+}
+
+.notification .follow-icons .follow-icon.reject:hover, .notification .follow-icons .follow-icon.reject path:hover {
+  color: #f30d0d;
+}
+
+
+

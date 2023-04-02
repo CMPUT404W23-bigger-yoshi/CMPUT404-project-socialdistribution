@@ -45,6 +45,7 @@ function Notification(props) {
           <div className="follow-icons">
             <CheckCircleFill
               size={40}
+              className="follow-icon accept"
               onClick={() => {
                 acceptFollowRequest(
                   props.localAuthor.id.split('/').pop(-1),
@@ -52,7 +53,7 @@ function Notification(props) {
                 );
               }}
             />{' '}
-            <XCircleFill size={40} />
+            <XCircleFill size={40} className="follow-icon reject" />
           </div>
         ) : (
           <div></div>
