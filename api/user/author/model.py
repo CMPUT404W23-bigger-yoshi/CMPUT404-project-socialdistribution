@@ -5,7 +5,8 @@ from datetime import datetime
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, event
+from sqlalchemy import Enum
+from sqlalchemy.dialects.postgresql import ENUM as pgEnum
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from api import API_BASE, db
@@ -38,7 +39,13 @@ class Author(UserMixin, db.Model):
     password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
-    approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
+    # since the other table will create this type, no need to :)
+    approval: Approval = db.Column(
+        "approval",
+        pgEnum(Approval, create_type=False, name="Approval"),
+        nullable=False,
+        default=_default_approval_from_config,
+    )
     role: Role = db.Column("role", Enum(Role), nullable=False, default=Role.USER)
 
     @hybrid_property
