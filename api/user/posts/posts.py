@@ -612,7 +612,8 @@ def make_post_non_local(data, author_id):
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
     """
-    if not data.get("author", None) or not data.get("author").get("id", None):
+    author_obj = data.get("author")
+    if not data.get("author", None) or not author_obj.get("id", None):
         return {"message": "Missing Author"}, 400
 
     if data.get("id") is None:
@@ -631,22 +632,23 @@ def make_post_non_local(data, author_id):
         visibility = Visibility.FRIENDS
 
     # verification of all the fields needed
-    author = data.get("author")
+    author_obj = data.get("author")
+    if not author_obj:
+        return {"message": "failed to find author obj in request", "success": 0}, 400
+
     required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
     for field in required_fields:
-        if author.get(field, None) is None:
+        if author_obj.get(field, None) is None:
             return {"message": "Author with incomplete fields"}, 400
 
-    if Author.query.filter_by(id=data.get("author").get("id")).first() is not None:
+    if Author.query.filter_by(id=author_obj.get("id")).first() is not None:
         return {"message": "Local authors shouldn't send to inbox directly"}, 400
 
-    author = NonLocalAuthor.query.filter_by(id=data.get("author").get("id")).first()
+    author = NonLocalAuthor.query.filter_by(id=author_obj.get("id")).first()
 
     if not author:
-        author = create_non_local_author(data.get("author"))
-
-    if not author:
-        return {"message": "Missing fields in author"}, 400
+        logger.info("creating record of previous non-existent author: ")
+        author = create_non_local_author(author_obj)
 
     post = Post(
         id=post_id,
@@ -663,6 +665,8 @@ def make_post_non_local(data, author_id):
         author=author.id,
     )
     db.session.add(post)
+    # this commit is necessary to satisfy FK constraints with postgres, even in this order for some reason. weird
+    db.session.commit()
     statement = inbox_table.insert().values(post_id=post_id, meant_for=author_id)
     db.session.execute(statement)
     db.session.commit()
