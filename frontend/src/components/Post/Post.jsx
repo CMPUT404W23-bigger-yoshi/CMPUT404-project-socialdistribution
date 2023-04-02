@@ -67,7 +67,7 @@ const Post = (props) => {
         console.log(err);
       }
     };
-    fetchLikes().then((r) => setUpdateLikes(false));
+    fetchLikes().then(() => setUpdateLikes(false));
     const fetchComments = async () => {
       try {
         const response = await getComments(post.id);
@@ -76,7 +76,7 @@ const Post = (props) => {
         console.log(err);
       }
     };
-    fetchComments().then((r) => setUpdateComments(false));
+    fetchComments().then(() => setUpdateComments(false));
   }, [updateLikes, updateComments]);
 
   async function handleLike() {
