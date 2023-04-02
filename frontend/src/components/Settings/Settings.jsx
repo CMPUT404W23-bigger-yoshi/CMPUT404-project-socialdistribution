@@ -1,40 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import './Settings.css';
-import { Button, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import {
-  getUserDetails,
-  getCurrentUserId,
-  updateCurrentUserDetails
-} from '../../services/author';
+import { Button, Form, InputGroup } from 'react-bootstrap';
+import { updateCurrentUserDetails } from '../../services/author';
+import MessageModal from '../MessageModal/MessageModal';
+import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
-  const navigate = useNavigate();
-  const [userDetails, setUserDetails] = useState({
-    id: '',
-    displayName: '',
-    github: '',
-    profileImage: ''
-  });
-  useEffect(() => {
-    const getDetails = async () => {
-      try {
-        const response = await getCurrentUserId();
-        const id = response.data.id;
-        const user = await getUserDetails(id);
-        setUserDetails({ ...user.data, id });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getDetails().then((r) => console.log(r));
-  }, []);
+  const [userDetails, setUserDetails] = useState(
+    useContext(AuthorContext).author
+  );
+  const [errorMsg, setError] = useState('Error');
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await updateCurrentUserDetails(userDetails.id, userDetails);
       console.log(res);
+      setError('Settings updated successfully');
+      handleShow();
     } catch (error) {
+      if (error.response.status === 409) {
+        setError(error.response.data.message);
+        handleShow();
+      } else {
+        setError('Error updating settings');
+        handleShow();
+      }
       console.log(error);
     }
   };
@@ -52,6 +45,13 @@ function Settings() {
     <div className="settings">
       <div className="settings-border">
         <div className="settings-container">
+          <MessageModal
+            title={'Settings'}
+            show={show}
+            error={errorMsg}
+            C
+            handleClose={handleClose}
+          />
           <div className="settings-title">
             <h1>Settings</h1>
             <hr />
@@ -76,18 +76,29 @@ function Settings() {
                       displayName: e.target.value
                     })
                   }
+                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Form.Group className="settings-form-group">
                 <Form.Label>Github Link</Form.Label>
-                <Form.Control
-                  type="link"
-                  placeholder="Enter github link"
-                  value={userDetails.github}
-                  onChange={(e) =>
-                    setUserDetails({ ...userDetails, github: e.target.value })
-                  }
-                />
+                <InputGroup className="mb-3">
+                  <InputGroup.Text id="basic-addon3">
+                    https://github.com/
+                  </InputGroup.Text>
+                  <Form.Control
+                    id="basic-url"
+                    aria-describedby="basic-addon3"
+                    onChange={(e) =>
+                      setUserDetails({
+                        ...userDetails,
+                        github: 'https://github.com/' + e.target.value
+                      })
+                    }
+                    disabled={userDetails.host.startsWith(
+                      window.location.origin
+                    )}
+                  />
+                </InputGroup>
               </Form.Group>
               <Form.Group className="settings-form-group">
                 <Form.Label>Profile Picture</Form.Label>
@@ -96,6 +107,7 @@ function Settings() {
                   accept="image/*"
                   placeholder="Enter profile picture"
                   onChange={handleImageSelect} // added onChange handler to handle file selection
+                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Button
@@ -103,12 +115,18 @@ function Settings() {
                 type="submit"
                 className="settings-submit"
                 onClick={handleSubmit}
+                disabled={userDetails.host.startsWith(window.location.origin)}
               >
-                Submit
+                {userDetails.host.startsWith(window.location.origin)
+                  ? 'Save Changes'
+                  : 'Cannot edit settings on other hosts'}
               </Button>
             </Form>
             <div className="settings-admin">
-              <Button variant="success" onClick={() => navigate('/admin')}>
+              <Button
+                variant="success"
+                onClick={() => window.open('/admin/', '_self')}
+              >
                 Admin Page
               </Button>
             </div>

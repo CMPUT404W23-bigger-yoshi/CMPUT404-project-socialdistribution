@@ -83,6 +83,10 @@ export function getInbox(authorId) {
   return axios.get(`${authorId}/inbox`);
 }
 
+export function getHomeFeed() {
+  return axios.get('/authors/posts');
+}
+
 export async function getLikes(postUrl) {
   if (postUrl.match(window.location.host)) {
     return await axios.get(`${postUrl}/likes`);

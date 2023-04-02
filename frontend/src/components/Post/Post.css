@@ -33,6 +33,12 @@
   padding: 10px;
 }
 
+.post .post-author-name,
+.post .post-profile-image {
+  color: #41f141;
+  cursor: pointer;
+}
+
 .post .post-header .post-info .post-info-author .post-date {
   visibility: hidden;
   font-size: 0.8rem;

@@ -18,7 +18,7 @@ import {
 import remarkGfm from 'remark-gfm';
 import ShareModal from '../ShareModal/ShareModal';
 import CreatePostModal from './CreatePostModal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
 import { AuthorContext } from '../../context/AuthorContext';
 
@@ -30,11 +30,14 @@ const Post = (props) => {
   // Use context to get user details
   const userDetails = useContext(AuthorContext).author;
   const location = useLocation();
+  const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
-  const [likes, setLikes] = useState([]);
+  const [updateLikes, setUpdateLikes] = useState(false);
+  const [updateComments, setUpdateComments] = useState(false);
   const [commentsSrc, setCommentsSrc] = useState({});
+  const [likes, setLikes] = useState([]);
 
   function getIdFromUrl(url) {
     const urlParts = url.split('/');
@@ -70,15 +73,12 @@ const Post = (props) => {
     const fetchLikes = async () => {
       try {
         const response = await getLikes(post.id);
-        const liked = response.data.items.find(
-          (like) => getIdFromUrl(like.author.id) === props.currentUser
-        );
         setLikes(response.data.items);
       } catch (err) {
         console.log(err);
       }
     };
-    fetchLikes().then((r) => console.log(r));
+    fetchLikes().then(() => setUpdateLikes(false));
     const fetchComments = async () => {
       try {
         const response = await getComments(post.id);
@@ -87,8 +87,8 @@ const Post = (props) => {
         console.log(err);
       }
     };
-    fetchComments().then((r) => console.log(r));
-  }, []);
+    fetchComments().then(() => setUpdateComments(false));
+  }, [updateLikes, updateComments]);
 
   async function handleLike() {
     try {
@@ -100,6 +100,7 @@ const Post = (props) => {
         },
         object: post.id
       };
+      setUpdateLikes(true);
       const res = await likePost(likeObject);
       console.log(res);
     } catch (err) {
@@ -150,15 +151,11 @@ const Post = (props) => {
         handleClose={() => setShowCommentsModal(false)}
         comments={commentsSrc}
         postId={post.id}
+        updateComments={() => setUpdateComments(true)}
       />
       <div className="post">
         <div className="post-container">
           <Row className="post-header">
-            {/* The post header will contain the following: */}
-            {/* 1. The author's profile image on the left */}
-            {/* 2. The author's display name on the right of the image */}
-            {/* 3. The post's visibility right below the display name */}
-            {/* 4. The post's published date on the rightmost side of the header */}
             <Col md={6} xs={12}>
               <div className="post-info">
                 {props.isRepost && (
@@ -194,9 +191,17 @@ const Post = (props) => {
                   }
                   className="post-profile-image"
                   alt={post.author.displayName}
+                  onClick={() => {
+                    navigate(`/authors?q=${post.author.id}`);
+                  }}
                 />
                 <div className="post-info-author">
-                  <div className="post-author-name">
+                  <div
+                    className="post-author-name"
+                    onClick={() => {
+                      navigate(`/authors?q=${post.author.id}`);
+                    }}
+                  >
                     {post.author.displayName}{' '}
                     <span className="post-date">
                       • {formatDate(post.published)}
@@ -258,7 +263,7 @@ const Post = (props) => {
                       color: post.liked ? 'red' : 'white'
                     }}
                   />{' '}
-                  {likes.length}
+                  {likes?.length}
                 </Button>
               </div>
             </Col>
@@ -269,7 +274,7 @@ const Post = (props) => {
                   onClick={() => setShowCommentsModal(true)}
                 >
                   <ChatLeftTextFill />
-                  {commentsSrc?.comments ? commentsSrc.comments.length : 0}
+                  {commentsSrc?.comments ? commentsSrc?.comments?.length : 0}
                 </Button>
               </div>
             </Col>

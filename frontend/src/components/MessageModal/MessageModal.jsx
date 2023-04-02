@@ -2,7 +2,7 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
-export default function LoginModal(props) {
+export default function MessageModal(props) {
   const { title, error, show, handleClose } = props;
   return (
     <>

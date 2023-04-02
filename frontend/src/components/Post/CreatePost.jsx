@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './CreatePost.css';
-import { Button, Col, FormSelect, Row } from 'react-bootstrap';
+import { Button, Col, Form, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
 import { generatePostId, updatePost } from '../../services/post';
-import { getCurrentUserId } from '../../services/author';
 import { AuthorContext } from '../../context/AuthorContext';
+import MessageModal from '../MessageModal/MessageModal';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
+  const [show, setShow] = useState(false);
+  const [errorMsg, setError] = useState('Error');
   const [showPreview, setShowPreview] = useState(false);
   const [image, setImage] = useState(null);
   const { author } = useContext(AuthorContext);
@@ -30,21 +32,32 @@ export default function CreatePost(props) {
 
   async function createPost() {
     try {
-      const userId = await getCurrentUserId();
-      console.log(post.contentType);
       const postId = await generatePostId(author, post);
-      console.log(postId);
+      setError('Post created successfully!');
+      setShow(true);
+      setPost({
+        type: 'post',
+        title: '',
+        content: '',
+        contentType: 'text/plain',
+        categories: [],
+        visibility: 'PUBLIC',
+        unlisted: false
+      });
     } catch (err) {
-      console.log(err);
+      setError('Error creating post');
+      setShow(true);
     }
   }
 
   async function editPost() {
     try {
       const res = await updatePost(post.author.id, post.id, post, props.post);
-      console.log(res);
+      setError('Post updated successfully!');
+      setShow(true);
     } catch (err) {
-      console.log(err);
+      setError('Error updating post');
+      setShow(true);
     }
   }
 
@@ -79,6 +92,15 @@ export default function CreatePost(props) {
     </div>
   ) : (
     <div className="create-post">
+      <MessageModal
+        title={'Post'}
+        show={show}
+        error={errorMsg}
+        handleClose={() => {
+          setShow(false);
+          setToggleCreatePost(true);
+        }}
+      />
       <div className="create-post-container">
         <div className="create-post-header">
           <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
@@ -116,6 +138,7 @@ export default function CreatePost(props) {
                 </Col>
                 <Col className="post-content-type-toggle" md={6} xs={12}>
                   <Button
+                    style={{ marginRight: '10px' }}
                     variant="outline-light"
                     onClick={() => {
                       setImage(); // Clear previous image when switching back to text
@@ -198,11 +221,17 @@ export default function CreatePost(props) {
                       className="post-content-image-preview"
                     />
                   ) : (
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                    />
+                    <Form.Group
+                      className="post-content-image-upload"
+                      style={{ width: '100%', margin: '20px 0' }}
+                    >
+                      <Form.Control
+                        type="file"
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                        placeholder="Upload Image"
+                      />
+                    </Form.Group>
                   )}
                 </div>
               )}
@@ -251,7 +280,6 @@ export default function CreatePost(props) {
               <Button
                 variant="danger"
                 onClick={() => {
-                  setToggleCreatePost(props.post ? false : !toggleCreatePost);
                   setImage(); // Clear image when cancelling
                   setPost({
                     type: 'post',
@@ -273,6 +301,7 @@ export default function CreatePost(props) {
                     editPost();
                   } else {
                     createPost();
+                    props.setUpdateFeed(true);
                   }
                 }}
               >
