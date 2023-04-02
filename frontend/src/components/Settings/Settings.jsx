@@ -1,13 +1,11 @@
 import React, { useContext, useState } from 'react';
 import './Settings.css';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import { updateCurrentUserDetails } from '../../services/author';
 import MessageModal from '../MessageModal/MessageModal';
 import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
-  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(
     useContext(AuthorContext).author
   );
@@ -78,7 +76,7 @@ function Settings() {
                       displayName: e.target.value
                     })
                   }
-                  disabled={window.location.origin !== userDetails.host}
+                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Form.Group className="settings-form-group">
@@ -96,7 +94,7 @@ function Settings() {
                         github: 'https://github.com/' + e.target.value
                       })
                     }
-                    disabled={window.location.origin !== userDetails.host}
+                    disabled={userDetails.host.startsWith(window.location.origin)}
                   />
                 </InputGroup>
               </Form.Group>
@@ -107,7 +105,7 @@ function Settings() {
                   accept="image/*"
                   placeholder="Enter profile picture"
                   onChange={handleImageSelect} // added onChange handler to handle file selection
-                  disabled={window.location.origin !== userDetails.host}
+                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Button
@@ -115,9 +113,9 @@ function Settings() {
                 type="submit"
                 className="settings-submit"
                 onClick={handleSubmit}
-                disabled={window.location.origin !== userDetails.host}
+                disabled={userDetails.host.startsWith(window.location.origin)}
               >
-                {window.location.origin === userDetails.host
+                {userDetails.host.startsWith(window.location.origin)
                   ? 'Save Changes'
                   : 'Cannot edit settings on other hosts'}
               </Button>
