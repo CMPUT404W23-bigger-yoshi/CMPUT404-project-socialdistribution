@@ -109,7 +109,7 @@ function Settings() {
               </Button>
             </Form>
             <div className='settings-admin'>
-              <Button variant='success' onClick={() => navigate('/admin')}>
+              <Button variant='success' onClick={() => window.open('/admin/', '_self')}>
                 Admin Page
               </Button>
             </div>
