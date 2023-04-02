@@ -8,8 +8,10 @@ import {
   XCircleFill
 } from 'react-bootstrap-icons';
 import { acceptFollowRequest } from '../../services/author';
+import { useNavigate } from 'react-router-dom';
 
 function Notification(props) {
+  const navigate = useNavigate();
   return (
     <div className="notification">
       <div className="left">
@@ -17,7 +19,8 @@ function Notification(props) {
           width={70}
           height={70}
           className="notification-logo"
-          src={props.person.profileImage}
+          src={props.person.profileImage !== '' ? props.person.profileImage : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'}
+         alt="profile"
         />
         <p>
           {props.type === 'friend' ? (
@@ -27,7 +30,10 @@ function Notification(props) {
           ) : props.type === 'comment' ? (
             `${props.person} commented on your post!`
           ) : props.type === 'follow' ? (
-            `${props.person.displayName} wants to follow you!`
+            <div className="follow" onClick={() => navigate(`/authors?q=${props.person.id}`)}>
+              <span className="user-name">{props.person.displayName}</span>
+              <span> wants to follow you!</span>
+            </div>
           ) : (
             <div></div>
           )}

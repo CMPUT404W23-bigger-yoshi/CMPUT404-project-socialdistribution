@@ -52,11 +52,23 @@ b {
 
 .notification .follow-icons .follow-icon.accept:hover, .notification .follow-icons .follow-icon.accept path:hover {
   color: #0df327;
+  cursor: pointer;
 }
 
 .notification .follow-icons .follow-icon.reject:hover, .notification .follow-icons .follow-icon.reject path:hover {
   color: #f30d0d;
+  cursor: pointer;
 }
 
+.notification .follow {
+  font-weight: normal;
+}
 
+.notification .follow .user-name {
+  font-weight: bold;
+}
 
+.notification .follow .user-name:hover {
+  color: #0df327;
+  cursor: pointer;
+}
