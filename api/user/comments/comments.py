@@ -80,7 +80,7 @@ def post_comment(author_id: str, post_id: str):
             published=data["published"],
             comment=data["comment"],
             contentType=data["contentType"],
-            post_id=post_id,
+            post_url=data["object"],
             author_id=data["author"]["id"],
             id=generate_object_ID(),
         )
