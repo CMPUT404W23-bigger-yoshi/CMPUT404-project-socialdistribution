@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import asdict
+from io import BytesIO
 from urllib.parse import urlparse
 
 import requests
@@ -204,13 +205,22 @@ def post_as_base64_img(author_id: str, post_id: str):
     """
     Get the public post converted to binary as an image
     """
-    author = Author.query.filter_all(id=author_id).first_or_404()
-    post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
-    valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
-    if not (post.contentType == "application/base64" or post.contentType.startsWith("image/")):
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(author=author_id, id=post_id).first_or_404()
+    if not (post.contentType == "application/base64" or post.contentType.startswith("image/")):
         return "Not an image", 404
 
-    return post.content
+    # remove the header from the string
+    data = post.content.split(",")[1]
+
+    # decode the base64 string
+    decoded = base64.b64decode(data)
+
+    # create a BytesIO object from the decoded bytes
+    img_io = BytesIO(decoded)
+
+    # return the byte stream as a response with the appropriate headers
+    return Response(img_io.getvalue(), mimetype=post.contentType)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
