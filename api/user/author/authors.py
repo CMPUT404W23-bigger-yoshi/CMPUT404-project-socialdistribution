@@ -1,4 +1,6 @@
+import base64
 import logging
+import os
 from typing import List
 
 import requests
@@ -167,16 +169,46 @@ def register_user():
     user = Author(
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
-        host=request.host_url,
-        approval=Approval.APPROVED,
-        github="",
-        role=Role.ADMIN,
+        host=request.host,
+        approval=Approval.PENDING,
+        role=Role.USER,
     )
     db.session.add(user)
     db.session.commit()
     login_user(user)
 
     return {"message": "Success"}, 200
+
+
+@authors_bp.route("/create-admin/", methods=["POST"])
+def create_admin():
+    data = request.json
+    secret = data.get("secret-admin")
+    if secret != os.environ.get("SECRET_ADMIN"):
+        return {"Not permitted"}, 401
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username is None or password is None:
+        return {"Missing fields"}, 400
+
+    user_exists = Author.query.filter_by(username=username).first()
+    if user_exists:
+        return {"message": "User Already exists"}, 409
+
+    user = Author(
+        username=username,
+        password=bcrypt.generate_password_hash(password).decode("utf-8"),
+        host=request.host,
+        approval=Approval.APPROVED,
+        role=Role.ADMIN,
+    )
+    db.session.add(user)
+    db.session.commit()
+    login_user(user)
+
+    return {"message": "Success"}, 201
 
 
 @authors_bp.route("/foreign/<path:url>", methods=["GET"])
@@ -199,7 +231,7 @@ def get_author_id_all(author_username: str):
     # yes, it is sequential (for now)
     # I do not care
     for con in all_connections:
-        authors_url = con.endpoint + "authors"
+        authors_url = con.endpoint + "authors/"
         logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
         try:
             # nobody will have more than 100 authors, so we don't bother to write the code to query more than that

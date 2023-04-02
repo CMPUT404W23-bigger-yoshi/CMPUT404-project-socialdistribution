@@ -19,7 +19,7 @@ from api.user.followers.model import LocalFollower, NonLocalFollower
 from api.user.posts.docs import *
 from api.user.posts.model import Post, inbox_table
 from api.user.relations import author_likes_comments, author_likes_posts
-from api.utils import Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
+from api.utils import Approval, Visibility, generate_object_ID, get_author_info, get_object_type, get_pagination_params
 
 # note: this blueprint is usually mounted under  URL prefix
 posts_bp = Blueprint("posts", __name__)
@@ -670,31 +670,58 @@ def make_post_non_local(data, author_id):
     return {"message": "Post created successfully."}, 201
 
 
-def fanout_to_local_inbox(post: Post, author: str = None):
+def fanout_to_local_inbox(post: Post, author_id) -> None:
     if post.visibility == Visibility.PUBLIC:
         authors = Author.query.all()
         to_insert = []
         for author in authors:
             to_insert.append({"post_id": post.id, "meant_for": author.id})
         statement = inbox_table.insert().values(to_insert)
-        db.session.execute(statement)
-        db.session.commit()
+    elif post.visibility == Visibility.FRIENDS:
+        author = Author.query.filter_by(id=author_id).first()
+        if author is None:  # can't do 404, fan-out shouldn't affect the post creation
+            return
+
+        followed_by_author = LocalFollower.query.filter_by(follower_url=author.url, approved=Approval.APPROVED).all()
+        followed_by_author_urls = set(map(lambda x: x.followed_url, followed_by_author))
+
+        follower_of_author = LocalFollower.query.filter_by(followed_url=author.url, approved=Approval.APPROVED).all()
+        follower_of_author_urls = set(map(lambda x: x.follower_url, follower_of_author))
+
+        to_insert = []
+        for url in followed_by_author_urls.intersection(follower_of_author_urls):
+            friend = Author.query.filter_by(url=url).first()
+            to_insert.append({"post_id": post.id, "meant_for": friend.id})
+
+        statement = inbox_table.insert().values(to_insert)
+    else:
+        raise ValueError(f"unrecognized: {post.visibility=}")
+
+    db.session.execute(statement)
+    db.session.commit()
+
+
+def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
+    post_author = Author.query.filter_by(id=author_id).first()
+    logger.info(f"finding foreign authors for {post_author} with {post.visibility=}")
+    foreign_followers = NonLocalFollower.query.filter_by(followed_url=post_author.url).all()
+
     if post.visibility == Visibility.FRIENDS:
-        # todo: eh need a method to determine friends
-        pass
+        # it is very easy to find when they follow us, but more difficult to determine when we follow them,
+        # because follow requests can be denied. what we need to do is:
+        #  1. record our local -> remote follow requests, with approval pending
+        #       - (currently, we simply proxy the foreign inbox endpoint that this would be sent through)
+        #  2. set up an endpoint to *confirm* a follow request has been accepted
+        #       - what we can do without needing a separate endpoint is following is change state to
+        #       accepted when they send us a post for that user
+        logger.warning(f"{post.visibility=} not yet implemented for foreign authors :/")
 
-
-def fanout_to_foreign_inbox(post, author_id):
-    author = Author.query.filter_by(id=author_id).first()
-    logger.info(f"Finding foreign authors for ${author}")
-    author_url = author.url
-    all_foreign = NonLocalFollower.query.filter_by(followed_url=author_url).all()
-    logger.info(f"logging to {len(all_foreign)} endpoints")
     post_to_send = post.getJSON()
-    for foreign in all_foreign:
+    logger.info(f"logging to {len(foreign_followers)} endpoints")
+    for foreign_follower in foreign_followers:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign.follower_url.rstrip("/") + "/inbox/"
+        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox/"
         try:
             resp = requests.post(
                 foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
@@ -702,9 +729,9 @@ def fanout_to_foreign_inbox(post, author_id):
             logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
-                logger.info("non-300 status code!!!")
+                logger.warning("non-200 status code!")
         except:
-            logger.info("failed to send to foreign author: ")
+            logger.exception("failed to send to foreign author: ")
 
 
 def make_like(json, author_id):
