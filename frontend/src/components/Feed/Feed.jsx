@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Feed.css';
 import { getInbox } from '../../services/post';
 import Post from '../Post/Post';
+import { AuthorContext } from '../../context/AuthorContext';
 
 function Feed(props) {
   const { userId, isInbox } = props;
+  const { author } = useContext(AuthorContext);
+  console.log(`feed author: ${author.id}`);
   const [posts, setPosts] = useState([]);
   useEffect(() => {
     // Fetch posts from backend
     const fetchPosts = async () => {
       try {
-        let response;
-        if (!isInbox) {
-          response = await getInbox(userId);
-        } else {
-          response = await getInbox(userId);
-        }
+        const response = await getInbox(author.id);
         setPosts(response.data.items);
       } catch (error) {
         console.log(error);

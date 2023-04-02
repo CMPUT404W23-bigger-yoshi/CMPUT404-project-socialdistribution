@@ -5,7 +5,7 @@ from flask_login import current_user, logout_user
 from api.admin import RedirectingAuthMixin
 
 
-class SettingsView(BaseView, RedirectingAuthMixin):
+class SettingsView(RedirectingAuthMixin, BaseView):
     @expose("/")
     def index(self):
         return self.render(
@@ -17,4 +17,4 @@ class Logout(BaseView):
     @expose("/")
     def index(self):
         logout_user()
-        return redirect("/admin")
+        return redirect("/login")

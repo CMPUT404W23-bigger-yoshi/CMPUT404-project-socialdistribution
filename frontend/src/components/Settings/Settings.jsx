@@ -7,6 +7,7 @@ import {
   getCurrentUserId,
   updateCurrentUserDetails
 } from '../../services/author';
+import SettingsModal from '../SettingsModal/SettingsModal';
 import { AuthorContext } from '../../context/AuthorContext';
 
 function Settings() {
@@ -18,7 +19,13 @@ function Settings() {
     try {
       const res = await updateCurrentUserDetails(userDetails.id, userDetails);
       console.log(res);
+      setError('Settings updated successfully');
+      handleShow();
     } catch (error) {
+      if (error.response.status === 409) {
+        setError(error.response.data.message);
+        handleShow();
+      }
       console.log(error);
     }
   };
@@ -36,6 +43,12 @@ function Settings() {
     <div className="settings">
       <div className="settings-border">
         <div className="settings-container">
+          <SettingsModal
+            title={'Settings'}
+            show={show}
+            error={errorMsg}
+            handleClose={handleClose}
+          />
           <div className="settings-title">
             <h1>Settings</h1>
             <hr />

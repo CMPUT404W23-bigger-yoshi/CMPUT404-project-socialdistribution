@@ -31,6 +31,8 @@ frontend/coverage
 
 # backend stuff
 .venv
+.coverage
 venv
 __pycache__
 api/.env
+api/.coverage
