@@ -142,7 +142,9 @@ def login():
         return {"message": "Invalid credentials"}, 401
 
     if user.approval == Approval.PENDING:
-        return {"message": "Author approval pending"}, 401
+        return {
+            "message": "This account is pending approval. Please contact your site administrator for more details"
+        }, 401
 
     login_user(user)
 
@@ -184,7 +186,6 @@ def register_user():
     )
     db.session.add(user)
     db.session.commit()
-    login_user(user)
 
     return {"message": "Success"}, 200
 

@@ -14,7 +14,7 @@
         </h5>
 
         <h5>
-            Auto approve authors
+            Restrict signups
             <input type="checkbox" id="auto-auth" name="Approve-authors" value="Approve-authors"
                    style="display: inline;">
         </h5>
@@ -33,7 +33,7 @@
         const protectAPI = document.querySelector("#api-auth");
         protectAPI.checked = "{{ APIConfig.protect_api }}" == "True";
         const autoAuth = document.querySelector("#auto-auth");
-        autoAuth.checked = "{{ APIConfig.AUTHOR_AUTO_APPROVE }}" === "True"
+        autoAuth.checked = "{{ APIConfig.restrict_signups }}" === "True"
 
 
         function sendConfig() {
