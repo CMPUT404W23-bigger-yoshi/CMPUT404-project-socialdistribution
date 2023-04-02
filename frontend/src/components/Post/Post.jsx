@@ -72,9 +72,6 @@ const Post = (props) => {
     const fetchLikes = async () => {
       try {
         const response = await getLikes(post.id);
-        const liked = response.data.items.find(
-          (like) => getIdFromUrl(like.author.id) === props.currentUser
-        );
         setLikes(response.data.items);
       } catch (err) {
         console.log(err);

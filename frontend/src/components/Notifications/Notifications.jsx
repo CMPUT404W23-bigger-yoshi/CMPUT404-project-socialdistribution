@@ -20,16 +20,24 @@ function Notifications() {
   }, []);
 
   return (
-    <div className="notifications">
-      <div className="notificationsbox">
-        {notifications.map((notification, idx) => (
-          <Notification
-            key={idx}
-            type={notification.type}
-            person={notification.author}
-            localAuthor={author}
-          />
-        ))}
+    <div className='notifications'>
+      <div className='notificationsbox'>
+        {notifications.length > 0 ? (
+            notifications.map((notification, idx) => (
+              <Notification
+                key={idx}
+                type={notification.type}
+                person={notification.author}
+                localAuthor={author}
+              />
+            ))
+          ) : (
+            <div className='no-notifications'
+                 style={{ textAlign: 'center', marginTop: '40%' }}>
+              <br />
+              <h1>No notifications to show</h1>
+            </div>
+          )}
       </div>
     </div>
   );
