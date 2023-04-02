@@ -10,8 +10,8 @@ export function getPosts(authorUrl) {
   if (authorUrl.match(window.location.host)) {
     return axios.get(`/authors/${authorUrl.split('/').pop(-1)}/posts/`);
   }
-  const encoded = encodeURIComponent(authorUrl);
-  return axios.get(`/authors/foreign/${encoded}/posts`);
+  const encoded = encodeURIComponent(`${authorUrl}/posts`);
+  return axios.get(`/authors/foreign-inbox/${encoded}`);
 }
 
 export async function generatePostId(author, postContent) {
@@ -87,8 +87,8 @@ export async function getLikes(postUrl) {
   if (postUrl.match(window.location.host)) {
     return await axios.get(`${postUrl}/likes`);
   }
-  const encoded = encodeURIComponent(postUrl);
-  return await axios.get(`/authors/foreign/${encoded}/likes`);
+  const encoded = encodeURIComponent(`${postUrl}/likes`);
+  return await axios.get(`/authors/foreign-inbox/${encoded}`);
 }
 
 export async function likePost(likeObj) {
@@ -115,6 +115,6 @@ export async function getComments(postUrl) {
   if (postUrl.match(window.location.host)) {
     return await axios.get(`${postUrl}/comments`);
   }
-  const encoded = encodeURIComponent(postUrl);
-  return await axios.get(`/authors/foreign/${encoded}/comments`);
+  const encoded = encodeURIComponent(`${postUrl}/comments`);
+  return await axios.get(`/authors/foreign-inbox/${encoded}`);
 }

@@ -160,8 +160,9 @@ def register_user():
     user = Author(
         username=username,
         password=bcrypt.generate_password_hash(password).decode("utf-8"),
-        host=request.host,
+        host=request.host_url,
         approval=Approval.APPROVED,
+        github="",
         role=Role.ADMIN,
     )
     db.session.add(user)
@@ -191,7 +192,7 @@ def get_author_id_all(author_username: str):
     # yes, it is sequential (for now)
     # I do not care
     for con in all_connections:
-        authors_url = con.endpoint + "authors/"
+        authors_url = con.endpoint + "authors"
         logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
         try:
             # nobody will have more than 100 authors, so we don't bother to write the code to query more than that

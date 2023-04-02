@@ -24,13 +24,13 @@ export const getCurrentUserId = async () => {
   return await axios.get('/authors/authenticated_user_id');
 };
 
-export const getUserDetails = async (authorUrl) => {
+export const getUserDetails = (authorUrl) => {
   if (authorUrl.match('bigger-yoshi')) {
     console.log(`/authors/${authorUrl.split('/').pop(-1)}`);
-    return await axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
+    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
   }
-  const encoded = encodeURIComponent(authorUrl);
-  return await axios.get(`/authors/foreign/${encoded}`);
+  const encoded = encodeURIComponent(`${authorUrl}`);
+  return axios.get(`/authors/foreign-inbox/${encoded}`);
 };
 
 export const getUserById = async (authorId) => {
@@ -86,8 +86,8 @@ export const getFollowersCount = async (authorUrl) => {
     );
     return res.data.count;
   }
-  const encoded = encodeURIComponent(authorUrl);
-  const res = await axios.get(`/authors/foreign/${encoded}/followers/`);
+  const encoded = encodeURIComponent(`${authorUrl}/followers/`);
+  const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
   return res.data.items.length;
 };
 
@@ -104,9 +104,13 @@ export const sendFollowRequest = async (follower, toFollow) => {
       ...toFollow
     }
   };
-  return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox`, {
-    ...data
-  });
+  if (toFollow.id.match(window.location.host)) {
+    return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox`, {
+      ...data
+    });
+  }
+  const encoded = encodeURIComponent(`${toFollow.id}/inbox`);
+  return axios.post(`/authors/foreign-inbox/${encoded}`, { ...data });
 };
 
 export const getFollowRequests = (authorId) => {
