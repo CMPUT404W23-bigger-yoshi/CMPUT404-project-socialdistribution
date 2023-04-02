@@ -147,6 +147,7 @@ def create_post_auto_gen_id(author_id: str):
     return {"message": "Successfully created new post"}, 201
 
 
+@posts_bp.route("/<string:author_id>/posts", methods=["GET"])
 @posts_bp.route("/<string:author_id>/posts/", methods=["GET"])
 @swag_from(
     {
@@ -461,7 +462,7 @@ def post_foreign_inbox(author_url: str):
         },
     }
 )
-@basic_auth.required
+@login_required
 def get_foreign_inbox(author_url: str):
     # assumption: author_id  will be a fully qualified URL
     parsed = urlparse(author_url)
@@ -485,6 +486,7 @@ def get_foreign_inbox(author_url: str):
 
 
 # todo check
+@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
     {
