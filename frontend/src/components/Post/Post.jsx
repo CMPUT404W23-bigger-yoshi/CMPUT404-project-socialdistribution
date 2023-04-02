@@ -220,7 +220,7 @@ const Post = (props) => {
               <h3>{post.title}</h3>
             </div>
             <div className="post-categories">
-              {post.categories.length > 0 &&
+              {post?.categories?.length > 0 &&
                 post.categories.map((category, idx) => {
                   if (category !== '') {
                     return (

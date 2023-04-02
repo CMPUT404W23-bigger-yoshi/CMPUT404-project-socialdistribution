@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import re
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from string import ascii_lowercase
@@ -96,7 +97,7 @@ def randomized_profile_img():
 
 
 def generate_object_ID() -> str:
-    return "".join(map(str, random.choices(ascii_lowercase + "".join(map(str, range(10))), k=16)))
+    return str(uuid.uuid4())
 
 
 @dataclass

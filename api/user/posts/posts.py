@@ -1,6 +1,7 @@
 import base64
 import logging
 from dataclasses import asdict
+from io import BytesIO
 from urllib.parse import urlparse
 
 import requests
@@ -204,13 +205,22 @@ def post_as_base64_img(author_id: str, post_id: str):
     """
     Get the public post converted to binary as an image
     """
-    author = Author.query.filter_all(id=author_id).first_or_404()
-    post = Post.query.filter_all(author=author.url, id=post_id).first_or_404()
-    valid = ["application/base64", "image/png;base64", "image/jpeg;base64"]
-    if not (post.contentType == "application/base64" or post.contentType.startsWith("image/")):
+    author = Author.query.filter_by(id=author_id).first_or_404()
+    post = Post.query.filter_by(author=author_id, id=post_id).first_or_404()
+    if not (post.contentType == "application/base64" or post.contentType.startswith("image/")):
         return "Not an image", 404
 
-    return post.content
+    # remove the header from the string
+    data = post.content.split(",")[1]
+
+    # decode the base64 string
+    decoded = base64.b64decode(data)
+
+    # create a BytesIO object from the decoded bytes
+    img_io = BytesIO(decoded)
+
+    # return the byte stream as a response with the appropriate headers
+    return Response(img_io.getvalue(), mimetype=post.contentType)
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/likes", methods=["GET"])
@@ -375,7 +385,7 @@ def get_inbox(author_id: str):
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
 
-@posts_bp.route("/<string:author_url>/foreign-inbox", methods=["POST"])
+@posts_bp.route("/foreign-inbox/<path:author_url>/", methods=["POST"])
 @swag_from(
     {
         "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
@@ -405,6 +415,7 @@ def get_inbox(author_id: str):
 def post_foreign_inbox(author_url: str):
     # assumption: author_id  will be a fully qualified URL
     parsed = urlparse(author_url)
+
     if not all([parsed.scheme, parsed.netloc]):
         logger.error("you are calling the wrong inbox endpoint. This one expects a fully qualified URL in all cases :/")
         return {"message": "You gave use a shit author url dawg", "success": 0}
@@ -414,6 +425,55 @@ def post_foreign_inbox(author_url: str):
     )
 
     res = requests.post(author_url, headers=auth_header_for_url(author_url), json=request.json)
+    # note (matt): I didn't come up with this,
+    # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
+    # We exclude all "hop-by-hop headers" defined by RFC 2616 section 13.5.1 ref.
+    # https://www.rfc-editor.org/rfc/rfc2616#section-13.5.1
+    excluded_headers = {"content-encoding", "content-length", "transfer-encoding", "connection"}
+    headers = {(k, v) for k, v in res.raw.headers.items() if k.lower() not in excluded_headers}
+
+    return Response(res.content, res.status_code, headers)
+
+
+@posts_bp.route("/foreign-inbox/<path:author_url>/", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
+        "description": "Send a like, comment, follow or post to a foreign author's inbox having id as author_id",
+        "parameters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
+            {
+                "in": "body",
+                "required": "true",
+                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "Object to be sent to inbox",
+            },
+        ],
+        "responses": {
+            201: {
+                "description": "Post/follow/like/comment sent to inbox successfully",
+                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            },
+            400: {
+                "description": "Request body contains invalid data.",
+                "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
+            },
+        },
+    }
+)
+@basic_auth.required
+def get_foreign_inbox(author_url: str):
+    # assumption: author_id  will be a fully qualified URL
+    parsed = urlparse(author_url)
+    if not all([parsed.scheme, parsed.netloc]):
+        logger.error("you are calling the wrong inbox endpoint. This one expects a fully qualified URL in all cases :/")
+        return {"message": "You gave use a shit author url dawg", "success": 0}
+
+    logger.info(
+        f"special route: proxying request from foreign-inbox to {author_url}" f" with auth credentials along the way"
+    )
+
+    res = requests.get(author_url, headers=auth_header_for_url(author_url))
     # note (matt): I didn't come up with this,
     # these guys did: https://stackoverflow.com/questions/6656363/proxying-to-another-web-service-with-flask
     # We exclude all "hop-by-hop headers" defined by RFC 2616 section 13.5.1 ref.
@@ -491,8 +551,6 @@ def make_post_local(data, author_id, post_id=None):
     required_fields = [
         "published",
         "title",
-        "origin",
-        "source",
         "description",
         "content",
         "contentType",
@@ -532,8 +590,6 @@ def make_post_local(data, author_id, post_id=None):
             id=post_id,
             published=data.get("published"),
             title=data.get("title"),
-            origin=data.get("origin"),
-            source=data.get("source"),
             description=data.get("description"),
             content=data.get("content"),
             contentType=data.get("contentType"),

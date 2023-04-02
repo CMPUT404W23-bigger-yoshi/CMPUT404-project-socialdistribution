@@ -15,6 +15,10 @@ def _constructURL(context):
     return url
 
 
+def _constructHostOrigin(context):
+    return context.get_current_parameters()["url"]
+
+
 inbox_table = db.Table(
     "inbox",
     db.Column("post_id", db.Text, db.ForeignKey("post.id", ondelete="CASCADE"), primary_key=True),
@@ -28,9 +32,9 @@ class Post(db.Model):
     url: str = db.Column(db.Text, default=_constructURL)
     published: str = db.Column("published", db.Text, nullable=False)
     title: str = db.Column("title", db.Text, nullable=False)
-    origin: str = db.Column("origin", db.Text, nullable=False)
+    origin: str = db.Column("origin", db.Text, nullable=False, default=_constructHostOrigin)
     # server -> the last server from which this post was sent into the inbox of the receiver
-    source: str = db.Column("source", db.Text, nullable=False)
+    source: str = db.Column("source", db.Text, nullable=False, default=_constructHostOrigin)
     description: str = db.Column("shortDesc", db.Text)
     contentType: str = db.Column("contentType", db.Text, nullable=False)
     content: str = db.Column("content", db.Text, nullable=False)
