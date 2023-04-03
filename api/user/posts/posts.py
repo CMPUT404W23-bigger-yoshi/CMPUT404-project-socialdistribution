@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import requests
 from flasgger import swag_from
 from flask import Blueprint, Response, jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
@@ -177,11 +177,17 @@ def get_recent_posts(author_id: str):
     """
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(author=author_id, visibility=Visibility.PUBLIC)
+        Post.query.filter_by(author=author_id, visibility=Visibility.PUBLIC, unlisted=False)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
     )
+
+    if current_user.is_authenticated and current_user.id == author_id:
+        posts = (
+            posts
+            + Post.query.filter_by(unlisted=False, visibility=Visibility.PRIVATE).order_by(desc(Post.published)).all()
+        )
 
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
