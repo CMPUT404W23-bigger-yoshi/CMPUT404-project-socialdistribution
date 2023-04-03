@@ -53,7 +53,7 @@ def get_pagination_params() -> Paginator:
     return Paginator(page=request.args.get("page", 1, type=int), per_page=request.args.get("size", 10, type=int))
 
 
-def get_object_type(ID) -> str:
+def get_object_type(object_uri: str) -> str:
     """
     Returns the object type in string format based
     on the id.
@@ -62,14 +62,14 @@ def get_object_type(ID) -> str:
     post_pattern = ".*/authors/.*/posts.*"
     auth_pattern = ".*/authors.*"
 
-    if re.match(comment_pattern, ID):
+    if re.match(comment_pattern, object_uri):
         return "comment"
-    elif re.match(post_pattern, ID):
+    elif re.match(post_pattern, object_uri):
         return "post"
-    elif re.match(auth_pattern, ID):
+    elif re.match(auth_pattern, object_uri):
         return "author"
     else:
-        return ""
+        raise ValueError("unknown pattern")
 
 
 def is_admin_endpoint(path):
