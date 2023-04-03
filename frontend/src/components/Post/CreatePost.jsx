@@ -412,6 +412,7 @@ export default function CreatePost(props) {
               <Button
                 variant="success"
                 onClick={() => {
+                  setImage(); // Clear image when you submit
                   if (post.visibility === 'PRIVATE' && post.sendTo) {
                     createPrivatePost();
                     props.setUpdateFeed(true);
