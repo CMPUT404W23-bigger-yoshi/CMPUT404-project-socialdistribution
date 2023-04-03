@@ -98,7 +98,7 @@ export function getHomeFeed() {
   return axios.get('/authors/posts');
 }
 
-export async function getLikes(postUrl) {
+export async function getObjLikes(postUrl) {
   if (postUrl.match(window.location.host)) {
     return await axios.get(`${postUrl}/likes`);
   }
@@ -106,7 +106,7 @@ export async function getLikes(postUrl) {
   return await axios.get(`/authors/foreign-inbox/${encoded}`);
 }
 
-export async function likePost(likeObj) {
+export async function sendLike(likeObj) {
   const postUrl = likeObj.object;
   if (postUrl.match(window.location.host)) {
     return axios.post(
