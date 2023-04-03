@@ -879,7 +879,7 @@ def create_non_local_author(author_to_add):
             id=author_to_add["id"],
             host=author_to_add["host"],
             url=author_to_add["url"],
-            displayName=author_to_add["displayName"],
+            username=author_to_add["displayName"],
             github=author_to_add["github"],
             profileImage=author_to_add["profileImage"],
         )
