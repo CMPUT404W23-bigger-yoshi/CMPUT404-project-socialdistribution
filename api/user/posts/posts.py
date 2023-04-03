@@ -294,34 +294,37 @@ def get_likes(author_id: str, post_id: str):
 @basic_auth.required
 def get_comment_likes(author_id: str, post_id: str, comment_id: str):
     # Author, post must exist on our server otherwise invalid request
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
+    comment = Comment.query.filter_by(id=comment_id).first_or_404()
 
-    # fetch all author urls who like this post from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
-    result = db.session.execute(stmt)
-    authors = result.all()
-    authors = [getattr(row, "author") for row in authors]
+    # fetch all author urls who like this comment from database
+    authors_that_like_comment = db.session.execute(
+        author_likes_comments.select().where(author_likes_comments.c.comment == comment.id)
+    ).all()
+    authors_that_like_comment = [getattr(row, "author") for row in authors_that_like_comment]
 
     # Generating likes
     likes = []
-    for author_id in authors:
+    for author_id in authors_that_like_comment:
         author = Author.query.filter_by(id=author_id).first()
         if author is None:
             author = NonLocalAuthor.query.filter_by(id=author_id).first()
 
         # author = get_author_info(author_url)
 
-        # If the author (remote) has been deleted from there server
+        # If the author (remote) has been deleted from their server, we'll probably never know
         # or does not exist then we skip that like (TODO should we delete such a like)
         if not author:
             continue
 
-        name = author.username
-        summary = name + "likes your comment." if name else ""
-        like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
-
-        likes.append(like)
+        summary = f"{author.username} likes your comment."
+        likes.append(
+            {
+                "type": "like",
+                "author": author.getJSON(),
+                "object": comment.post.url + "/comments/" + comment.id,
+                "summary": summary,
+            }
+        )
 
     return {"type": "likes", "items": likes}
 
