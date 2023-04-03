@@ -288,8 +288,7 @@ def get_likes(author_id: str, post_id: str):
 @basic_auth.required
 def get_comment_likes(author_id: str, post_id: str, comment_id: str):
     # Author, post must exist on our server otherwise invalid request
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    comment = Comment.query.filter_by(author=author.id, id=comment_id).first_or_404()
+    comment = Comment.query.filter_by(id=comment_id).first_or_404()
 
     # fetch all author urls who like this comment from database
     authors_that_like_comment = db.session.execute(
@@ -312,7 +311,14 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
             continue
 
         summary = f"{author.username} likes your comment."
-        likes.append({"type": "like", "author": author.getJSON(), "object": comment.url, "summary": summary})
+        likes.append(
+            {
+                "type": "like",
+                "author": author.getJSON(),
+                "object": comment.post.url + "/comments/" + comment.id,
+                "summary": summary,
+            }
+        )
 
     return {"type": "likes", "items": likes}
 
