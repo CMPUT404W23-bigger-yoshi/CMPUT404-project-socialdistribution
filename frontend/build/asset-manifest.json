@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.7edfc837.css",
-    "main.js": "/static/js/main.a6391dce.js",
+    "main.js": "/static/js/main.6ada3a68.js",
     "static/media/Yoshi-phone.png": "/static/media/Yoshi-phone.5277f8677758a1ccebbe.png",
     "index.html": "/index.html",
     "main.7edfc837.css.map": "/static/css/main.7edfc837.css.map",
-    "main.a6391dce.js.map": "/static/js/main.a6391dce.js.map"
+    "main.6ada3a68.js.map": "/static/js/main.6ada3a68.js.map"
   },
   "entrypoints": [
     "static/css/main.7edfc837.css",
-    "static/js/main.a6391dce.js"
+    "static/js/main.6ada3a68.js"
   ]
 }
