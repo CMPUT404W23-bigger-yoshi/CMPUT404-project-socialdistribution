@@ -1,12 +1,18 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Comments.css';
 import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { makeComment } from '../../services/post';
+import {
+  getCommentLikes,
+  getObjLikes,
+  makeComment,
+  sendLike
+} from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import { useNavigate } from 'react-router-dom';
+import { HeartFill } from 'react-bootstrap-icons';
 
 const timeSince = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
@@ -34,39 +40,90 @@ const timeSince = (date) => {
 };
 
 function Comment(props) {
-  const { author, profileImage, comment, published, contentType, authorUrl } =
-    props;
+  const userDetails = useContext(AuthorContext).author;
+  const {
+    id,
+    author,
+    profileImage,
+    comment,
+    published,
+    contentType,
+    authorUrl
+  } = props;
   const navigate = useNavigate();
+  const [updateLikes, setUpdateLikes] = useState(false);
+  const [likes, setLikes] = useState([]);
 
+  async function handleLike() {
+    try {
+      const res = await sendLike({
+        type: 'Like',
+        summary: `${author.displayName} liked your comment`,
+        author: {
+          ...userDetails
+        },
+        object: id
+      });
+      setUpdateLikes(true);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  console.log(userDetails.id);
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const response = await getObjLikes(id);
+        if (response.status === 200) {
+          setLikes(response.data.items);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchLikes().then(() => setUpdateLikes(false));
+  }, [updateLikes]);
   return (
-    <div className="comment">
-      <div className="d-flex">
-        <img
-          src={
-            profileImage !== ''
-              ? profileImage
-              : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
-          }
-          alt="profile"
-          className="rounded-circle"
+    <div className="comment d-flex">
+      <img
+        src={
+          profileImage !== ''
+            ? profileImage
+            : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+        }
+        alt="profile"
+        className="rounded-circle"
+        onClick={() => navigate(`/authors?q=${authorUrl}`)}
+      />
+      <div className="ml-2">
+        <span
+          className="author"
           onClick={() => navigate(`/authors?q=${authorUrl}`)}
-        />
-        <div className="ml-2">
-          <span
-            className="author"
-            onClick={() => navigate(`/authors?q=${authorUrl}`)}
-          >
-            {author}
-          </span>
-          <span className="time">{timeSince(new Date(published))}</span>
-          {contentType === 'text' ? (
-            <div className="comment-content">{comment}</div>
-          ) : (
-            <div className="comment-content">
-              <ReactMarkdown children={comment} remarkPlugins={[remarkGfm]} />
-            </div>
-          )}
-        </div>
+        >
+          {author}
+        </span>
+        <span className="time">{timeSince(new Date(published))}</span>
+        {contentType === 'text' ? (
+          <div className="comment-content">{comment}</div>
+        ) : (
+          <div className="comment-content">
+            <ReactMarkdown children={comment} remarkPlugins={[remarkGfm]} />
+          </div>
+        )}
+      </div>
+      <div className="comment-likes">
+        <Button variant="dark" onClick={handleLike}>
+          <HeartFill
+            fill={
+              likes?.find((like) => like.author.id === userDetails.id)
+                ? 'red'
+                : 'white'
+            }
+          />{' '}
+          {likes?.length}
+        </Button>
       </div>
     </div>
   );
@@ -183,6 +240,7 @@ function Comments(props) {
       <div className="comments">
         {comments?.map((comment) => (
           <Comment
+            id={comment.id}
             key={comment.id}
             author={comment.author.displayName}
             comment={comment.comment}

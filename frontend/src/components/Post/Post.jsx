@@ -3,9 +3,9 @@ import './Post.css';
 import {
   deletePost,
   getComments,
-  getLikes,
+  getObjLikes,
   getPost,
-  likePost
+  sendLike
 } from '../../services/post';
 import { Button, Col, Dropdown, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
@@ -72,7 +72,7 @@ const Post = (props) => {
   useEffect(() => {
     const fetchLikes = async () => {
       try {
-        const response = await getLikes(post.id);
+        const response = await getObjLikes(post.id);
         if (response.status === 200) {
           setLikes(response.data.items);
         }
@@ -105,7 +105,7 @@ const Post = (props) => {
         object: post.id
       };
       setUpdateLikes(true);
-      const res = await likePost(likeObject);
+      const res = await sendLike(likeObject);
       console.log(res);
     } catch (err) {
       console.log(err);
