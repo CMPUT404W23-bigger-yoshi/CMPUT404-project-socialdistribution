@@ -1,12 +1,13 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Comments.css';
 import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { makeComment } from '../../services/post';
+import { getCommentLikes, likePost, makeComment } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import { useNavigate } from 'react-router-dom';
+import { HeartFill } from 'react-bootstrap-icons';
 
 const timeSince = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
@@ -36,36 +37,74 @@ const timeSince = (date) => {
 function Comment(props) {
   const { author, profileImage, comment, published, contentType, authorUrl, id } =
     props;
+  const [commentLikes, setCommentLikes] = useState([]);
+  const [updateLikes, setUpdateLikes] = useState(false);
+  const userDetails = useContext(AuthorContext).author;
+
+  useEffect(() => {
+    const fetchCommentLikes = async () => {
+      const commentLikes = await getCommentLikes(id);
+      console.log(commentLikes.data.items);
+    };
+    fetchCommentLikes().then(() => {
+    });
+  }, [updateLikes]);
+
+  const handleLike = async () => {
+    try {
+      const likeObject = {
+        type: 'Like',
+        summary: `${userDetails.displayName} liked your comment`,
+        author: {
+          ...userDetails
+        },
+        object: id
+      };
+      setUpdateLikes(true);
+      const res = await likePost(likeObject);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const navigate = useNavigate();
 
   return (
-    <div className="comment">
-      <div className="d-flex">
+    <div className='comment'>
+      <div className='d-flex'>
         <img
           src={
             profileImage !== ''
               ? profileImage
               : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
           }
-          alt="profile"
-          className="rounded-circle"
+          alt='profile'
+          className='rounded-circle'
           onClick={() => navigate(`/authors?q=${authorUrl}`)}
         />
-        <div className="ml-2">
+        <div className='ml-2'>
           <span
-            className="author"
+            className='author'
             onClick={() => navigate(`/authors?q=${authorUrl}`)}
           >
             {author}
           </span>
-          <span className="time">{timeSince(new Date(published))}</span>
+          <span className='time'>{timeSince(new Date(published))}</span>
           {contentType === 'text' ? (
-            <div className="comment-content">{comment}</div>
+            <div className='comment-content'>{comment}</div>
           ) : (
-            <div className="comment-content">
+            <div className='comment-content'>
               <ReactMarkdown children={comment} remarkPlugins={[remarkGfm]} />
             </div>
           )}
+        </div>
+        <div className='comment-likes'
+          onClick={handleLike}
+        >
+          <HeartFill />
+          <br/>
+          <span className='comment-likes-count'>{commentLikes.length}</span>
         </div>
       </div>
     </div>
@@ -82,19 +121,19 @@ function Comments(props) {
   const [showPreview, setShowPreview] = React.useState(false);
 
   return (
-    <div className="container mt-5 border-left border-right">
-      <div className="d-flex justify-content-center pt-3 pb-2">
-        <div className="post-content">
-          <div className="post-content-type-bar">
-            <Row className="post-content-type">
-              <Col className="post-content-type-text" md={6} xs={12}>
+    <div className='container mt-5 border-left border-right'>
+      <div className='d-flex justify-content-center pt-3 pb-2'>
+        <div className='post-content'>
+          <div className='post-content-type-bar'>
+            <Row className='post-content-type'>
+              <Col className='post-content-type-text' md={6} xs={12}>
                 {comment.contentType === 'text/plain'
                   ? 'Plain Text'
                   : 'Markdown'}
               </Col>
-              <Col className="post-content-type-toggle" md={6} xs={12}>
+              <Col className='post-content-type-toggle' md={6} xs={12}>
                 <Button
-                  variant="outline-light"
+                  variant='outline-light'
                   onClick={() =>
                     setComment({
                       ...comment,
@@ -111,11 +150,11 @@ function Comments(props) {
               </Col>
             </Row>
           </div>
-          <div className="post-content-text">
+          <div className='post-content-text'>
             {comment.contentType === 'text/plain' ? (
               <textarea
-                placeholder="Write your post here..."
-                className="post-content-textarea"
+                placeholder='Write your post here...'
+                className='post-content-textarea'
                 rows={10}
                 onChange={(e) =>
                   setComment({ ...comment, comment: e.target.value })
@@ -123,19 +162,19 @@ function Comments(props) {
                 value={comment.comment}
               />
             ) : (
-              <div className="post-content-markdown">
+              <div className='post-content-markdown'>
                 {showPreview ? (
-                  <div className="post-content-markdown-preview">
+                  <div className='post-content-markdown-preview'>
                     <ReactMarkdown
                       children={comment.comment}
                       remarkPlugins={[remarkGfm]}
                     />
                   </div>
                 ) : (
-                  <div className="post-content-markdown-textarea">
+                  <div className='post-content-markdown-textarea'>
                     <textarea
-                      placeholder="Write your comment here..."
-                      className="post-content-textarea"
+                      placeholder='Write your comment here...'
+                      className='post-content-textarea'
                       rows={10}
                       onChange={(e) =>
                         setComment({ ...comment, comment: e.target.value })
@@ -145,7 +184,7 @@ function Comments(props) {
                   </div>
                 )}
                 <Button
-                  variant="outline-light"
+                  variant='outline-light'
                   onClick={() => setShowPreview(!showPreview)}
                 >
                   {showPreview ? 'Hide' : 'Show'} Preview
@@ -155,10 +194,10 @@ function Comments(props) {
           </div>
         </div>
       </div>
-      <div className="post-actions justify-content-center">
+      <div className='post-actions justify-content-center'>
         <Button
-          variant="success"
-          className="actions-button"
+          variant='success'
+          className='actions-button'
           onClick={async () => {
             try {
               const newComment = {
@@ -180,7 +219,7 @@ function Comments(props) {
           Comment
         </Button>
       </div>
-      <div className="comments">
+      <div className='comments'>
         {comments?.map((comment) => (
           <Comment
             key={comment.id}
@@ -201,12 +240,12 @@ function Comments(props) {
 function CommentsModal(props) {
   const { comments, postId, show, handleClose, updateComments } = props;
   return (
-    <div className="comments-modal">
+    <div className='comments-modal'>
       <Modal
         show={show}
         onHide={handleClose}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
+        size='lg'
+        aria-labelledby='contained-modal-title-vcenter'
         centered
       >
         <Modal.Body>

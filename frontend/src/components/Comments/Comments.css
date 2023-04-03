@@ -75,3 +75,15 @@
   color: #999;
   margin: 0 0 0 10px;
 }
+
+.comment .comment-likes {
+  position: absolute;
+  right: 20%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.comment .comment-likes svg:hover {
+  color: #ff0707;
+  fill: #ff0707;
+}
