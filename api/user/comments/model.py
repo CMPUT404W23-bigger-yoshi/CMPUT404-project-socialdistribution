@@ -36,4 +36,4 @@ class Comment(db.Model):
         return json
 
     def __repr__(self) -> str:
-        return f"<Comment {self.id}  author={self.author_id} post={self.post_id}>"
+        return f"<Comment {self.id}  author={self.author_id} post={self.post_url}>"

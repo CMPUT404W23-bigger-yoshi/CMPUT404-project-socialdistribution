@@ -10,11 +10,14 @@ import MessageModal from '../MessageModal/MessageModal';
 import { FileUploader } from 'react-drag-drop-files';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { searchMultipleUsers } from '../../services/author';
+import ShareModal from '../ShareModal/ShareModal';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
   const [show, setShow] = useState(false);
   const [errorMsg, setError] = useState('Error');
+  const [shareShow, setShareShow] = useState(false);
+  const [shareError, setShareError] = useState('Error');
   const [showPreview, setShowPreview] = useState(false);
   const [image, setImage] = useState(null);
   const { author } = useContext(AuthorContext);
@@ -29,6 +32,16 @@ export default function CreatePost(props) {
     unlisted: false,
     sentTo: '',
     author
+  });
+
+  const [postImage, setPostImage] = useState({
+    type: 'post',
+    title: '',
+    content: '',
+    contentType: 'image/*',
+    categories: [],
+    visibility: 'PUBLIC',
+    unlisted: true
   });
   const [usernames, setUsernames] = useState([]);
 
@@ -60,8 +73,13 @@ export default function CreatePost(props) {
 
   async function createPrivatePost() {
     try {
+      let postVal = post;
+      if (!post.sendTo.id.match(window.location.host)) {
+        postVal = (await generatePostId(author, post)).data.post;
+      }
+
       const res = await sendtoInbox(post.sendTo.id, {
-        ...post,
+        ...postVal,
         published: new Date().toISOString(),
         description: post.content
       });
@@ -101,6 +119,19 @@ export default function CreatePost(props) {
     }
   }
 
+  const handleImageLinkUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      generatePostId(author, { ...postImage, content: dataUrl }).then((res) => {
+        setShareError(res.data.post.id + '/image');
+        setShareShow(true);
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   return toggleCreatePost ? (
     <div className="create-post-button">
       <Button
@@ -114,6 +145,13 @@ export default function CreatePost(props) {
     </div>
   ) : (
     <div className="create-post">
+      <ShareModal
+        show={shareShow}
+        link={shareError}
+        handleClose={() => {
+          setShareShow(false);
+        }}
+      />
       <MessageModal
         title={'Post'}
         show={show}
@@ -143,12 +181,6 @@ export default function CreatePost(props) {
             </div>
           </div>
           <div className="post-content">
-            {/* This will contain: */}
-            {/* A bar that displays the content type on the left */}
-            {/* The bar will allow user to toggle between text/plain and
-            text/markdown using a button on the right */}
-            {/* If the content type is text/plain, a textarea will be displayed */}
-            {/* If the content type is text/markdown, a textarea will be displayed with a preview on the bottom right */}
             <div className="post-content-type-bar">
               <Row className="post-content-type">
                 <Col className="post-content-type-text" md={6} xs={12}>
@@ -163,7 +195,7 @@ export default function CreatePost(props) {
                     style={{ marginRight: '10px' }}
                     variant="outline-light"
                     onClick={() => {
-                      setImage(); // Clear previous image when switching back to text
+                      setImage(null); // Clear previous image when switching back to text
                       setPost({
                         ...post,
                         content: post.contentType.startsWith('image')
@@ -342,8 +374,21 @@ export default function CreatePost(props) {
                   </h6>
                 </div>
               )}
-              {post.visibility === 'UNLISTED' && (
-                <div className="upload-image"></div>
+              {post.contentType === 'text/markdown' && !post.image && (
+                <div className="upload-image">
+                  {/* Button that uploads an empty image to the server */}
+                  <Form.Group
+                    className="post-content-image-upload"
+                    style={{ width: '100%', margin: '20px 0' }}
+                  >
+                    <Form.Control
+                      type="file"
+                      onChange={handleImageLinkUpload}
+                      accept="image/*"
+                      placeholder="Upload Image"
+                    />
+                  </Form.Group>
+                </div>
               )}
               <Button
                 variant="danger"
@@ -356,7 +401,9 @@ export default function CreatePost(props) {
                     contentType: 'text/plain',
                     categories: [],
                     visibility: 'PUBLIC',
-                    unlisted: false
+                    unlisted: false,
+                    sendTo: null,
+                    author
                   });
                 }}
               >

@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import requests
 from flasgger import swag_from
 from flask import Blueprint, Response, jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError
 
@@ -177,11 +177,17 @@ def get_recent_posts(author_id: str):
     """
     author = Author.query.filter_by(id=author_id).first_or_404()
     posts = (
-        Post.query.filter_by(author=author_id, visibility=Visibility.PUBLIC)
+        Post.query.filter_by(author=author_id, visibility=Visibility.PUBLIC, unlisted=False)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
         .items
     )
+
+    if current_user.is_authenticated and current_user.id == author_id:
+        posts = (
+            posts
+            + Post.query.filter_by(unlisted=False, visibility=Visibility.PRIVATE).order_by(desc(Post.published)).all()
+        )
 
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
 
@@ -288,34 +294,37 @@ def get_likes(author_id: str, post_id: str):
 @basic_auth.required
 def get_comment_likes(author_id: str, post_id: str, comment_id: str):
     # Author, post must exist on our server otherwise invalid request
-    author = Author.query.filter_by(id=author_id).first_or_404()
-    post = Post.query.filter_by(author=author.id, id=post_id).first_or_404()
+    comment = Comment.query.filter_by(id=comment_id).first_or_404()
 
-    # fetch all author urls who like this post from database
-    stmt = author_likes_posts.select().where(author_likes_posts.c.post == post.id)
-    result = db.session.execute(stmt)
-    authors = result.all()
-    authors = [getattr(row, "author") for row in authors]
+    # fetch all author urls who like this comment from database
+    authors_that_like_comment = db.session.execute(
+        author_likes_comments.select().where(author_likes_comments.c.comment == comment.id)
+    ).all()
+    authors_that_like_comment = [getattr(row, "author") for row in authors_that_like_comment]
 
     # Generating likes
     likes = []
-    for author_id in authors:
+    for author_id in authors_that_like_comment:
         author = Author.query.filter_by(id=author_id).first()
         if author is None:
             author = NonLocalAuthor.query.filter_by(id=author_id).first()
 
         # author = get_author_info(author_url)
 
-        # If the author (remote) has been deleted from there server
+        # If the author (remote) has been deleted from their server, we'll probably never know
         # or does not exist then we skip that like (TODO should we delete such a like)
         if not author:
             continue
 
-        name = author.username
-        summary = name + "likes your comment." if name else ""
-        like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
-
-        likes.append(like)
+        summary = f"{author.username} likes your comment."
+        likes.append(
+            {
+                "type": "like",
+                "author": author.getJSON(),
+                "object": comment.post.url + "/comments/" + comment.id,
+                "summary": summary,
+            }
+        )
 
     return {"type": "likes", "items": likes}
 
@@ -377,7 +386,8 @@ def get_inbox(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     posts = (
-        Post.query.join(inbox_table)
+        Post.query.filter(Post.unlisted == False)
+        .join(inbox_table)
         .filter(inbox_table.c.meant_for == author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
@@ -639,7 +649,7 @@ def make_post_non_local(data, author_id):
         return {"message": "Missing Author"}, 400
 
     if data.get("id") is None:
-        logger.info("Missig Post Id")
+        logger.info("Missing Post Id")
         return {"message": "Missing Post ID"}, 400
 
     post_id = data.get("id")
@@ -682,6 +692,7 @@ def make_post_non_local(data, author_id):
     post = Post(
         id=post_id,
         published=data.get("published"),
+        url=post_id,
         title=data.get("title"),
         origin=data.get("origin"),
         source=data.get("source"),
@@ -727,8 +738,10 @@ def fanout_to_local_inbox(post: Post, author_id) -> None:
             to_insert.append({"post_id": post.id, "meant_for": friend.id})
 
         statement = inbox_table.insert().values(to_insert)
+    elif post.visibility == Visibility.PRIVATE:
+        return
     else:
-        raise ValueError(f"unrecognized: {post.visibility=}")
+        raise ValueError(f"Invalid visibility: {post.visibility}")
 
     db.session.execute(statement)
     db.session.commit()
@@ -920,7 +933,7 @@ def create_non_local_author(author_to_add):
 @posts_bp.route("/posts", methods=["GET"])
 def get_all_public_posts():
     search = "%{}%".format(API_HOSTNAME)
-    posts = Post.query.filter_by(visibility=Visibility.PUBLIC).order_by(desc(Post.published))
+    posts = Post.query.filter_by(unlisted=False, visibility=Visibility.PUBLIC).order_by(desc(Post.published))
     posts = posts.filter(Post.origin.like(search)).all()
     data = [post.getJSON() for post in posts]
     return {"items": data}
