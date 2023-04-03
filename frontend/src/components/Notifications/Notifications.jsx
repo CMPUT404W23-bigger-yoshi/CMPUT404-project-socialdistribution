@@ -40,7 +40,7 @@ function Notifications() {
             style={{ textAlign: 'center', marginTop: '40%' }}
           >
             <br />
-            <h1>No notifications to show</h1>
+            <h1>No friend requests to show</h1>
           </div>
         )}
       </div>

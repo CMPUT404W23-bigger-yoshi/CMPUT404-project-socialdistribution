@@ -67,10 +67,10 @@ function Sidebar() {
           <Person /> Profile
         </Nav.Link>
         <Nav.Link
-          onClick={() => navigate('/notifications')}
+          onClick={() => navigate('/requests')}
           className="nav-link"
         >
-          <Bell /> Notifications
+          <Bell /> Requests
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/settings')} className="nav-link">
           <Gear /> Settings
@@ -103,10 +103,10 @@ function Sidebar() {
               <Lock className="icon" /> Private Posts
             </Nav.Link>
             <Nav.Link
-              onClick={() => navigate('/notifications')}
+              onClick={() => navigate('/requests')}
               className="nav-link"
             >
-              <Bell className="icon" /> Notifications
+              <Bell className="icon" /> Requests
             </Nav.Link>
             <Nav.Link
               onClick={() => navigate('/settings')}
