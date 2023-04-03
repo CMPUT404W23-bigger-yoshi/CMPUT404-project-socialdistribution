@@ -70,14 +70,15 @@ export const getFollowersCount = async (authorUrl) => {
 };
 
 export const checkFollowing = async (authorUrl, foreignAuthorUrl) => {
-  console.log('checkFollowing', authorUrl, foreignAuthorUrl);
-  if (authorUrl.match(window.location.host)) {
+  if (foreignAuthorUrl.match(window.location.host)) {
     const res = await axios.get(
-      `/authors/${authorUrl.split('/').pop()}/followers/${foreignAuthorUrl}`
+      `/authors/${foreignAuthorUrl.split('/').pop()}/followers/${authorUrl}`
     );
     return res.data;
   }
-  const encoded = encodeURIComponent(`${authorUrl}/followers/`);
+  const encoded = encodeURIComponent(
+    `${foreignAuthorUrl}/followers/${authorUrl}`
+  );
   const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
   return res.data;
 };
