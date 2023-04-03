@@ -73,7 +73,9 @@ const Post = (props) => {
     const fetchLikes = async () => {
       try {
         const response = await getLikes(post.id);
-        setLikes(response.data.items);
+        if (response.status === 200) {
+          setLikes(response.data.items);
+        }
       } catch (err) {
         console.log(err);
       }
@@ -82,7 +84,9 @@ const Post = (props) => {
     const fetchComments = async () => {
       try {
         const response = await getComments(post.id);
-        setCommentsSrc(response.data);
+        if (response.status === 200) {
+          setCommentsSrc(response.data);
+        }
       } catch (err) {
         console.log(err);
       }
@@ -261,7 +265,7 @@ const Post = (props) => {
                 <Button variant="dark" onClick={handleLike}>
                   <HeartFill
                     fill={
-                      likes.find((like) => like.author.id === userDetails.id)
+                      likes?.find((like) => like.author.id === userDetails.id)
                         ? 'red'
                         : 'white'
                     }
