@@ -523,6 +523,22 @@ def post_inbox(author_id: str):
     response = {}
     match post_type:
         case "post":
+            author_obj = data.get("author")
+
+            # if post sent privately to local inbox
+            if Author.query.filter_by(id=author_obj.get("id")).first() is not None:
+                logger.info("Creating a local post")
+                post = make_post_local(data, author_id)
+
+                if post is None:
+                    logger.info(f"Failed to create a post with data: {data}")
+                    response = {"message": "Failed to create a post locally"}, 400
+                    return response
+                statement = inbox_table.insert().values(post_id=post.id, meant_for=author_id)
+                db.session.execute(statement)
+                response = {"message": "Successfully created post"}, 201
+                return response
+
             response = make_post_non_local(data, author_id)
         case "like":
             response = make_like(data, author_id)
@@ -586,6 +602,8 @@ def make_post_local(data, author_id, post_id=None):
         visibility = Visibility.PUBLIC
     elif visibility == "FRIENDS":
         visibility = Visibility.FRIENDS
+    elif visibility == "PRIVATE":
+        visibility = Visibility.PRIVATE
     try:
         post = Post(
             id=post_id,
@@ -635,6 +653,8 @@ def make_post_non_local(data, author_id):
         visibility = Visibility.PUBLIC
     elif visibility == "FRIENDS":
         visibility = Visibility.FRIENDS
+    elif visibility == "PRIVATE":
+        visibility = Visibility.PRIVATE
 
     # verification of all the fields needed
     author_obj = data.get("author")
@@ -899,7 +919,7 @@ def create_non_local_author(author_to_add):
 @posts_bp.route("/posts", methods=["GET"])
 def get_all_public_posts():
     search = "%{}%".format(API_HOSTNAME)
-    posts = Post.query.filter_by(visibility=Visibility.PUBLIC)
+    posts = Post.query.filter_by(visibility=Visibility.PUBLIC).order_by(desc(Post.published))
     posts = posts.filter(Post.origin.like(search)).all()
     data = [post.getJSON() for post in posts]
     return {"items": data}
