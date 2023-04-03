@@ -4,9 +4,11 @@ import { Button, Col, Form, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
-import { generatePostId, updatePost } from '../../services/post';
+import { generatePostId, sendtoInbox, updatePost } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import MessageModal from '../MessageModal/MessageModal';
+import { Typeahead } from 'react-bootstrap-typeahead';
+import { searchMultipleUsers } from '../../services/author';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
@@ -22,8 +24,12 @@ export default function CreatePost(props) {
     contentType: 'text/plain',
     categories: [],
     visibility: 'PUBLIC',
-    unlisted: false
+    unlisted: false,
+    sentTo: '',
+    author
   });
+  const [usernames, setUsernames] = useState([]);
+
   useEffect(() => {
     if (props.post) {
       setPost(props.post);
@@ -44,6 +50,21 @@ export default function CreatePost(props) {
         visibility: 'PUBLIC',
         unlisted: false
       });
+    } catch (err) {
+      setError('Error creating post');
+      setShow(true);
+    }
+  }
+
+  async function createPrivatePost() {
+    try {
+      const res = await sendtoInbox(post.sendTo.id, {
+        ...post,
+        published: new Date().toISOString(),
+        description: post.content
+      });
+      setError('Post created successfully!');
+      setShow(true);
     } catch (err) {
       setError('Error creating post');
       setShow(true);
@@ -80,9 +101,9 @@ export default function CreatePost(props) {
   }
 
   return toggleCreatePost ? (
-    <div className="create-post-button">
+    <div className='create-post-button'>
       <Button
-        variant="primary"
+        variant='primary'
         onClick={() => {
           setToggleCreatePost(props.post ? true : !toggleCreatePost);
         }}
@@ -91,7 +112,7 @@ export default function CreatePost(props) {
       </Button>
     </div>
   ) : (
-    <div className="create-post">
+    <div className='create-post'>
       <MessageModal
         title={'Post'}
         show={show}
@@ -101,45 +122,45 @@ export default function CreatePost(props) {
           setToggleCreatePost(true);
         }}
       />
-      <div className="create-post-container">
-        <div className="create-post-header">
+      <div className='create-post-container'>
+        <div className='create-post-header'>
           <h2>{props.post ? 'Edit Post' : 'Create Post'}</h2>
         </div>
-        <div className="create-post-body">
-          <div className="post-title-text">
-            <div className="input-group">
+        <div className='create-post-body'>
+          <div className='post-title-text'>
+            <div className='input-group'>
               <input
                 required={true}
-                type="text"
-                name="text"
-                autoComplete="off"
-                className="input"
+                type='text'
+                name='text'
+                autoComplete='off'
+                className='input'
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
                 value={post.title}
               />
-              <label className="user-label">Post Title</label>
+              <label className='user-label'>Post Title</label>
             </div>
           </div>
-          <div className="post-content">
+          <div className='post-content'>
             {/* This will contain: */}
             {/* A bar that displays the content type on the left */}
             {/* The bar will allow user to toggle between text/plain and
             text/markdown using a button on the right */}
             {/* If the content type is text/plain, a textarea will be displayed */}
             {/* If the content type is text/markdown, a textarea will be displayed with a preview on the bottom right */}
-            <div className="post-content-type-bar">
-              <Row className="post-content-type">
-                <Col className="post-content-type-text" md={6} xs={12}>
+            <div className='post-content-type-bar'>
+              <Row className='post-content-type'>
+                <Col className='post-content-type-text' md={6} xs={12}>
                   {post.contentType === 'text/plain'
                     ? 'Plain Text'
                     : post.contentType === 'text/markdown'
-                    ? 'Markdown text'
-                    : 'Image'}
+                      ? 'Markdown text'
+                      : 'Image'}
                 </Col>
-                <Col className="post-content-type-toggle" md={6} xs={12}>
+                <Col className='post-content-type-toggle' md={6} xs={12}>
                   <Button
                     style={{ marginRight: '10px' }}
-                    variant="outline-light"
+                    variant='outline-light'
                     onClick={() => {
                       setImage(); // Clear previous image when switching back to text
                       setPost({
@@ -158,7 +179,7 @@ export default function CreatePost(props) {
                     {post.contentType === 'text/plain' ? 'Markdown' : 'Text'}
                   </Button>
                   <Button
-                    variant="outline-light"
+                    variant='outline-light'
                     onClick={() =>
                       setPost({
                         ...post,
@@ -172,11 +193,11 @@ export default function CreatePost(props) {
                 </Col>
               </Row>
             </div>
-            <div className="post-content-text">
+            <div className='post-content-text'>
               {post.contentType === 'text/plain' ? (
                 <textarea
-                  placeholder="Write your post here..."
-                  className="post-content-textarea"
+                  placeholder='Write your post here...'
+                  className='post-content-textarea'
                   rows={10}
                   onChange={(e) =>
                     setPost({ ...post, content: e.target.value })
@@ -184,19 +205,19 @@ export default function CreatePost(props) {
                   value={post.content}
                 />
               ) : post.contentType === 'text/markdown' ? (
-                <div className="post-content-markdown">
+                <div className='post-content-markdown'>
                   {showPreview ? (
-                    <div className="post-content-markdown-preview">
+                    <div className='post-content-markdown-preview'>
                       <ReactMarkdown
                         children={post.content}
                         remarkPlugins={[remarkGfm]}
                       />
                     </div>
                   ) : (
-                    <div className="post-content-markdown-textarea">
+                    <div className='post-content-markdown-textarea'>
                       <textarea
-                        placeholder="Write your post here..."
-                        className="post-content-textarea"
+                        placeholder='Write your post here...'
+                        className='post-content-textarea'
                         rows={10}
                         onChange={(e) =>
                           setPost({ ...post, content: e.target.value })
@@ -206,39 +227,39 @@ export default function CreatePost(props) {
                     </div>
                   )}
                   <Button
-                    variant="outline-light"
+                    variant='outline-light'
                     onClick={() => setShowPreview(!showPreview)}
                   >
                     {showPreview ? 'Hide' : 'Show'} Preview
                   </Button>
                 </div>
               ) : (
-                <div className="post-content-image">
+                <div className='post-content-image'>
                   {image ? (
                     <img
                       src={post.content}
-                      alt="uploaded image"
-                      className="post-content-image-preview"
+                      alt='uploaded image'
+                      className='post-content-image-preview'
                     />
                   ) : (
                     <Form.Group
-                      className="post-content-image-upload"
+                      className='post-content-image-upload'
                       style={{ width: '100%', margin: '20px 0' }}
                     >
                       <Form.Control
-                        type="file"
+                        type='file'
                         onChange={handleImageUpload}
-                        accept="image/*"
-                        placeholder="Upload Image"
+                        accept='image/*'
+                        placeholder='Upload Image'
                       />
                     </Form.Group>
                   )}
                 </div>
               )}
             </div>
-            <div className="post-details">
-              <Row className="post-details-bar">
-                <Col className="post-details-bar-item" xs={8}>
+            <div className='post-details'>
+              <Row className='post-details-bar'>
+                <Col className='post-details-bar-item' xs={8}>
                   <CategoryInput
                     categories={post.categories}
                     setCategories={(categories) =>
@@ -246,10 +267,10 @@ export default function CreatePost(props) {
                     }
                   />
                 </Col>
-                <Col className="post-details-bar-item" xs={4}>
+                <Col className='post-details-bar-item' xs={4}>
                   <FormSelect
-                    className="post-details-bar visibility"
-                    aria-label="Default select example"
+                    className='post-details-bar visibility'
+                    aria-label='Default select example'
                     onChange={(e) => {
                       if (e.target.value === 'unlisted') {
                         setPost({
@@ -269,16 +290,66 @@ export default function CreatePost(props) {
                       post.unlisted ? 'unlisted' : post.visibility.toLowerCase()
                     }
                   >
-                    <option value="public">Public</option>
-                    <option value="friends">Friends</option>
-                    <option value="unlisted">Unlisted</option>
+                    <option value='public'>Public</option>
+                    <option value='friends'>Friends</option>
+                    <option value='private'>Private</option>
+                    <option value='unlisted'>Unlisted</option>
                   </FormSelect>
                 </Col>
               </Row>
             </div>
-            <div className="post-submit">
+            <div className='post-submit'>
+              {post.visibility === 'PRIVATE' && !post.sendTo && (
+                <div className='search-user'>
+                  <Form className='d-flex search-bar'>
+                    <Typeahead
+                      id='search-bar'
+                      labelKey='displayName'
+                      onChange={(selected) => {
+                        if (selected.length > 0) {
+                          // Get the last part of the URL (that is the id)
+                          setUsernames([]);
+                          const user = selected[0];
+                          setPost({
+                            ...post,
+                            visibility: 'PRIVATE',
+                            unlisted: false,
+                            sendTo: user
+                          });
+                        }
+                      }
+                      }
+                      onInputChange={(username) => {
+                        if (username.length === 0) {
+                          setUsernames([]);
+                          return;
+                        }
+                        searchMultipleUsers(username).then((response) => {
+                          setUsernames(response.data.items);
+                        });
+                      }}
+                      options={usernames}
+                      placeholder='Search for users...'
+                      selected={[]}
+                    />
+                  </Form>
+                </div>
+              )}
+              {post.visibility === 'PRIVATE' && post.sendTo && (
+                <div className='search-user'>
+                  <h6>
+                    <span className='post-submit-recipient'>
+                      Send to: <span className='post-submit-recipient-name'>{post.sendTo.displayName}</span>
+                    </span>
+                  </h6>
+                </div>
+              )}
+              {post.visibility === 'UNLISTED' && (
+                <div className='upload-image'>
+                </div>
+              )}
               <Button
-                variant="danger"
+                variant='danger'
                 onClick={() => {
                   setImage(); // Clear image when cancelling
                   setPost({
@@ -295,9 +366,14 @@ export default function CreatePost(props) {
                 Cancel
               </Button>
               <Button
-                variant="success"
+                variant='success'
                 onClick={() => {
-                  if (post.id) {
+                  if (post.visibility === 'PRIVATE' && post.sendTo) {
+                    createPrivatePost();
+                    props.setUpdateFeed(true);
+                  } else if (post.visibility === 'PRIVATE' && !post.sendTo) {
+                    setError('Please select a recipient');
+                  } else if (post.id) {
                     editPost();
                   } else {
                     createPost();
