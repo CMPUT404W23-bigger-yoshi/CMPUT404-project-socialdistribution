@@ -83,6 +83,8 @@ class Post(db.Model):
             post["visibility"] = "PUBLIC"
         elif post["visibility"] == Visibility.FRIENDS:
             post["visibility"] = "FRIENDS"
+        elif post["visibility"] == Visibility.PRIVATE:
+            post["visibility"] = "PRIVATE"
 
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()

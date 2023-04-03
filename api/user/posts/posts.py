@@ -526,7 +526,7 @@ def post_inbox(author_id: str):
             author_obj = data.get("author")
 
             # if post sent privately to local inbox
-            if Author.query.filter_by(id=author_obj.get("id").split('/')[-1]).first() is not None:
+            if Author.query.filter_by(id=author_obj.get("id").split("/")[-1]).first() is not None:
                 logger.info("Creating a local post")
                 post = make_post_local(data, author_id)
 
@@ -536,6 +536,7 @@ def post_inbox(author_id: str):
                     return response
                 statement = inbox_table.insert().values(post_id=post.id, meant_for=author_id)
                 db.session.execute(statement)
+                db.session.commit()
                 response = {"message": "Successfully created post"}, 201
                 return response
 
