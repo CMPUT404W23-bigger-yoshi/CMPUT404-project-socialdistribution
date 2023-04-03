@@ -100,7 +100,7 @@ export const sendFollowRequest = async (follower, toFollow) => {
       ...data
     });
   }
-  const encoded = encodeURIComponent(`${toFollow.id}/inbox`);
+  const encoded = encodeURIComponent(`${toFollow.id.trimEnd('/')}/inbox`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, { ...data });
 };
 

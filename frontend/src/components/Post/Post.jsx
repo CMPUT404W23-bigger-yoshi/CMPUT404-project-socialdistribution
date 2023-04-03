@@ -249,7 +249,11 @@ const Post = (props) => {
                   remarkPlugins={[remarkGfm]}
                 />
               ) : post.contentType.startsWith('image/') ? (
-                <img src={`${post.id}/image`} className="post-image" alt="" />
+                <img
+                  src={`${post.id.trimEnd('/')}/image`}
+                  className="post-image"
+                  alt=""
+                />
               ) : (
                 post.content
               )}
