@@ -90,7 +90,7 @@ export function sendtoInbox(authorId, postObj) {
       postObj
     );
   }
-  const encoded = encodeURIComponent(`${authorId}/inbox`)
+  const encoded = encodeURIComponent(`${authorId}/inbox`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, postObj);
 }
 
