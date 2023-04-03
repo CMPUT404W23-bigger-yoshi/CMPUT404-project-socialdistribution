@@ -517,7 +517,7 @@ def post_inbox(author_id: str):
     """
     Sends the post/like/follow/comment to the inbox of the author with author_id
     """
-
+    logger.info(f"Recieved request in inbox data: {request.json}")
     data = request.json
     post_type = data["type"].lower()
     response = {}
@@ -738,7 +738,7 @@ def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
             resp = requests.post(
                 foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
             )
-            logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
+            logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}\ndata: {resp.json()}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
                 logger.warning("non-200 status code!")
