@@ -486,7 +486,6 @@ def get_foreign_inbox(author_url: str):
 
 
 # todo check
-@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
 @posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
     {
@@ -518,7 +517,7 @@ def post_inbox(author_id: str):
     """
     Sends the post/like/follow/comment to the inbox of the author with author_id
     """
-
+    logger.info(f"Received request in inbox data: {request.json}")
     data = request.json
     post_type = data["type"].lower()
     response = {}
@@ -614,17 +613,21 @@ def make_post_non_local(data, author_id):
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
     """
+    logger.info(f"Trying to create non local post with data: {data}\nFor Author: {author_id}")
     author_obj = data.get("author")
     if not data.get("author", None) or not author_obj.get("id", None):
+        logger.info("Missing Author")
         return {"message": "Missing Author"}, 400
 
     if data.get("id") is None:
+        logger.info("Missig Post Id")
         return {"message": "Missing Post ID"}, 400
 
     post_id = data.get("id")
 
     meant_for = Author.query.filter_by(id=author_id).first()
     if meant_for is None:
+        logger.info("Author doesn't exist")
         return {"message": "Author doesn't exist"}, 404
 
     visibility = data.get("visibility")
@@ -636,20 +639,23 @@ def make_post_non_local(data, author_id):
     # verification of all the fields needed
     author_obj = data.get("author")
     if not author_obj:
+        logger.info("Failed to find author obj in request")
         return {"message": "failed to find author obj in request", "success": 0}, 400
 
-    required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
+    required_fields = ["id", "host", "displayName", "url", "profileImage"]
     for field in required_fields:
         if author_obj.get(field, None) is None:
+            logging.info(f"Author is missing field: {field}")
             return {"message": "Author with incomplete fields"}, 400
 
     if Author.query.filter_by(id=author_obj.get("id")).first() is not None:
+        logger.info("Local author shouldn't send info to inbox directly")
         return {"message": "Local authors shouldn't send to inbox directly"}, 400
 
     author = NonLocalAuthor.query.filter_by(id=author_obj.get("id")).first()
 
     if not author:
-        logger.info("creating record of previous non-existent author: ")
+        logger.info("Creating record of previous non-existent author: ")
         author = create_non_local_author(author_obj)
 
     post = Post(
@@ -727,12 +733,11 @@ def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
     for foreign_follower in foreign_followers:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox/"
+        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox"
+        logger.info(f"Auth headers: {auth_header_for_url(foreign_inbox_url)}\nData: {post_to_send}")
         try:
-            resp = requests.post(
-                foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
-            )
-            logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}")
+            resp = requests.post(foreign_inbox_url, json=post_to_send, headers=auth_header_for_url(foreign_inbox_url))
+            logger.info(f"received response for ...{foreign_inbox_url}: {resp.status_code}\ndata: {resp.json()}")
             if 200 >= resp.status_code > 300:
                 # breakpoint()
                 logger.warning("non-200 status code!")
@@ -879,7 +884,7 @@ def create_non_local_author(author_to_add):
             id=author_to_add["id"],
             host=author_to_add["host"],
             url=author_to_add["url"],
-            displayName=author_to_add["displayName"],
+            username=author_to_add["displayName"],
             github=author_to_add["github"],
             profileImage=author_to_add["profileImage"],
         )
