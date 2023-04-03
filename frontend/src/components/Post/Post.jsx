@@ -21,6 +21,7 @@ import CreatePostModal from './CreatePostModal';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CommentsModal from '../Comments/Comments';
 import { AuthorContext } from '../../context/AuthorContext';
+import SharePostModal from '../SharePostModal/SharePostModal';
 
 const Post = (props) => {
   const [post, setPost] = useState(props.post);
@@ -31,11 +32,13 @@ const Post = (props) => {
   const userDetails = useContext(AuthorContext).author;
   const location = useLocation();
   const navigate = useNavigate();
+  const [showSharePostModal, setShowSharePostModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [updateLikes, setUpdateLikes] = useState(false);
   const [updateComments, setUpdateComments] = useState(false);
+  const [isRepost, setIsRepost] = useState(false);
   const [commentsSrc, setCommentsSrc] = useState({});
   const [likes, setLikes] = useState([]);
 
@@ -68,6 +71,12 @@ const Post = (props) => {
       console.log('Post not found');
     }
   }, [location]);
+
+  useEffect(() => {
+    if (post.origin !== post.id) {
+      setIsRepost(true);
+    }
+  }, [post]);
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -150,6 +159,11 @@ const Post = (props) => {
         handleClose={() => setShowShareModal(false)}
         link={post.id}
       />
+      <SharePostModal
+        showVal={showSharePostModal}
+        handleClose={() => setShowSharePostModal(false)}
+        post={post}
+      />
       <CommentsModal
         show={showCommentsModal}
         handleClose={() => setShowCommentsModal(false)}
@@ -162,29 +176,9 @@ const Post = (props) => {
           <Row className="post-header">
             <Col md={6} xs={12}>
               <div className="post-info">
-                {props.isRepost && (
+                {isRepost && (
                   <div className="post-repost">
-                    <span>
-                      <img
-                        src={
-                          post.author.profileImage !== ''
-                            ? post.author.profileImage
-                            : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
-                        }
-                        className="post-profile-image"
-                        alt={post.author.displayName || post.author.username}
-                        style={{
-                          width: '25px',
-                          height: '25px',
-                          marginRight: '5px'
-                        }}
-                      />
-                    </span>
-                    <span className="post-repost-text">
-                      Reposted from{' '}
-                      {post.author.displayName || post.author.username}
-                    </span>
-                    {/* Draw a line */}
+                    <h6>Reposted</h6>
                     <hr className="post-repost-line" />
                   </div>
                 )}
@@ -291,7 +285,10 @@ const Post = (props) => {
             </Col>
             <Col xs={3} className="post-buttons">
               <div className="post-share">
-                <Button variant="dark" onClick={() => setShowShareModal(true)}>
+                <Button
+                  variant="dark"
+                  onClick={() => setShowSharePostModal(true)}
+                >
                   <ShareFill /> <span className="icon-hint">Share</span>
                 </Button>
               </div>
@@ -332,8 +329,20 @@ const Post = (props) => {
                         </Dropdown.Item>
                       </>
                     )}
-                    <Dropdown.Item href="#/action-3">Source</Dropdown.Item>
-                    <Dropdown.Item href="#/action-4">Origin</Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => {
+                        window.open(post.source, '_blank');
+                      }}
+                    >
+                      Source
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      onClick={() => {
+                        window.open(post.origin, '_blank');
+                      }}
+                    >
+                      Origin
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
