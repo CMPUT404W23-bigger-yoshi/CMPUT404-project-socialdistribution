@@ -226,6 +226,7 @@ export default function CreatePost(props) {
                       handleChange={handleImageUpload}
                       name="file"
                       types={acceptedMediaTypes}
+                      label="Upload or drop an image right here"
                     />
                   )}
                 </div>
