@@ -124,6 +124,10 @@
   height: 50px;
 }
 
+.create-post .post-details-bar option {
+  color: black;
+}
+
 .create-post .post-details-bar .post-details-bar-item {
   padding: 0 1rem 0 0;
 }
@@ -143,6 +147,19 @@
   margin: 20px auto;
   max-width: 100%;
   max-height: 500px;
+}
+
+/*Image drop box*/
+.create-post .post-content-image label {
+  height: 80%;
+  width: 55%;
+  margin: 20px;
+  border-color: #32ac74;
+}
+
+/*Little tiny image next to "Upload"*/
+.create-post .post-content-image svg > path {
+  fill: #32ac74;
 }
 
 .create-post .search-user {

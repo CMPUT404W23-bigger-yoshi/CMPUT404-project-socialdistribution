@@ -184,9 +184,10 @@ def get_recent_posts(author_id: str):
     )
 
     if current_user.is_authenticated and current_user.id == author_id:
-        posts = (
-            posts
-            + Post.query.filter_by(unlisted=False, visibility=Visibility.PRIVATE).order_by(desc(Post.published)).all()
+        posts.extend(
+            Post.query.filter_by(unlisted=False, visibility=Visibility.PRIVATE, author=author_id)
+            .order_by(desc(Post.published))
+            .all()
         )
 
     return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200

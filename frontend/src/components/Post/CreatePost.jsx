@@ -7,6 +7,7 @@ import CategoryInput from '../CategoryInput/CategoryInput';
 import { generatePostId, sendtoInbox, updatePost } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import MessageModal from '../MessageModal/MessageModal';
+import { FileUploader } from 'react-drag-drop-files';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { searchMultipleUsers } from '../../services/author';
 import ShareModal from '../ShareModal/ShareModal';
@@ -20,6 +21,7 @@ export default function CreatePost(props) {
   const [showPreview, setShowPreview] = useState(false);
   const [image, setImage] = useState(null);
   const { author } = useContext(AuthorContext);
+  const acceptedMediaTypes = ['JPG', 'PNG', 'GIF'];
   const [post, setPost] = useState({
     type: 'post',
     title: '',
@@ -100,8 +102,7 @@ export default function CreatePost(props) {
     }
   }
 
-  function handleImageUpload(e) {
-    const file = e.target.files[0];
+  function handleImageUpload(file) {
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -274,17 +275,12 @@ export default function CreatePost(props) {
                       className="post-content-image-preview"
                     />
                   ) : (
-                    <Form.Group
-                      className="post-content-image-upload"
-                      style={{ width: '100%', margin: '20px 0' }}
-                    >
-                      <Form.Control
-                        type="file"
-                        onChange={handleImageUpload}
-                        accept="image/*"
-                        placeholder="Upload Image"
-                      />
-                    </Form.Group>
+                    <FileUploader
+                      handleChange={handleImageUpload}
+                      name="file"
+                      types={acceptedMediaTypes}
+                      label="Upload or drop an image right here"
+                    />
                   )}
                 </div>
               )}
