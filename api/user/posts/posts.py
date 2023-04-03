@@ -377,7 +377,8 @@ def get_inbox(author_id: str):
     author = Author.query.filter_by(id=author_id).first_or_404()
 
     posts = (
-        Post.query.join(inbox_table)
+        Post.query.filter(Post.unlisted == False)
+        .join(inbox_table)
         .filter(inbox_table.c.meant_for == author_id)
         .order_by(desc(Post.published))
         .paginate(**get_pagination_params().dict)
