@@ -21,7 +21,7 @@ function Feed(props) {
           setPosts(response.data.items);
         } else {
           response = await getHomeFeed();
-          setPosts(response.data.items.reverse());
+          setPosts(response.data.items);
         }
       } catch (error) {
         console.log(error);
