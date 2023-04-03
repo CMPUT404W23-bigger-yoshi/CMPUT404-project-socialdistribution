@@ -155,6 +155,7 @@ export default function CreatePost(props) {
         link={shareError}
         handleClose={() => {
           setShareShow(false);
+          setToggleCreatePost(true);
         }}
       />
       <MessageModal
