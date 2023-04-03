@@ -38,11 +38,8 @@ export const getUserById = async (authorId) => {
 };
 
 export const updateCurrentUserDetails = async (authorId, data) => {
-  if (data.id.match(window.location.host)) {
-    return await axios.post(`/authors/${authorId}`, data);
-  }
-  const encoded = encodeURIComponent(`${data.id}`);
-  return await axios.post(`/authors/${encoded}`, data);
+  const authorIdVal = authorId.split('/').pop();
+  return await axios.post(`/authors/${authorIdVal}`, data);
 };
 
 export const searchMultipleUsers = async (username) => {

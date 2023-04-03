@@ -145,7 +145,7 @@ def create_post_auto_gen_id(author_id: str):
     fanout_to_local_inbox(post, author_id)
     fanout_to_foreign_inbox(post, author_id)
 
-    return {"message": "Successfully created new post"}, 201
+    return {"message": "Successfully created new post", "post": post.getJSON()}, 201
 
 
 @posts_bp.route("/<string:author_id>/posts", methods=["GET"])
