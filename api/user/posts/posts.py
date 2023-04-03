@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 import requests
 from flasgger import swag_from
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, request, current_app
 from flask_login import login_required
 from sqlalchemy import and_, desc
 from sqlalchemy.exc import IntegrityError

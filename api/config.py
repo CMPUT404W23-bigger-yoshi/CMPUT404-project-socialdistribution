@@ -17,3 +17,4 @@ class Config:
         "title": "Bigger Yoshi API Specification",
         "uiversion": 3,
     }
+    UPLOAD_FOLDER = "/resources/images/"

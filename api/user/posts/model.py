@@ -28,7 +28,6 @@ inbox_table = db.Table(
     db.Column("meant_for", db.Text, db.ForeignKey("author.id", ondelete="CASCADE"), primary_key=True),
 )
 
-
 @dataclass
 class Post(db.Model):
     id: str = db.Column(db.Text, nullable=True, default=generate_object_ID, unique=True, primary_key=True)

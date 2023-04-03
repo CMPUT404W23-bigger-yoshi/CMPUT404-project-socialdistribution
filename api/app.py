@@ -25,6 +25,7 @@ from api.user.author.model import Author
 from api.user.comments.model import Comment
 from api.user.posts.model import Post
 from api.user.user import user_bp
+from api.resources.images import images_bp
 
 # Will need to use this later
 url = URL.create("", username="", password="", host="", database="")  # dialect+driver
@@ -51,6 +52,7 @@ def create_app(testing_env=False):
     app.register_blueprint(user_bp, url_prefix=f"{API_PATH}/authors")
     app.register_blueprint(nodes_bp, url_prefix=f"{API_PATH}/nodes")
     app.register_blueprint(actions_bp, url_prefix=ADMIN_ENDPOINT)
+    app.register_blueprint(images_bp, url_prefix=API_PATH)
 
     app.config.from_object("api.config.Config")
 
