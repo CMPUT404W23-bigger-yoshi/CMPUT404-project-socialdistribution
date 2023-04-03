@@ -683,7 +683,7 @@ def make_post_non_local(data, author_id):
     post = Post(
         id=post_id,
         published=data.get("published"),
-        url=data.get("url"),
+        url=post_id,
         title=data.get("title"),
         origin=data.get("origin"),
         source=data.get("source"),
