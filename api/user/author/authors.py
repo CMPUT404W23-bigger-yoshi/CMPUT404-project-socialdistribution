@@ -1,4 +1,4 @@
-import base64
+import asyncio
 import logging
 import os
 from json import JSONDecodeError
@@ -15,7 +15,8 @@ from api.admin.outbound_connection import OutboundConnection
 from api.admin.utils import auth_header_for_url
 from api.user.author.docs import author_schema, authors_schema
 from api.user.author.model import Author
-from api.utils import Approval, Role, cache_request, get_pagination_params
+from api.user.author.utils import cache_request, retrieve_authors_from_endpoints
+from api.utils import Approval, Role, get_pagination_params
 
 logger = logging.getLogger(__name__)
 
@@ -238,19 +239,17 @@ def get_author_id_all(author_username: str):
     # this endpoint gets hammered - once per keystroke. good thing there's only a few authors per server :shrug:
     all_connections: List[OutboundConnection] = OutboundConnection.query.all()
     logger.info(f"querying {len(all_connections)=} endpoints for authors")
-    # yes, it is sequential (for now)
-    # I do not care
-    for con in all_connections:
-        authors_url = con.endpoint + "authors/"
-        logger.debug(f"making request for authors: {authors_url=} headers={auth_header_for_url(authors_url)}")
-        r = None
-        try:
-            # nobody will have more than 100 authors, so we don't bother to write the code to query more than that
-            r = cache_request.get(authors_url, headers=auth_header_for_url(authors_url), params={"size": 100})
-            items.extend(r.json().get("items", []))
-        except JSONDecodeError:
-            logger.error(f"failed to parse JSON response {r.status_code=} {r.content.decode()=}")
-        except Exception as e:
-            logger.exception(f"failed to make request to {authors_url=}: ")
+    all_endpoints = [*map(lambda con: con.endpoint + "authors/", all_connections)]
 
+    # (special considerations due to the threaded nature of request workers)
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError as e:
+        if str(e).startswith("There is no current event loop in thread"):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        else:
+            raise
+
+    items = loop.run_until_complete(retrieve_authors_from_endpoints(all_endpoints))
     return {"type": "authors", "items": items}
