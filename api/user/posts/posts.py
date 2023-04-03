@@ -829,6 +829,7 @@ def make_comment(json, author_id):
     Arguments:
         author_id: ID of the author who made the
     """
+    logger.info(f"Make comment with content: {json} for author: {author_id}")
     url = json.get("object")
     if not url:
         return {"message": "failed to provide object key"}, 400
