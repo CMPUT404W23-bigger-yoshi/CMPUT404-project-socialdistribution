@@ -102,7 +102,7 @@ const Post = (props) => {
         author: {
           ...userDetails
         },
-        object: post.id
+        object: post.origin
       };
       setUpdateLikes(true);
       const res = await likePost(likeObject);

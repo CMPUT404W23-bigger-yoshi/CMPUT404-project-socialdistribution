@@ -34,7 +34,7 @@ const timeSince = (date) => {
 };
 
 function Comment(props) {
-  const { author, profileImage, comment, published, contentType, authorUrl } =
+  const { author, profileImage, comment, published, contentType, authorUrl, id } =
     props;
   const navigate = useNavigate();
 
@@ -190,6 +190,7 @@ function Comments(props) {
             contentType={comment.contentType}
             profileImage={comment.author.profileImage}
             authorUrl={comment.author.id}
+            id={comment.id}
           />
         ))}
       </div>

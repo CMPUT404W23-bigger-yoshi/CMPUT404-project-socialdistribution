@@ -137,3 +137,11 @@ export async function getComments(postUrl) {
   const encoded = encodeURIComponent(`${postUrl}/comments`);
   return await axios.get(`/authors/foreign-inbox/${encoded}`);
 }
+
+export async function getCommentLikes(commentUrl) {
+  if (commentUrl.match(window.location.host)) {
+    return await axios.get(`${commentUrl}/likes`);
+  }
+  const encoded = encodeURIComponent(`${commentUrl}/likes`);
+  return await axios.get(`/authors/foreign-inbox/${encoded}`);
+}
