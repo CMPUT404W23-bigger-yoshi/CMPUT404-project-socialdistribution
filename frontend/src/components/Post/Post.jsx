@@ -273,7 +273,7 @@ const Post = (props) => {
                         ? '#fb3958'
                         : 'white'
                     }
-                  />{ '}
+                  />{' '}
                   {likes?.length}
                 </Button>
               </div>
