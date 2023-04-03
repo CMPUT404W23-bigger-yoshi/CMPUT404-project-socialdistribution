@@ -49,20 +49,18 @@ function Home() {
     if (location.pathname === '/') {
       return (
         <>
-          <CreatePost />
           <Feed userId={userId} isInbox={false} />
         </>
       );
     } else if (location.pathname === '/inbox') {
       return (
         <>
-          <CreatePost />
           <Feed userId={userId} isInbox={true} />
         </>
       );
     } else if (location.pathname === '/profile') {
       return <Profile authorUrl={`${window.location.href}?q=${author.url}`} />;
-    } else if (location.pathname === '/notifications') {
+    } else if (location.pathname === '/requests') {
       return <Notifications />;
     } else if (location.pathname === '/settings') {
       return <Settings />;

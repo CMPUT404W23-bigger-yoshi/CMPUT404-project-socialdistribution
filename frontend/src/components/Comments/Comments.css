@@ -61,10 +61,13 @@
   height: 50px;
   border-radius: 50%;
   margin: 0 10px 0 0;
+  cursor: pointer;
 }
 
 .comment .author {
   font-weight: bold;
+  cursor: pointer;
+  color: #41f141;
 }
 
 .comment .time {

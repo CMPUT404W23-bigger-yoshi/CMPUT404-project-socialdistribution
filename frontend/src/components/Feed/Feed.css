@@ -1,0 +1,12 @@
+.feed {
+  width: 60%;
+}
+
+.feed .create-post-button {
+  text-align: center;
+}
+
+.feed .create-post {
+  margin: 0 auto;
+  width: 100%;
+}

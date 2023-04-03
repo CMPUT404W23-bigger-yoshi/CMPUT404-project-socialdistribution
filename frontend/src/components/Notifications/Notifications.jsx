@@ -7,34 +7,42 @@ import { getFollowRequests } from '../../services/author';
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const author = useContext(AuthorContext).author;
+  const [notificationsUpdated, setNotificationsUpdated] = useState(false);
 
   const updateNotifications = async () => {
     const data = (await getFollowRequests(author.id.split('/').pop(-1))).data
       .follow_requests;
     setNotifications(data);
+    setNotificationsUpdated(false);
     console.log(data);
   };
 
   useEffect(() => {
     updateNotifications();
-  }, []);
+  }, [notificationsUpdated]);
 
   return (
     <div className="notifications">
       <div className="notificationsbox">
-        <div className="header">
-          <a>All</a>
-          <a>Posts</a>
-          <a>Following</a>
-        </div>
-        {notifications.map((notification, idx) => (
-          <Notification
-            key={idx}
-            type={notification.type}
-            person={notification.author}
-            localAuthor={author}
-          />
-        ))}
+        {notifications.length > 0 ? (
+          notifications.map((notification, idx) => (
+            <Notification
+              key={idx}
+              type={notification.type}
+              person={notification.author}
+              localAuthor={author}
+              setNotificationsUpdated={setNotificationsUpdated}
+            />
+          ))
+        ) : (
+          <div
+            className="no-notifications"
+            style={{ textAlign: 'center', marginTop: '40%' }}
+          >
+            <br />
+            <h1>No friend requests to show</h1>
+          </div>
+        )}
       </div>
     </div>
   );

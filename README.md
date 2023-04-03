@@ -76,6 +76,10 @@ Create a run configuration that sets the aforementioned environment variable to 
 ```
 heroku pg:reset DATABASE_URL --confirm bigger-yoshi
 ```
+#### Restarting
+```
+heroku ps:restart --app bigger-yoshi
+```
 
 ## Contributors / Licensing
 

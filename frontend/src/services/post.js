@@ -8,7 +8,7 @@ export function getPost(authorId, postId) {
 
 export function getPosts(authorUrl) {
   if (authorUrl.match(window.location.host)) {
-    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}/posts/`);
+    return axios.get(`/authors/${authorUrl.split('/').pop()}/posts/`);
   }
   const encoded = encodeURIComponent(`${authorUrl}/posts`);
   return axios.get(`/authors/foreign-inbox/${encoded}`);
@@ -83,6 +83,10 @@ export function getInbox(authorId) {
   return axios.get(`${authorId}/inbox`);
 }
 
+export function getHomeFeed() {
+  return axios.get('/authors/posts');
+}
+
 export async function getLikes(postUrl) {
   if (postUrl.match(window.location.host)) {
     return await axios.get(`${postUrl}/likes`);
@@ -95,13 +99,11 @@ export async function likePost(likeObj) {
   const postUrl = likeObj.object;
   if (postUrl.match(window.location.host)) {
     return axios.post(
-      `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+      `authors/${postUrl.split('authors/').pop().split('/')[0]}/inbox/`,
       likeObj
     );
   }
-  const encoded = encodeURIComponent(
-    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
-  );
+  const encoded = encodeURIComponent(`${postUrl.split('/posts')[0]}/inbox`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, likeObj);
 }
 
@@ -109,13 +111,11 @@ export function makeComment(commentObj) {
   const postUrl = commentObj.object;
   if (postUrl.match(window.location.host)) {
     return axios.post(
-      `authors/${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`,
+      `authors/${postUrl.split('authors/').pop().split('/')[0]}/inbox/`,
       commentObj
     );
   }
-  const encoded = encodeURIComponent(
-    `${postUrl.split('authors/').pop(-1).split('/')[0]}/inbox/`
-  );
+  const encoded = encodeURIComponent(`${postUrl.split('/posts')[0]}/inbox/`);
   return axios.post(`/authors/foreign-inbox/${encoded}`, commentObj);
 }
 

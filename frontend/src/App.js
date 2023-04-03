@@ -48,7 +48,7 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: '/notifications',
+    path: '/requests',
     element: <Home />
   },
   {

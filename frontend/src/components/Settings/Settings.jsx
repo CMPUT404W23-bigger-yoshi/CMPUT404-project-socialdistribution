@@ -1,40 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import './Settings.css';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
+import { updateCurrentUserDetails } from '../../services/author';
+import MessageModal from '../MessageModal/MessageModal';
+import { AuthorContext } from '../../context/AuthorContext';
 import { useNavigate } from 'react-router-dom';
-import {
-  getUserDetails,
-  getCurrentUserId,
-  updateCurrentUserDetails
-} from '../../services/author';
+import { generatePostId } from '../../services/post';
 
 function Settings() {
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
-    id: '',
-    displayName: '',
-    github: '',
-    profileImage: ''
+    ...useContext(AuthorContext).author
   });
-  useEffect(() => {
-    const getDetails = async () => {
-      try {
-        const response = await getCurrentUserId();
-        const id = response.data.id;
-        const user = await getUserDetails(id);
-        setUserDetails({ ...user.data, id });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getDetails().then((r) => console.log(r));
-  }, []);
+  const [errorMsg, setError] = useState('Error');
+  const [show, setShow] = useState(false);
+  const [post, setPost] = useState({
+    type: 'post',
+    title: '',
+    content: '',
+    contentType: 'image/*',
+    categories: [],
+    visibility: 'PUBLIC',
+    unlisted: true
+  });
+
+  const handleClose = () => {
+    setShow(false);
+    navigate('/profile');
+  };
+  const handleShow = () => setShow(true);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await updateCurrentUserDetails(userDetails.id, userDetails);
       console.log(res);
+      setError('Settings updated successfully');
+      handleShow();
     } catch (error) {
+      if (error.response.status === 409) {
+        setError(error.response.data.message);
+        handleShow();
+      } else {
+        setError('Error updating settings');
+        handleShow();
+      }
       console.log(error);
     }
   };
@@ -44,7 +53,13 @@ function Settings() {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
-      setUserDetails({ ...userDetails, profileImage: dataUrl }); // updated userDetails state variable
+      generatePostId(userDetails, { ...post, content: dataUrl }).then((res) => {
+        console.log(res.data.post.id + '/image');
+        setUserDetails({
+          ...userDetails,
+          profileImage: res.data?.post?.id + '/image'
+        });
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -52,6 +67,13 @@ function Settings() {
     <div className="settings">
       <div className="settings-border">
         <div className="settings-container">
+          <MessageModal
+            title={'Settings'}
+            show={show}
+            error={errorMsg}
+            C
+            handleClose={handleClose}
+          />
           <div className="settings-title">
             <h1>Settings</h1>
             <hr />
@@ -80,14 +102,22 @@ function Settings() {
               </Form.Group>
               <Form.Group className="settings-form-group">
                 <Form.Label>Github Link</Form.Label>
-                <Form.Control
-                  type="link"
-                  placeholder="Enter github link"
-                  value={userDetails.github}
-                  onChange={(e) =>
-                    setUserDetails({ ...userDetails, github: e.target.value })
-                  }
-                />
+                <InputGroup className="mb-3">
+                  <InputGroup.Text id="basic-addon3">
+                    https://github.com/
+                  </InputGroup.Text>
+                  <Form.Control
+                    id="basic-url"
+                    aria-describedby="basic-addon3"
+                    onChange={(e) =>
+                      setUserDetails({
+                        ...userDetails,
+                        github: 'https://github.com/' + e.target.value
+                      })
+                    }
+                    value={userDetails.github?.split('/').pop()}
+                  />
+                </InputGroup>
               </Form.Group>
               <Form.Group className="settings-form-group">
                 <Form.Label>Profile Picture</Form.Label>
@@ -104,11 +134,14 @@ function Settings() {
                 className="settings-submit"
                 onClick={handleSubmit}
               >
-                Submit
+                Save Changes
               </Button>
             </Form>
             <div className="settings-admin">
-              <Button variant="success" onClick={() => navigate('/admin')}>
+              <Button
+                variant="success"
+                onClick={() => window.open('/admin/', '_self')}
+              >
                 Admin Page
               </Button>
             </div>

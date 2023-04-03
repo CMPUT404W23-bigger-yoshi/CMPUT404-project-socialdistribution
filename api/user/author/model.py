@@ -5,37 +5,46 @@ from datetime import datetime
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, event
+from sqlalchemy import Enum
+from sqlalchemy.dialects.postgresql import ENUM as pgEnum
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from api import db
-from api.admin.APIConfig import APIConfig
+from api import API_BASE, db
+from api.admin.api_config import API_CONFIG
 from api.user.followers.model import LocalFollower
 from api.user.relations import author_likes_comments, author_likes_posts
 from api.utils import Approval, Role, generate_object_ID, randomized_profile_img
 
+logger = logging.getLogger(__name__)
 
-def _constructURL(context):
-    authorId = context.get_current_parameters()["id"]
-    return APIConfig.API_BASE + "authors/" + authorId
+
+def construct_author_url(context):
+    author_id = context.get_current_parameters()["id"]
+    return API_BASE + "authors/" + author_id
+
+
+# eh other team wants it like that idk why?
+def construct_host(context):
+    return API_BASE
 
 
 def _default_approval_from_config(context):
-    if APIConfig.AUTHOR_AUTO_APPROVE:
-        return Approval.APPROVED
-    else:
+    if API_CONFIG.restrict_signups:
         return Approval.PENDING
+    else:
+        return Approval.APPROVED
 
 
 @dataclass
 class Author(UserMixin, db.Model):
     id: str = db.Column(db.Text, primary_key=True, default=generate_object_ID)
-    url: str = db.Column("url", db.Text, nullable=True, unique=True, default=_constructURL)
-    host: str = db.Column("host", db.Text, nullable=False)
+    url: str = db.Column("url", db.Text, nullable=True, unique=True, default=construct_author_url)
+    host: str = db.Column("host", db.Text, nullable=False, default=construct_host)
     username: str = db.Column("username", db.Text, nullable=False, unique=True)
     password: str = db.Column("password", db.Text, nullable=False)
     github: str = db.Column("github", db.Text, nullable=True)
     profile_image: str = db.Column("profile_image", db.Text, default=randomized_profile_img)
+    # since the other table will create this type, no need to :)
     approval: Approval = db.Column("approval", Enum(Approval), nullable=False, default=_default_approval_from_config)
     role: Role = db.Column("role", Enum(Role), nullable=False, default=Role.USER)
 
@@ -64,11 +73,12 @@ class NonLocalAuthor(db.Model):
     id: str = db.Column(db.Text, primary_key=True, unique=True)
     url: str = db.Column("url", db.Text, nullable=True, unique=True)
     host: str = db.Column("host", db.Text, nullable=False)
-    displayName: str = db.Column("displayName", db.Text, nullable=False, unique=True)
-    github: str = db.Column("github", db.Text, nullable=False)
+    username: str = db.Column("username", db.Text, nullable=False)
+    github: str = db.Column("github", db.Text, nullable=True)
     profileImage: str = db.Column("profileImage", db.Text, nullable=False)
 
     def getJSON(self):
         json = asdict(self)
+        json["displayName"] = json["username"]
         json["type"] = "author"
         return json
