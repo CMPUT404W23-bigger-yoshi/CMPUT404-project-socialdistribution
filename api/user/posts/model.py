@@ -72,12 +72,7 @@ class Post(db.Model):
         if author is None:
             author = NonLocalAuthor.query.filter_by(id=post["author"]).first()
             if author:
-                # todo @matt is there a better way?
-                # todo future: fetch latest data, if not available return stale data
-                author = {**author.__dict__}
-                if author.get("_sa_instance_state", None) is not None:
-                    del author["_sa_instance_state"]
-                post["author"] = author
+                post["author"] = author.getJSON()
 
         # Categories
         if post["categories"]:
