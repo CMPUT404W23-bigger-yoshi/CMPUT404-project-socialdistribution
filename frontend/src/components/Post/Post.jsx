@@ -270,10 +270,10 @@ const Post = (props) => {
                   <HeartFill
                     fill={
                       likes?.find((like) => like.author.id === userDetails.id)
-                        ? 'red'
+                        ? '#fb3958'
                         : 'white'
                     }
-                  />{' '}
+                  />{ '}
                   {likes?.length}
                 </Button>
               </div>
