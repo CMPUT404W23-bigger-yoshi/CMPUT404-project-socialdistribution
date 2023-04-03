@@ -27,7 +27,7 @@ export const getCurrentUserId = async () => {
 
 export const getUserDetails = (authorUrl) => {
   if (authorUrl.match(window.location.host)) {
-    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
+    return axios.get(`/authors/${authorUrl.split('/').pop()}`);
   }
   const encoded = encodeURIComponent(`${authorUrl}`);
   return axios.get(`/authors/foreign-inbox/${encoded}`);
@@ -96,7 +96,7 @@ export const sendFollowRequest = async (follower, toFollow) => {
     }
   };
   if (toFollow.id.match(window.location.host)) {
-    return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox/`, {
+    return axios.post(`/authors/${toFollow.id.split('/').pop()}/inbox/`, {
       ...data
     });
   }

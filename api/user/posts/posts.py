@@ -650,7 +650,13 @@ def make_post_non_local(data, author_id):
 
     if Author.query.filter_by(id=author_obj.get("id")).first() is not None:
         logger.info("Local author shouldn't send info to inbox directly")
-        return {"message": "Local authors shouldn't send to inbox directly"}, 400
+        if made_post := make_post_local(data, author_id) is not None:
+            statement = inbox_table.insert().values(post_id=made_post.id, meant_for=author_id)
+            db.session.execute(statement)
+            db.session.commit()
+            return {"message": "Success", "post": made_post.getJSON()}, 200
+        else:
+            return {"Failed to create post"}, 400
 
     author = NonLocalAuthor.query.filter_by(id=author_obj.get("id")).first()
 
