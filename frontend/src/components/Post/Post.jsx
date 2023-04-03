@@ -250,7 +250,7 @@ const Post = (props) => {
                 />
               ) : post.contentType.startsWith('image/') ? (
                 <img
-                  src={`${post.id.trimEnd('/')}/image`}
+                  src={`${post.id.replace(/[/]$/, '')}/image`}
                   className="post-image"
                   alt=""
                 />
