@@ -642,7 +642,7 @@ def make_post_non_local(data, author_id):
         logger.info("Failed to find author obj in request")
         return {"message": "failed to find author obj in request", "success": 0}, 400
 
-    required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
+    required_fields = ["id", "host", "displayName", "url", "profileImage"]
     for field in required_fields:
         if author_obj.get(field, None) is None:
             logging.info(f"Author is missing field: {field}")
