@@ -89,16 +89,25 @@
 }
 
 .create-post .post-content-text textarea,
-.create-post .post-content-text .post-content-markdown-preview {
+.create-post .post-content-markdown .post-content-markdown-preview {
   width: 100%;
   background: none;
-  /* Remove the default border */
   margin: 1rem 0;
   border: none;
   border-top: 1px solid white;
   padding: 1rem 0;
   font-size: 1rem;
   font-weight: normal;
+}
+
+.create-post .post-content-markdown-preview {
+  height: 500px !important;
+  overflow-y: scroll;
+}
+
+.create-post .post-content-markdown-preview img {
+  width: 80%;
+  height: auto;
 }
 
 /* Remove the default border when the textarea is focused */
