@@ -83,6 +83,17 @@ export function getInbox(authorId) {
   return axios.get(`${authorId}/inbox?size=100&page=1`);
 }
 
+export function sendtoInbox(authorId, postObj) {
+  if (authorId.match(window.location.host)) {
+    return axios.post(
+      `authors/${authorId.split('authors/').pop().split('/')[0]}/inbox/`,
+      postObj
+    );
+  }
+  const encoded = encodeURIComponent(`${authorId}/inbox`)
+  return axios.post(`/authors/foreign-inbox/${encoded}`, postObj);
+}
+
 export function getHomeFeed() {
   return axios.get('/authors/posts');
 }
