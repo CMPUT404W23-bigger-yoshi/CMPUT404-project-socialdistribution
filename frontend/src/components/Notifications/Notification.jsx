@@ -78,8 +78,7 @@ function Notification(props) {
                   props.person.url
                 ).then((res) => {
                   props.setNotificationsUpdated(true);
-                }
-                );
+                });
               }}
             />
           </div>

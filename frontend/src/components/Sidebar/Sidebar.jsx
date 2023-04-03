@@ -66,10 +66,7 @@ function Sidebar() {
         <Nav.Link onClick={() => navigate('/profile')} className="nav-link">
           <Person /> Profile
         </Nav.Link>
-        <Nav.Link
-          onClick={() => navigate('/requests')}
-          className="nav-link"
-        >
+        <Nav.Link onClick={() => navigate('/requests')} className="nav-link">
           <Bell /> Requests
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/settings')} className="nav-link">

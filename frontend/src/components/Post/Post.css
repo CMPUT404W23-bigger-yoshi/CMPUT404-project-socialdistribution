@@ -127,11 +127,11 @@
 }
 
 .post .post-body img {
-    max-width: 100%;
-    max-height: 30em;
-    width: auto;
-    height: auto;
-    margin: 0 auto;
+  max-width: 100%;
+  max-height: 30em;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
 }
 
 .post .post-image {

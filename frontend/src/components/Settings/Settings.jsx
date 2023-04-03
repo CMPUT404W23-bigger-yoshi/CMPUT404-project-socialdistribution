@@ -27,7 +27,7 @@ function Settings() {
   const handleClose = () => {
     setShow(false);
     navigate('/profile');
-  }
+  };
   const handleShow = () => setShow(true);
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +55,10 @@ function Settings() {
       const dataUrl = reader.result;
       generatePostId(userDetails, { ...post, content: dataUrl }).then((res) => {
         console.log(res.data.post.id + '/image');
-        setUserDetails({ ...userDetails, profileImage: res.data?.post?.id + '/image' });
+        setUserDetails({
+          ...userDetails,
+          profileImage: res.data?.post?.id + '/image'
+        });
       });
     };
     reader.readAsDataURL(file);

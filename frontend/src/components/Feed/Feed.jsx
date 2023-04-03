@@ -37,7 +37,10 @@ function Feed(props) {
           <Post post={post} key={post.id} currentUser={author.id} />
         ))
       ) : (
-        <div className="no-posts" style={{ textAlign: 'center', marginTop: '35%' }}>
+        <div
+          className="no-posts"
+          style={{ textAlign: 'center', marginTop: '35%' }}
+        >
           <h1>No posts to show</h1>
         </div>
       )}

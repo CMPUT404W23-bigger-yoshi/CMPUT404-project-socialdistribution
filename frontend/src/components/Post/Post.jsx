@@ -177,7 +177,8 @@ const Post = (props) => {
                       />
                     </span>
                     <span className="post-repost-text">
-                      Reposted from {post.author.displayName || post.author.username}
+                      Reposted from{' '}
+                      {post.author.displayName || post.author.username}
                     </span>
                     {/* Draw a line */}
                     <hr className="post-repost-line" />
@@ -259,7 +260,11 @@ const Post = (props) => {
               <div className="post-likes-count">
                 <Button variant="dark" onClick={handleLike}>
                   <HeartFill
-                    fill={likes.find((like) => like.author.id === userDetails.id) ? 'red' : 'white'}
+                    fill={
+                      likes.find((like) => like.author.id === userDetails.id)
+                        ? 'red'
+                        : 'white'
+                    }
                   />{' '}
                   {likes?.length}
                 </Button>
