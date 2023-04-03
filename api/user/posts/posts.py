@@ -922,7 +922,7 @@ def create_non_local_author(author_to_add):
 @posts_bp.route("/posts", methods=["GET"])
 def get_all_public_posts():
     search = "%{}%".format(API_HOSTNAME)
-    posts = Post.query.filter_by(visibility=Visibility.PUBLIC).order_by(desc(Post.published))
+    posts = Post.query.filter_by(unlisted=False, visibility=Visibility.PUBLIC).order_by(desc(Post.published))
     posts = posts.filter(Post.origin.like(search)).all()
     data = [post.getJSON() for post in posts]
     return {"items": data}
