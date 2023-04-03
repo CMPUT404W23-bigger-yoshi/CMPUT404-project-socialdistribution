@@ -168,7 +168,7 @@ const Post = (props) => {
                             : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
                         }
                         className="post-profile-image"
-                        alt={post.author.displayName}
+                        alt={post.author.displayName || post.author.username}
                         style={{
                           width: '25px',
                           height: '25px',
@@ -177,7 +177,7 @@ const Post = (props) => {
                       />
                     </span>
                     <span className="post-repost-text">
-                      Reposted from {post.author.displayName}
+                      Reposted from {post.author.displayName || post.author.username}
                     </span>
                     {/* Draw a line */}
                     <hr className="post-repost-line" />
@@ -190,7 +190,7 @@ const Post = (props) => {
                       : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
                   }
                   className="post-profile-image"
-                  alt={post.author.displayName}
+                  alt={post.author.displayName || post.author.username}
                   onClick={() => {
                     navigate(`/authors?q=${post.author.id}`);
                   }}
@@ -202,7 +202,7 @@ const Post = (props) => {
                       navigate(`/authors?q=${post.author.id}`);
                     }}
                   >
-                    {post.author.displayName}{' '}
+                    {post.author.displayName || post.author.username}{' '}
                     <span className="post-date">
                       • {formatDate(post.published)}
                     </span>
