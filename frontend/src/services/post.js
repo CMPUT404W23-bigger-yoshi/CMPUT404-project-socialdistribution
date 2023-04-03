@@ -80,7 +80,7 @@ export async function updatePost(
 }
 
 export function getInbox(authorId) {
-  return axios.get(`${authorId}/inbox`);
+  return axios.get(`${authorId}/inbox?size=100&page=1`);
 }
 
 export function getHomeFeed() {
