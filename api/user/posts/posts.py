@@ -311,7 +311,7 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
         if not author:
             continue
 
-        name = author.get("username")
+        name = author.username
         summary = name + "likes your comment." if name else ""
         like = {"type": "like", "author": author.getJSON(), "object": post.url, "summary": summary}
 
