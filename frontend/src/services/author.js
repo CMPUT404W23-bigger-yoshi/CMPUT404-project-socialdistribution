@@ -54,7 +54,7 @@ export const searchMultipleUsers = async (username) => {
 };
 
 export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
-  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
+  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}`);
 };
 
 export const unfollowUser = async (authorId, foreignAuthorId) => {
