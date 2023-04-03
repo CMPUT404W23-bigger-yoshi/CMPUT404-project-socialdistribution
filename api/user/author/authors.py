@@ -251,5 +251,5 @@ def get_author_id_all(author_username: str):
         else:
             raise
 
-    items = loop.run_until_complete(retrieve_authors_from_endpoints(all_endpoints))
+    items.extend(loop.run_until_complete(retrieve_authors_from_endpoints(all_endpoints)))
     return {"type": "authors", "items": items}
