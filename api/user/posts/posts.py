@@ -727,8 +727,10 @@ def fanout_to_local_inbox(post: Post, author_id) -> None:
             to_insert.append({"post_id": post.id, "meant_for": friend.id})
 
         statement = inbox_table.insert().values(to_insert)
+    elif post.visibility == Visibility.PRIVATE:
+        return
     else:
-        raise ValueError(f"unrecognized: {post.visibility=}")
+        raise ValueError(f"Invalid visibility: {post.visibility}")
 
     db.session.execute(statement)
     db.session.commit()
