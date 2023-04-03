@@ -410,6 +410,7 @@ export default function CreatePost(props) {
                     sendTo: null,
                     author
                   });
+                  setToggleCreatePost(true);
                 }}
               >
                 Cancel
