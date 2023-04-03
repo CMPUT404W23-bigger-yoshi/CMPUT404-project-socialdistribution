@@ -110,7 +110,7 @@ const Profile = ({ authorUrl }) => {
               )}
             </div>
             <div className="profile-name">
-              <h1>{user.displayName}</h1>
+              <h1>{user.displayName || user.username}</h1>
             </div>
             <div className="profile-follow-stats">
               <Row className="profile-follow-stats-row" xs={1}>

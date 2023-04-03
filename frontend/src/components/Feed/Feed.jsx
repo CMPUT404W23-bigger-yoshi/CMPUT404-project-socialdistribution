@@ -18,10 +18,11 @@ function Feed(props) {
         let response;
         if (isInbox) {
           response = await getInbox(author.id);
+          setPosts(response.data.items);
         } else {
           response = await getHomeFeed();
+          setPosts(response.data.items);
         }
-        setPosts(response.data.items);
       } catch (error) {
         console.log(error);
       }
@@ -36,10 +37,12 @@ function Feed(props) {
           <Post post={post} key={post.id} currentUser={author.id} />
         ))
       ) : (
-        <>
-          <br />
+        <div
+          className="no-posts"
+          style={{ textAlign: 'center', marginTop: '35%' }}
+        >
           <h1>No posts to show</h1>
-        </>
+        </div>
       )}
     </div>
   );

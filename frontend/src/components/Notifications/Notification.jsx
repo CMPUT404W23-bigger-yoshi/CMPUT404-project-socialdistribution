@@ -7,7 +7,7 @@ import {
   PeopleFill,
   XCircleFill
 } from 'react-bootstrap-icons';
-import { acceptFollowRequest } from '../../services/author';
+import { acceptFollowRequest, unfollowUser } from '../../services/author';
 import { useNavigate } from 'react-router-dom';
 
 function Notification(props) {
@@ -25,6 +25,7 @@ function Notification(props) {
               : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
           }
           alt="profile"
+          onClick={() => navigate(`/authors?q=${props.person.id}`)}
         />
         <p>
           {props.type === 'friend' ? (
@@ -64,11 +65,22 @@ function Notification(props) {
                   props.localAuthor.id.split('/').pop(-1),
                   props.person.url
                 ).then((res) => {
-                  console.log(res);
+                  props.setNotificationsUpdated(true);
                 });
-                props.setNotificationsUpdated(true);
               }}
-            />{' '}
+            />
+            <XCircleFill
+              size={40}
+              className="follow-icon reject"
+              onClick={() => {
+                unfollowUser(
+                  props.localAuthor.id.split('/').pop(-1),
+                  props.person.url
+                ).then((res) => {
+                  props.setNotificationsUpdated(true);
+                });
+              }}
+            />
           </div>
         ) : (
           <div></div>

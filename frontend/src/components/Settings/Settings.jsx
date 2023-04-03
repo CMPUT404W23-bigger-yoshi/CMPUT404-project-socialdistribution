@@ -4,14 +4,30 @@ import { Button, Form, InputGroup } from 'react-bootstrap';
 import { updateCurrentUserDetails } from '../../services/author';
 import MessageModal from '../MessageModal/MessageModal';
 import { AuthorContext } from '../../context/AuthorContext';
+import { useNavigate } from 'react-router-dom';
+import { generatePostId } from '../../services/post';
 
 function Settings() {
-  const [userDetails, setUserDetails] = useState(
-    useContext(AuthorContext).author
-  );
+  const navigate = useNavigate();
+  const [userDetails, setUserDetails] = useState({
+    ...useContext(AuthorContext).author
+  });
   const [errorMsg, setError] = useState('Error');
   const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
+  const [post, setPost] = useState({
+    type: 'post',
+    title: '',
+    content: '',
+    contentType: 'image/*',
+    categories: [],
+    visibility: 'PUBLIC',
+    unlisted: true
+  });
+
+  const handleClose = () => {
+    setShow(false);
+    navigate('/profile');
+  };
   const handleShow = () => setShow(true);
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +53,13 @@ function Settings() {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
-      setUserDetails({ ...userDetails, profileImage: dataUrl }); // updated userDetails state variable
+      generatePostId(userDetails, { ...post, content: dataUrl }).then((res) => {
+        console.log(res.data.post.id + '/image');
+        setUserDetails({
+          ...userDetails,
+          profileImage: res.data?.post?.id + '/image'
+        });
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -76,7 +98,6 @@ function Settings() {
                       displayName: e.target.value
                     })
                   }
-                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Form.Group className="settings-form-group">
@@ -94,9 +115,7 @@ function Settings() {
                         github: 'https://github.com/' + e.target.value
                       })
                     }
-                    disabled={userDetails.host.startsWith(
-                      window.location.origin
-                    )}
+                    value={userDetails.github?.split('/').pop()}
                   />
                 </InputGroup>
               </Form.Group>
@@ -107,7 +126,6 @@ function Settings() {
                   accept="image/*"
                   placeholder="Enter profile picture"
                   onChange={handleImageSelect} // added onChange handler to handle file selection
-                  disabled={userDetails.host.startsWith(window.location.origin)}
                 />
               </Form.Group>
               <Button
@@ -115,11 +133,8 @@ function Settings() {
                 type="submit"
                 className="settings-submit"
                 onClick={handleSubmit}
-                disabled={userDetails.host.startsWith(window.location.origin)}
               >
-                {userDetails.host.startsWith(window.location.origin)
-                  ? 'Save Changes'
-                  : 'Cannot edit settings on other hosts'}
+                Save Changes
               </Button>
             </Form>
             <div className="settings-admin">

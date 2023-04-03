@@ -4,9 +4,9 @@ import Modal from 'react-bootstrap/Modal';
 import { Button, Col, Row } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getUserDetails } from '../../services/author';
 import { makeComment } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
+import { useNavigate } from 'react-router-dom';
 
 const timeSince = (date) => {
   const seconds = Math.floor((new Date() - date) / 1000);
@@ -30,11 +30,13 @@ const timeSince = (date) => {
   if (interval > 1) {
     return Math.floor(interval) + ' minutes';
   }
-  return Math.floor(seconds) + ' seconds';
+  return Math.max(Math.floor(seconds), 0) + ' seconds';
 };
 
 function Comment(props) {
-  const { author, profileImage, comment, published, contentType } = props;
+  const { author, profileImage, comment, published, contentType, authorUrl } =
+    props;
+  const navigate = useNavigate();
 
   return (
     <div className="comment">
@@ -47,9 +49,15 @@ function Comment(props) {
           }
           alt="profile"
           className="rounded-circle"
+          onClick={() => navigate(`/authors?q=${authorUrl}`)}
         />
-        <div className=" ml-2">
-          <span className="author">{author}</span>
+        <div className="ml-2">
+          <span
+            className="author"
+            onClick={() => navigate(`/authors?q=${authorUrl}`)}
+          >
+            {author}
+          </span>
           <span className="time">{timeSince(new Date(published))}</span>
           {contentType === 'text' ? (
             <div className="comment-content">{comment}</div>
@@ -181,6 +189,7 @@ function Comments(props) {
             published={comment.published}
             contentType={comment.contentType}
             profileImage={comment.author.profileImage}
+            authorUrl={comment.author.id}
           />
         ))}
       </div>

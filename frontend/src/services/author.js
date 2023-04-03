@@ -27,7 +27,7 @@ export const getCurrentUserId = async () => {
 
 export const getUserDetails = (authorUrl) => {
   if (authorUrl.match(window.location.host)) {
-    return axios.get(`/authors/${authorUrl.split('/').pop(-1)}`);
+    return axios.get(`/authors/${authorUrl.split('/').pop()}`);
   }
   const encoded = encodeURIComponent(`${authorUrl}`);
   return axios.get(`/authors/foreign-inbox/${encoded}`);
@@ -38,15 +38,8 @@ export const getUserById = async (authorId) => {
 };
 
 export const updateCurrentUserDetails = async (authorId, data) => {
-  if (data.id.match(window.location.host)) {
-    return await axios.post(`/authors/${authorId}`, data);
-  }
-  const encoded = encodeURIComponent(`${data.id}`);
-  return await axios.post(`/authors/${encoded}`, data);
-};
-
-export const searchSingleUser = async (username) => {
-  return await axios.get(`/authors/${username}/search`);
+  const authorIdVal = authorId.split('/').pop();
+  return await axios.post(`/authors/${authorIdVal}`, data);
 };
 
 export const searchMultipleUsers = async (username) => {
@@ -54,7 +47,7 @@ export const searchMultipleUsers = async (username) => {
 };
 
 export const acceptFollowRequest = async (authorId, foreignAuthorId) => {
-  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}/`);
+  return await axios.put(`/authors/${authorId}/followers/${foreignAuthorId}`);
 };
 
 export const unfollowUser = async (authorId, foreignAuthorId) => {
@@ -103,7 +96,7 @@ export const sendFollowRequest = async (follower, toFollow) => {
     }
   };
   if (toFollow.id.match(window.location.host)) {
-    return axios.post(`/authors/${toFollow.id.split('/').pop(-1)}/inbox/`, {
+    return axios.post(`/authors/${toFollow.id.split('/').pop()}/inbox/`, {
       ...data
     });
   }
