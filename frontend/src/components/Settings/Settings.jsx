@@ -9,9 +9,9 @@ import { generatePostId } from '../../services/post';
 
 function Settings() {
   const navigate = useNavigate();
-  const [userDetails, setUserDetails] = useState(
-    useContext(AuthorContext).author
-  );
+  const [userDetails, setUserDetails] = useState({
+    ...useContext(AuthorContext).author
+  });
   const [errorMsg, setError] = useState('Error');
   const [show, setShow] = useState(false);
   const [post, setPost] = useState({
