@@ -83,6 +83,8 @@ class Post(db.Model):
             post["visibility"] = "PUBLIC"
         elif post["visibility"] == Visibility.FRIENDS:
             post["visibility"] = "FRIENDS"
+        elif post["visibility"] == Visibility.PRIVATE:
+            post["visibility"] = "PRIVATE"
 
         post_id = post["id"]
         curr_post = Post.query.filter_by(id=post_id).first()
@@ -98,7 +100,7 @@ class Post(db.Model):
                 "page": 1,
                 "size": 5,
                 "post": self.url,
-                "id": f"{self.url}/comments",
+                "id": f"{self.url.rstrip('/')}/comments",
                 "comments": [comment.getJSON() for comment in self.comments.limit(5).all()],
             }
         except Exception:

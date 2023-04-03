@@ -4,10 +4,12 @@ import { Button, Col, Form, FormSelect, Row } from 'react-bootstrap';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import CategoryInput from '../CategoryInput/CategoryInput';
-import { generatePostId, updatePost } from '../../services/post';
+import { generatePostId, sendtoInbox, updatePost } from '../../services/post';
 import { AuthorContext } from '../../context/AuthorContext';
 import MessageModal from '../MessageModal/MessageModal';
 import { FileUploader } from 'react-drag-drop-files';
+import { Typeahead } from 'react-bootstrap-typeahead';
+import { searchMultipleUsers } from '../../services/author';
 
 export default function CreatePost(props) {
   const [toggleCreatePost, setToggleCreatePost] = useState(!props.post);
@@ -24,8 +26,12 @@ export default function CreatePost(props) {
     contentType: 'text/plain',
     categories: [],
     visibility: 'PUBLIC',
-    unlisted: false
+    unlisted: false,
+    sentTo: '',
+    author
   });
+  const [usernames, setUsernames] = useState([]);
+
   useEffect(() => {
     if (props.post) {
       setPost(props.post);
@@ -46,6 +52,21 @@ export default function CreatePost(props) {
         visibility: 'PUBLIC',
         unlisted: false
       });
+    } catch (err) {
+      setError('Error creating post');
+      setShow(true);
+    }
+  }
+
+  async function createPrivatePost() {
+    try {
+      const res = await sendtoInbox(post.sendTo.id, {
+        ...post,
+        published: new Date().toISOString(),
+        description: post.content
+      });
+      setError('Post created successfully!');
+      setShow(true);
     } catch (err) {
       setError('Error creating post');
       setShow(true);
@@ -267,12 +288,63 @@ export default function CreatePost(props) {
                   >
                     <option value="public">Public</option>
                     <option value="friends">Friends</option>
+                    <option value="private">Private</option>
                     <option value="unlisted">Unlisted</option>
                   </FormSelect>
                 </Col>
               </Row>
             </div>
             <div className="post-submit">
+              {post.visibility === 'PRIVATE' && !post.sendTo && (
+                <div className="search-user">
+                  <Form className="d-flex search-bar">
+                    <Typeahead
+                      id="search-bar"
+                      labelKey="displayName"
+                      onChange={(selected) => {
+                        if (selected.length > 0) {
+                          // Get the last part of the URL (that is the id)
+                          setUsernames([]);
+                          const user = selected[0];
+                          setPost({
+                            ...post,
+                            visibility: 'PRIVATE',
+                            unlisted: false,
+                            sendTo: user
+                          });
+                        }
+                      }}
+                      onInputChange={(username) => {
+                        if (username.length === 0) {
+                          setUsernames([]);
+                          return;
+                        }
+                        searchMultipleUsers(username).then((response) => {
+                          setUsernames(response.data.items);
+                        });
+                      }}
+                      options={usernames}
+                      placeholder="Search for users..."
+                      selected={[]}
+                    />
+                  </Form>
+                </div>
+              )}
+              {post.visibility === 'PRIVATE' && post.sendTo && (
+                <div className="search-user">
+                  <h6>
+                    <span className="post-submit-recipient">
+                      Send to:{' '}
+                      <span className="post-submit-recipient-name">
+                        {post.sendTo.displayName}
+                      </span>
+                    </span>
+                  </h6>
+                </div>
+              )}
+              {post.visibility === 'UNLISTED' && (
+                <div className="upload-image"></div>
+              )}
               <Button
                 variant="danger"
                 onClick={() => {
@@ -293,7 +365,12 @@ export default function CreatePost(props) {
               <Button
                 variant="success"
                 onClick={() => {
-                  if (post.id) {
+                  if (post.visibility === 'PRIVATE' && post.sendTo) {
+                    createPrivatePost();
+                    props.setUpdateFeed(true);
+                  } else if (post.visibility === 'PRIVATE' && !post.sendTo) {
+                    setError('Please select a recipient');
+                  } else if (post.id) {
                     editPost();
                   } else {
                     createPost();
