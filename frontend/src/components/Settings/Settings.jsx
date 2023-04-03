@@ -112,7 +112,7 @@ function Settings() {
                         github: 'https://github.com/' + e.target.value
                       })
                     }
-                    value={userDetails.github.split('/').pop()}
+                    value={userDetails.github?.split('/').pop()}
                   />
                 </InputGroup>
               </Form.Group>
