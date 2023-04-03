@@ -487,7 +487,6 @@ def get_foreign_inbox(author_url: str):
 
 # todo check
 @posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
-@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
     {
         "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
@@ -614,17 +613,21 @@ def make_post_non_local(data, author_id):
     Combined function to make new post using HTTP POST and PUT.
     The author makes these api calls.
     """
+    logger.info(f"Trying to create non local post with data: {data}\nFor Author: {author_id}")
     author_obj = data.get("author")
     if not data.get("author", None) or not author_obj.get("id", None):
+        logger.info("Missing Author")
         return {"message": "Missing Author"}, 400
 
     if data.get("id") is None:
+        logger.info("Missig Post Id")
         return {"message": "Missing Post ID"}, 400
 
     post_id = data.get("id")
 
     meant_for = Author.query.filter_by(id=author_id).first()
     if meant_for is None:
+        logger.info("Author doesn't exist")
         return {"message": "Author doesn't exist"}, 404
 
     visibility = data.get("visibility")
@@ -636,20 +639,23 @@ def make_post_non_local(data, author_id):
     # verification of all the fields needed
     author_obj = data.get("author")
     if not author_obj:
+        logger.info("Failed to find author obj in request")
         return {"message": "failed to find author obj in request", "success": 0}, 400
 
     required_fields = ["id", "host", "displayName", "url", "github", "profileImage"]
     for field in required_fields:
         if author_obj.get(field, None) is None:
+            logging.info(f"Author is missing field: {field}")
             return {"message": "Author with incomplete fields"}, 400
 
     if Author.query.filter_by(id=author_obj.get("id")).first() is not None:
+        logger.info("Local author shouldn't send info to inbox directly")
         return {"message": "Local authors shouldn't send to inbox directly"}, 400
 
     author = NonLocalAuthor.query.filter_by(id=author_obj.get("id")).first()
 
     if not author:
-        logger.info("creating record of previous non-existent author: ")
+        logger.info("Creating record of previous non-existent author: ")
         author = create_non_local_author(author_obj)
 
     post = Post(
