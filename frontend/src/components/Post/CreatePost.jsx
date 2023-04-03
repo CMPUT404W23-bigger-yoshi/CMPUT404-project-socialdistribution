@@ -63,6 +63,8 @@ export default function CreatePost(props) {
         published: new Date().toISOString(),
         description: post.content
       });
+      setError('Post created successfully!');
+      setShow(true);
     } catch (err) {
       setError('Error creating post');
       setShow(true);
