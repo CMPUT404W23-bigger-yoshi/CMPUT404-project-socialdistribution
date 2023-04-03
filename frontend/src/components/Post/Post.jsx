@@ -259,9 +259,7 @@ const Post = (props) => {
               <div className="post-likes-count">
                 <Button variant="dark" onClick={handleLike}>
                   <HeartFill
-                    style={{
-                      color: post.liked ? 'red' : 'white'
-                    }}
+                    fill={likes.find((like) => like.author.id === userDetails.id) ? 'red' : 'white'}
                   />{' '}
                   {likes?.length}
                 </Button>
