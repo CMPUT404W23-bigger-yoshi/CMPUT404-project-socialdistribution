@@ -176,12 +176,6 @@ const Post = (props) => {
           <Row className="post-header">
             <Col md={6} xs={12}>
               <div className="post-info">
-                {isRepost && (
-                  <div className="post-repost">
-                    <h6>Reposted</h6>
-                    <hr className="post-repost-line" />
-                  </div>
-                )}
                 <img
                   src={
                     post.author.profileImage !== ''
