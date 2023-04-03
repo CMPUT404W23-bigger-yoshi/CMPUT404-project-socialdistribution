@@ -24,6 +24,7 @@ PROFILE_IMG_CHOICES = [
 class Visibility(enum.Enum):
     PUBLIC = 0
     FRIENDS = 1
+    PRIVATE = 2
 
 
 class Approval(enum.Enum):
