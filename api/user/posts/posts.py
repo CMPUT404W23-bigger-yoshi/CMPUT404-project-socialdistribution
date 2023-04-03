@@ -640,7 +640,7 @@ def make_post_non_local(data, author_id):
         return {"message": "Missing Author"}, 400
 
     if data.get("id") is None:
-        logger.info("Missig Post Id")
+        logger.info("Missing Post Id")
         return {"message": "Missing Post ID"}, 400
 
     post_id = data.get("id")
@@ -683,6 +683,7 @@ def make_post_non_local(data, author_id):
     post = Post(
         id=post_id,
         published=data.get("published"),
+        url=data.get("url"),
         title=data.get("title"),
         origin=data.get("origin"),
         source=data.get("source"),
