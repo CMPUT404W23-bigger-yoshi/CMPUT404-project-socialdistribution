@@ -53,9 +53,14 @@ export default function CreatePost(props) {
 
   async function createPost() {
     try {
-      const postId = await generatePostId(author, post);
-      setError('Post created successfully!');
-      setShow(true);
+      const postVal = await generatePostId(author, post);
+      if (postVal.data.post.unlisted) {
+        setShareError(postVal.data.post.id);
+        setShareShow(true);
+      } else {
+        setError('Post created successfully!');
+        setShow(true);
+      }
       setPost({
         type: 'post',
         title: '',
