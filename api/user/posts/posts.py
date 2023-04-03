@@ -733,7 +733,7 @@ def fanout_to_foreign_inbox(post: Post, author_id: str) -> None:
     for foreign_follower in foreign_followers:
         # author ids are URLs that we should be able to just tack on /inbox to
         # we strip the trailing slash to make sure we're not double adding one in case one already exists
-        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox/"
+        foreign_inbox_url = foreign_follower.follower_url.rstrip("/") + "/inbox"
         try:
             resp = requests.post(
                 foreign_inbox_url, data={**post_to_send}, headers=auth_header_for_url(foreign_inbox_url)
