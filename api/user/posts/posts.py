@@ -486,7 +486,7 @@ def get_foreign_inbox(author_url: str):
 
 
 # todo check
-@posts_bp.route("/<string:author_id>/inbox", methods=["POST"])
+@posts_bp.route("/<string:author_id>/inbox/", methods=["POST"])
 @swag_from(
     {
         "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
