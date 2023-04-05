@@ -34,7 +34,7 @@ def create_app(testing_env=False):
     REACT_BUILD_DIR = Path(__file__).parents[1] / "frontend" / "build"
 
     app = Flask(__name__, static_folder=REACT_BUILD_DIR)
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     @app.route("/", defaults={"path": "index.html"})
     @app.route("/<path:path>")
