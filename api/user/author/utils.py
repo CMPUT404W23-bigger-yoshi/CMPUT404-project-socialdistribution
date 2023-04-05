@@ -30,10 +30,12 @@ async def retrieve_authors_from_single_endpoint(client: httpx.AsyncClient, endpo
     endpoint_headers = auth_header_for_url(endpoint)
     logger.debug(f"/authors request: {endpoint=} {endpoint_headers=}")
     try:
-        resp = await cache_request.get(client, endpoint, headers=endpoint_headers, follow_redirects=True, timeout=2)
+        resp = await cache_request.get(
+            client, endpoint, headers=endpoint_headers, follow_redirects=True, timeout=2, params={"size": 100}
+        )
         if resp.status_code != 200:
             logger.warning(f"non-200 resp from {endpoint=}: {resp.status_code=}")
-    except (httpx.ReadTimeout, httpx.ConnectTimeout) as e:
+    except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.ConnectError) as e:
         logger.error(f"failed to get {endpoint=} {e=}")
         return []
     except Exception as e:
