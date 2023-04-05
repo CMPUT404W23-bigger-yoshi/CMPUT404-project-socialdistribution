@@ -174,7 +174,7 @@ const Post = (props) => {
       <div className="post">
         <div className="post-container">
           <Row className="post-header">
-            <Col md={6} xs={12}>
+            <Col md={12} xs={12}>
               <div className="post-info">
                 <img
                   src={
