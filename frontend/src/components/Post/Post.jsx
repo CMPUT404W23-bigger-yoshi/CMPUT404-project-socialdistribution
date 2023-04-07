@@ -250,8 +250,10 @@ const Post = (props) => {
                 <Button variant="dark" onClick={handleLike}>
                   <HeartFill
                     fill={
-                      likes?.find((like) => like.author.id === userDetails.id) ||
-                        likes?.find((like) => like.author.url === userDetails.id)
+                      likes?.find(
+                        (like) => like.author.id === userDetails.id
+                      ) ||
+                      likes?.find((like) => like.author.url === userDetails.id)
                         ? '#fb3958'
                         : 'white'
                     }
