@@ -39,9 +39,8 @@
   cursor: pointer;
 }
 
-.post .post-header .post-info .post-info-author .post-date {
-  visibility: hidden;
-  font-size: 0.8rem;
+.post .post-header .post-info .post-info-author .post-host {
+  font-size: 1rem;
   font-weight: bold;
   color: lightgray;
 }

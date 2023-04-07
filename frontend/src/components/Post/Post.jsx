@@ -196,8 +196,8 @@ const Post = (props) => {
                     }}
                   >
                     {post.author.displayName || post.author.username}{' '}
-                    <span className="post-date">
-                      • {formatDate(post.published)}
+                    <span className="post-host">
+                      • {post.author.host}
                     </span>
                   </div>
                   <div className="post-visibility">{post.visibility}</div>
