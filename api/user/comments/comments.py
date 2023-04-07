@@ -71,8 +71,44 @@ def get_comments(author_id: str, post_id: str):
 
 
 @comments_bp.route("/<string:author_id>/posts/<string:post_id>/comments", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Comments"],
+        "description": "Create a new comment on the post with the post_id and authored by the user with author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "The ID of the author of the post.",
+            },
+            {
+                "in": "path",
+                "name": "post_id",
+                "type": "string",
+                "required": "true",
+                "description": "The ID of the post.",
+            },
+            {
+                "in": "body",
+                "name": "body",
+                "description": "JSON object representing the new comment",
+                "schema": comment_schema,
+            },
+        ],
+        "responses": {
+            200: {"description": "Commented successfully"},
+            400: {"description": "Bad request."},
+            401: {"description": "Unauthorized. Login required to post comment."},
+        },
+    }
+)
 @login_required
 def post_comment(author_id: str, post_id: str):
+    """
+    Create a new comment on the post with the post_id and authored by the user with author_id
+    """
     data = request.json
 
     try:
