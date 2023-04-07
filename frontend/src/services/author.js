@@ -76,11 +76,11 @@ export const checkFollowing = async (authorUrl, foreignAuthorUrl) => {
     );
     return res.data;
   }
-  const encoded = encodeURIComponent(
-    `${foreignAuthorUrl}/followers/${authorUrl}`
-  );
+  const encoded = encodeURIComponent(`${foreignAuthorUrl}/followers/`);
   const res = await axios.get(`/authors/foreign-inbox/${encoded}`);
-  return res.data;
+  return {
+    found: res.data.items.some((item) => item.id === authorUrl)
+  };
 };
 
 export const sendFollowRequest = async (follower, toFollow) => {
