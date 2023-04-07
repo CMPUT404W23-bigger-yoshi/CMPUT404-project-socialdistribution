@@ -50,7 +50,7 @@ def modify_config():
     node_limit = form_data.get("Node-limit")
 
     if api_protect is not None:
-        API_CONFIG.set_api_protection(api_protect)
+        API_CONFIG.set_api_protection(api_protect == "true")
     if author_auto is not None:
         # I'm sorry. this is the dumbest thing. why would it ever be a string type. WHY!
         API_CONFIG.set_author_approval(author_auto == "true")
