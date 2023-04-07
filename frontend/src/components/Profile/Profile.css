@@ -52,6 +52,15 @@
   text-align: center;
 }
 
+.profile-host h3 {
+  text-align: center;
+  color: #cbcaca;
+  font-family: 'Roboto', sans-serif;
+  font-weight: normal;
+  font-size: 1.25rem;
+  margin-bottom: 30px;
+}
+
 .profile-name h1 {
   padding: 20px;
   font-size: 2rem;

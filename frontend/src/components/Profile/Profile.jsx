@@ -112,6 +112,9 @@ const Profile = ({ authorUrl }) => {
             <div className="profile-name">
               <h1>{user.displayName || user.username}</h1>
             </div>
+            <div className="profile-host">
+              <h3>{user.host}</h3>
+            </div>
             <div className="profile-follow-stats">
               <Row className="profile-follow-stats-row" xs={1}>
                 <Col className="px-4">
