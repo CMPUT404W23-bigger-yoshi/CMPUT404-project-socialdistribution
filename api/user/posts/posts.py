@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 )
 @basic_auth.required
 def get_post(author_id: str, post_id: str):
-    """Get the public post whose id is post_id from author with id author_id"""
+    """Get the public post whose id is post_id from author with id author_id."""
     author = Author.query.filter_by(id=author_id).first_or_404()
     post_search = Post.query.filter_by(id=post_id, author=author.id).first_or_404()
 
@@ -53,12 +53,31 @@ def get_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Update the post with id post_id authored by author_id. The authenticated user must be the author of the post.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the post to update"},
+        ],
+        "requestBody": {
+            "description": "JSON object containing columns to be updated as key-value pairs",
+            "required": True,
+        },
+        "responses": {
+            201: {"description": "Post edited successfully.", "schema": post_schema},
+            400: {
+                "description": "Cannot update post id after post has been created, or cannot update author after post has been created."
+            },
+            404: {"description": "Author not found or Post not found"},
+        },
+    }
+)
 @login_required
 def edit_post(author_id: str, post_id: str):
     """
-    Update the post whose id is POST_ID (must be authenticated) ie the person
-    editing the post must be the author of the post.
-    json received must have all columns to be updated as key value pairs
+    Update the post with id post_id authored by author_id. The authenticated user must be the author of the post.
     """
     # TODO handle authentication
     data = request.json
@@ -93,9 +112,25 @@ def edit_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["DELETE"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Remove the post with id post_id authored by author_id. The authenticated user must be the author of the post.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the post to delete"},
+        ],
+        "responses": {
+            200: {"description": "Post deleted successfully."},
+            404: {"description": "Author not found or Post not found"},
+        },
+    }
+)
 @login_required
 def delete_post(author_id: str, post_id: str):
-    """remove the post whose id is post_id"""
+    """
+    Remove the post with id post_id authored by author_id. The authenticated user must be the author of the post.
+    """
     # todo author can remove post from it's own inbox this will be achieved
     #  by authenticating that logged in user is author itself
     author = Author.query.filter_by(id=author_id).first_or_404()
@@ -107,11 +142,29 @@ def delete_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>", methods=["PUT"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Create a new post with id post_id authored by author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the new post to create"},
+        ],
+        "requestBody": {
+            "description": "JSON object containing the properties of the new post",
+            "required": True,
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PostSchema"}}},
+        },
+        "responses": {
+            201: {"description": "Successfully created new post", "schema": post_schema},
+            400: {"description": "Failed to create post"},
+        },
+    }
+)
 @login_required
 def create_post(author_id: str, post_id: str):
     """
-    Create a new post where its id is post_id.
-    Post does not have comments yet.
+    Create a new post with id post_id authored by author_id.
     """
     post = make_post_local(request.json, author_id, post_id)
     if post is None:
@@ -127,14 +180,23 @@ def create_post(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/", methods=["POST"])
+@swag_from(
+    {
+        "tags": ["Posts"],
+        "description": "Creates a new post with a generated ID.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "ID of the author of the post."},
+        ],
+        "responses": {
+            201: {"description": "Post created successfully.", "schema": post_schema},
+            400: {"description": "Failed to create post."},
+        },
+    }
+)
 @login_required
 def create_post_auto_gen_id(author_id: str):
     """
     Create a new post but generate a new id.
-    Arguments:
-        author_id: object id of the local/remote author who made or re-shared the post.
-
-    The author id/url in the json body is author
     """
     # todo put this in a function repeated code
     post = make_post_local(request.json, author_id)
@@ -292,8 +354,27 @@ def get_likes(author_id: str, post_id: str):
 
 
 @posts_bp.route("/<string:author_id>/posts/<string:post_id>/comments/<string:comment_id>/likes", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Likes"],
+        "description": "Get likes on the comment with comment_id, for post with post_id written by the author with author_id.",
+        "parameters": [
+            {"in": "path", "name": "author_id", "description": "Id of the author of the post"},
+            {"in": "path", "name": "post_id", "description": "Id of the post containing the comment"},
+            {"in": "path", "name": "comment_id", "description": "Id of the comment to get likes for"},
+        ],
+        "responses": {
+            200: {"description": "Likes fetched successfully", "schema": likes_schema},
+            401: {"description": "Unauthorized access"},
+            404: {"description": "Author, post or comment not found on our server"},
+        },
+    }
+)
 @basic_auth.required
 def get_comment_likes(author_id: str, post_id: str, comment_id: str):
+    """
+    Get likes on the comment with comment_id for the post with post_id written by the author with author_id.
+    """
     # Author, post must exist on our server otherwise invalid request
     comment = Comment.query.filter_by(id=comment_id).first_or_404()
 
@@ -352,9 +433,7 @@ def get_comment_likes(author_id: str, post_id: str, comment_id: str):
 @basic_auth.required
 def get_author_likes(author_id: str):
     """
-    List what PUBLIC things author_id liked.
-
-    It’s a list of of likes originating from this author
+    Returns a list of objects liked by author with author_id
     """
     # Again author must exist on our server
     author = Author.query.filter_by(id=author_id).first_or_404()
@@ -380,6 +459,37 @@ def get_author_likes(author_id: str):
 
 
 @posts_bp.route("/<string:author_id>/inbox", methods=["GET"])
+@swag_from(
+    {
+        "tags": ["Inbox"],
+        "description": "Get a list of posts sent to a specific author (paginated).",
+        "parameters": [
+            {"in": "path", "name": "author_id", "required": "true", "description": "author_id of author."},
+        ],
+        "responses": {
+            200: {"description": "List of posts sent to the author successfully retrieved.", "schema": inbox_schema},
+            404: {"description": "Author with the given author_id is not found."},
+        },
+    }
+)
+@login_required
+def get_inbox(author_id: str):
+    """Get a list of posts sent to author_id (paginated)."""
+
+    author = Author.query.filter_by(id=author_id).first_or_404()
+
+    posts = (
+        Post.query.filter(Post.unlisted == False)
+        .join(inbox_table)
+        .filter(inbox_table.c.meant_for == author_id)
+        .order_by(desc(Post.published))
+        .paginate(**get_pagination_params().dict)
+        .items
+    )
+
+    return {"type": "posts", "items": [post.getJSON() for post in posts]}, 200
+
+
 @login_required
 def get_inbox(author_id: str):
     """if authenticated get a list of posts sent to author_id (paginated)"""
@@ -426,6 +536,9 @@ def get_inbox(author_id: str):
 )
 @basic_auth.required
 def post_foreign_inbox(author_url: str):
+    """
+    Send a post/like/follow/comment to a foreign author's inbox having id as author_id.
+    """
     # assumption: author_id  will be a fully qualified URL
     parsed = urlparse(author_url)
 
@@ -452,23 +565,22 @@ def post_foreign_inbox(author_url: str):
 @swag_from(
     {
         "tags": ["Posts", "Likes", "Comments", "Follow request", "Inbox"],
-        "description": "Send a like, comment, follow or post to a foreign author's inbox having id as author_id",
+        "description": "Retrieve messages from a foreign author's inbox with author_url",
         "parameters": [
-            {"in": "path", "name": "author_id", "required": "true", "description": "Id of the recepient author"},
             {
-                "in": "body",
+                "in": "path",
+                "name": "author_url",
                 "required": "true",
-                "schema": inbox_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
-                "description": "Object to be sent to inbox",
+                "description": "URL of the recipient author's inbox",
             },
         ],
         "responses": {
-            201: {
-                "description": "Post/follow/like/comment sent to inbox successfully",
-                "schema": {"properties": {"message": {"type": "string", "example": "Post created successfully"}}},
+            200: {
+                "description": "Messages retrieved successfully",
+                "schema": {"type": "object", "properties": {"messages": {"type": "array", "items": inbox_schema}}},
             },
             400: {
-                "description": "Request body contains invalid data.",
+                "description": "Request contains invalid data.",
                 "schema": {"properties": {"message": {"type": "string", "example": "Invalid data"}}},
             },
         },
@@ -476,6 +588,9 @@ def post_foreign_inbox(author_url: str):
 )
 @basic_auth.required
 def get_foreign_inbox(author_url: str):
+    """
+    Retrieve messages from a foreign author's inbox with author_url
+    """
     # assumption: author_id  will be a fully qualified URL
     parsed = urlparse(author_url)
     if not all([parsed.scheme, parsed.netloc]):
@@ -563,9 +678,25 @@ def post_inbox(author_id: str):
 
 # todo check
 @posts_bp.route("/<string:author_id>/inbox", methods=["DELETE"])
+@swag_from(
+    {
+        "tags": ["Inbox"],
+        "summary": "Clear the inbox",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "description": "The ID of the author whose inbox will be cleared",
+                "required": "true",
+                "schema": {"type": "string"},
+            }
+        ],
+        "responses": {"200": {"description": "Inbox cleared successfully"}, "404": {"description": "Author not found"}},
+    }
+)
 @login_required
 def clear_inbox(author_id: str):
-    """clear the inbox"""
+    """Clear the inbox for author_id"""
     #  todo authenticate self
     statement = inbox_table.delete().where(inbox_table.c.meant_for == author_id)
     db.session.execute(statement)

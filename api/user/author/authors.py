@@ -80,7 +80,35 @@ def get_single_author(author_id: str):
 
 @authors_bp.route("/<string:author_id>", methods=["POST"])
 @login_required
+@swag_from(
+    {
+        "tags": ["Authors"],
+        "description": "Update info of author with id author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "The id of author to update",
+            },
+            {
+                "in": "body",
+                "required": "true",
+                "schema": author_schema,  # {"oneOf": [post_schema, like_schema, comment_schema, follow_schema]},
+                "description": "The updated author object",
+            },
+        ],
+        "responses": {
+            200: {"description": "Returns the updated author object", "schema": author_schema},
+            401: {"description": "Unauthorized"},
+            404: {"description": "Author not found"},
+            409: {"description": "Username already exists. Try some other name."},
+        },
+    }
+)
 def update_author(author_id: str):
+    """Update info of author with id author_id"""
     # Logged in author can only update their own profile
     if current_user.id != author_id:
         return {"message": "Unauthorized"}, 401

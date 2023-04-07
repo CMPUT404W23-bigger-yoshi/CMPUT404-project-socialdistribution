@@ -82,9 +82,35 @@ def followers_count(author_id: str):
 
 
 @followers_bp.route("/<string:author_id>/followers/<path:follower_url>", methods=["DELETE"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Remove follower with follower_url from the followers list of author with author_id",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "author_id",
+                "type": "string",
+                "required": "true",
+                "description": "The ID of the author whose followers list the follower is being removed from",
+            },
+            {
+                "in": "path",
+                "name": "follower_url",
+                "type": "string",
+                "required": "true",
+                "description": "The URL of the follower being removed",
+            },
+        ],
+        "responses": {
+            200: {"description": "Success"},
+            404: {"description": "Either author or follower not found"},
+        },
+    }
+)
 @login_required
 def remove_follower(author_id: str, follower_url: str):
-    """remove foreign_author_id as a follower of author_id"""
+    """Remove follower with follower_url from the followers list of author with author_id"""
     found_author = Author.query.filter_by(id=author_id).first_or_404()
     print(found_author)
     islocal = LocalFollower.query.filter_by(followed_url=found_author.url, follower_url=follower_url).first()
@@ -104,6 +130,33 @@ def remove_follower(author_id: str, follower_url: str):
 
 
 @followers_bp.route("/<string:followed_id>/followers/<path:follower_id>", methods=["PUT"])
+@swag_from(
+    {
+        "tags": ["Followers"],
+        "description": "Add a follower to a given author",
+        "parameters": [
+            {
+                "in": "path",
+                "name": "followed_id",
+                "type": "string",
+                "required": "true",
+                "description": "The ID of the author to whom a follower is being added",
+            },
+            {
+                "in": "path",
+                "name": "follower_id",
+                "type": "string",
+                "required": "true",
+                "description": "The ID of the follower being added",
+            },
+        ],
+        "responses": {
+            200: {"description": "Approved local follower!"},
+            400: {"description": "The follower is already approved"},
+            404: {"description": "follower already approved or failed to approve existing follow request"},
+        },
+    }
+)
 @login_required
 def add_follower(followed_id: str, follower_id: str):
     """
