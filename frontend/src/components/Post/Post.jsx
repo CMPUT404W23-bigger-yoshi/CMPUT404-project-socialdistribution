@@ -196,9 +196,7 @@ const Post = (props) => {
                     }}
                   >
                     {post.author.displayName || post.author.username}{' '}
-                    <span className="post-date">
-                      • {formatDate(post.published)}
-                    </span>
+                    <span className="post-host">• {post.author.host}</span>
                   </div>
                   <div className="post-visibility">{post.visibility}</div>
                 </div>
@@ -209,11 +207,6 @@ const Post = (props) => {
             </Col>
           </Row>
           <Row className="post-content">
-            {/* The post content will contain the following: */}
-            {/* 1. The post's title */}
-            {/* 2. The post's content */}
-            {/* 3. The post's categories */}
-            {/* 4. The post's image if any */}
             <div className="post-title">
               <h3>{post.title}</h3>
             </div>
@@ -257,7 +250,10 @@ const Post = (props) => {
                 <Button variant="dark" onClick={handleLike}>
                   <HeartFill
                     fill={
-                      likes?.find((like) => like.author.id === userDetails.id)
+                      likes?.find(
+                        (like) => like.author.id === userDetails.id
+                      ) ||
+                      likes?.find((like) => like.author.url === userDetails.id)
                         ? '#fb3958'
                         : 'white'
                     }
